@@ -7,7 +7,7 @@ const SuccessPage = () => {
     const navigate = useNavigate();
 
     const Home =()=>{
-        navigate('/home');
+        navigate('/');
     }
 
     return (
