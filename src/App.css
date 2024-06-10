@@ -117,3 +117,16 @@ footer {
   margin-bottom: 20px;
   padding-bottom: 20px;
 }
+
+select#processSelect {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+select#processSelect option {
+  padding: 10px;
+}

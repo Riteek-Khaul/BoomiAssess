@@ -2,24 +2,81 @@ import React, { useState } from 'react';
 import './App.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Modal from './Modal';
 
 
 function HomePage(){
   const [showExtractPage, setShowExtractPage] = useState(true);
   const [showEvaluatePage, setShowEvaluatePage] = useState(false);
+  const [showMigratePage, setShowMigratePage] = useState(false);
   const [file, setFile] = useState(null);
   const [boomiaccountId, setBoomiAccountId] = useState('');
+  const [processes, setProcesses] = useState([{
+    "@type": "QueryResult",
+    "result": [
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Boomi Integration Basics Demo",
+            "id": "d46c04cb-b6c6-43c8-ad89-911522cd0813"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Boomi Basics Demo Components",
+            "id": "45e8bee4-54e3-4ff1-af5d-d40b268aea77"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Call Odata service and save response to FTP Setver",
+            "id": "5332077a-e775-4c0a-9db0-814d076951fc"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Disc to SFTP",
+            "id": "7b7536d0-9cf3-48ed-9c61-0189e764e0a2"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Encode and Decode Input Data",
+            "id": "44ff882a-ed5a-42f3-84c9-24a80584d81a"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Call Soap Service",
+            "id": "a87e186f-4c50-4ffb-8300-956159c1d10d"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "MM_with_Function",
+            "id": "6c6c1231-595e-4b50-9922-6943dcfab5cf"
+        },
+        {
+            "@type": "Process",
+            "IntegrationPack": [],
+            "name": "Fetch Process Metadata with ATMAPIs",
+            "id": "24cb4878-df2c-420c-aeab-553edbf34071"
+        }
+    ],
+    "numberOfResults": 8
+}]);
+  const [selectedProcess, setSelectedProcess] = useState('');
+  const [showModal, setShowModal] = useState(true);
+
+  const openModal = () => setShowModal(true);
+  const closeModal = () => setShowModal(false);
 
   const navigate = useNavigate();
 
   const showPage = (page) => {
-    if (page === 'extractPage') {
-      setShowExtractPage(true);
-      setShowEvaluatePage(false);
-    } else if (page === 'evaluatePage') {
-      setShowEvaluatePage(true);
-      setShowExtractPage(false);
-    }
+    setShowExtractPage(page === 'extractPage');
+    setShowEvaluatePage(page === 'evaluatePage');
+    setShowMigratePage(page === 'migratePage');
   };
 
   const handleAccountIdChange = (event) => {
@@ -141,6 +198,67 @@ function HomePage(){
     setFile(event.target.files[0]);
   };
 
+  const getProcesses = async () => {
+    if (boomiaccountId) {
+      alert(`Fetching processes for Account ID: ${boomiaccountId}`);
+      try {
+        const url = `https://api.boomi.com/api/rest/v1/${boomiaccountId}/Process/query`;
+        const response = await axios.post(url, {
+          headers: {
+            'Authorization':'Basic YW5rdXIudGhha3JlQGNyYXZlaW5mb3RlY2guY29tOlJRV2hkX2s2NEQjdUNuVw==',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          mode:'no-cors'
+        });
+        setProcesses(response.data);
+      } catch (error) {
+        console.error('Error fetching processes:', error);
+        alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+      }
+    } else {
+      alert('Please enter Boomi Account ID.');
+    }
+  };
+
+  const Next = async () => {
+    if (boomiaccountId) {
+      alert(`Fetching processes for Account ID: ${boomiaccountId}`);
+      try {
+        const url = `https://api.boomi.com/api/rest/v1/${boomiaccountId}/Process/query`;
+        const response = await axios.post(url, {
+          headers: {
+            'Authorization':'Basic YW5rdXIudGhha3JlQGNyYXZlaW5mb3RlY2guY29tOlJRV2hkX2s2NEQjdUNuVw==',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          mode:'no-cors'
+        });
+        // setProcesses(response.data);
+        openModal();
+      } catch (error) {
+        console.error('Error fetching processes:', error);
+        alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+      }
+    } else {
+      alert('Please enter Boomi Account ID.');
+    }
+  };
+
+  const handleProcessChange = (event) => {
+    setSelectedProcess(event.target.value);
+  };
+
+  const customData = {
+    title: 'Rest to SFTP',
+    content: 'This is some custom content for the modal.'
+  };
+
+
+  //console.log(selectedProcess)
+
 
   return (
     <div className="App">
@@ -151,7 +269,11 @@ function HomePage(){
         <button id="evaluateButton" onClick={() => showPage('evaluatePage')}>
           Evaluate
         </button>
+        <button id="migrateButton" onClick={() => showPage('migratePage')}>
+          Migrate
+        </button>
       </div>
+
 
       <div id="heading" className="heading">
         <h1>BoomiAsses by <img src="logo.png" alt="Company Logo" className="logo" /></h1>
@@ -183,6 +305,34 @@ function HomePage(){
           </button>
         </div>
       )}
+
+{showMigratePage && (
+  <div id="migratePage" className="page">
+    <h2>Migrate Processes</h2>
+    {processes.length === 0 && (
+      <>
+        <label htmlFor="boomiAccountId">Boomi Account ID:</label>
+        <input type="text" id="boomiAccountId" placeholder="Enter Boomi Account ID" value={boomiaccountId} onChange={handleAccountIdChange} />
+        <button onClick={getProcesses}>Fetch All Processes</button>
+      </>
+    )}
+    {processes.length > 0 && (
+      <div>
+        <label htmlFor="processSelect">Select Process: ( Total : {processes[0].numberOfResults} )</label>
+        <select id="processSelect" value={selectedProcess} onChange={handleProcessChange}>
+          <option value="">--Select a process--</option>
+          {processes[0].result.map((process, index) => (
+            <option key={index} value={process.id}>
+              {process.name}
+            </option>
+          ))}
+        </select>
+        <button onClick={Next}>Next</button>
+        <Modal showModal={showModal} handleClose={closeModal} customData={customData} />
+      </div>
+    )}
+  </div>
+)}
 
       <div id="note" className="note">
         <p>
