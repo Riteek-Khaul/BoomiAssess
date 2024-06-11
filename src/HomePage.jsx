@@ -11,62 +11,10 @@ function HomePage(){
   const [showMigratePage, setShowMigratePage] = useState(false);
   const [file, setFile] = useState(null);
   const [boomiaccountId, setBoomiAccountId] = useState('');
-  const [processes, setProcesses] = useState([{
-    "@type": "QueryResult",
-    "result": [
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Boomi Integration Basics Demo",
-            "id": "d46c04cb-b6c6-43c8-ad89-911522cd0813"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Boomi Basics Demo Components",
-            "id": "45e8bee4-54e3-4ff1-af5d-d40b268aea77"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Call Odata service and save response to FTP Setver",
-            "id": "5332077a-e775-4c0a-9db0-814d076951fc"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Disc to SFTP",
-            "id": "7b7536d0-9cf3-48ed-9c61-0189e764e0a2"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Encode and Decode Input Data",
-            "id": "44ff882a-ed5a-42f3-84c9-24a80584d81a"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Call Soap Service",
-            "id": "a87e186f-4c50-4ffb-8300-956159c1d10d"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "MM_with_Function",
-            "id": "6c6c1231-595e-4b50-9922-6943dcfab5cf"
-        },
-        {
-            "@type": "Process",
-            "IntegrationPack": [],
-            "name": "Fetch Process Metadata with ATMAPIs",
-            "id": "24cb4878-df2c-420c-aeab-553edbf34071"
-        }
-    ],
-    "numberOfResults": 8
-}]);
+  const [processes, setProcesses] = useState([]);
   const [selectedProcess, setSelectedProcess] = useState('');
   const [showModal, setShowModal] = useState(true);
+  const [SpecificProcess, setSpecificProcess] = useState();
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -199,18 +147,20 @@ function HomePage(){
   };
 
   const getProcesses = async () => {
-    if (boomiaccountId) {
+    if (boomiaccountId) { 
       alert(`Fetching processes for Account ID: ${boomiaccountId}`);
       try {
-        const url = `https://api.boomi.com/api/rest/v1/${boomiaccountId}/Process/query`;
-        const response = await axios.post(url, {
+        const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallprocesses';
+        const response = await axios.get(url, {
+          params: {
+            boomiaccountId: boomiaccountId
+          },
           headers: {
-            'Authorization':'Basic YW5rdXIudGhha3JlQGNyYXZlaW5mb3RlY2guY29tOlJRV2hkX2s2NEQjdUNuVw==',
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
+
           },
-          mode:'no-cors'
         });
         setProcesses(response.data);
       } catch (error) {
@@ -223,20 +173,22 @@ function HomePage(){
   };
 
   const Next = async () => {
-    if (boomiaccountId) {
-      alert(`Fetching processes for Account ID: ${boomiaccountId}`);
+    if (selectedProcess) {
+      alert(`Fetching processes for Process ID: ${selectedProcess}`);
       try {
-        const url = `https://api.boomi.com/api/rest/v1/${boomiaccountId}/Process/query`;
-        const response = await axios.post(url, {
+        const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getspecificprocess';
+        const response = await axios.get(url, {
+          params: {
+            boomiaccountId: boomiaccountId,
+            selectedProcess: selectedProcess
+          },
           headers: {
-            'Authorization':'Basic YW5rdXIudGhha3JlQGNyYXZlaW5mb3RlY2guY29tOlJRV2hkX2s2NEQjdUNuVw==',
-            'Accept': 'application/json',
+            'Accept': '*/*',
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
           },
-          mode:'no-cors'
         });
-        // setProcesses(response.data);
+        setSpecificProcess(response.data);
         openModal();
       } catch (error) {
         console.error('Error fetching processes:', error);
@@ -257,7 +209,9 @@ function HomePage(){
   };
 
 
-  //console.log(selectedProcess)
+  console.log(selectedProcess)
+//  console.log(processes)
+  console.log(SpecificProcess)
 
 
   return (
@@ -316,19 +270,19 @@ function HomePage(){
         <button onClick={getProcesses}>Fetch All Processes</button>
       </>
     )}
-    {processes.length > 0 && (
+    {processes && (
       <div>
-        <label htmlFor="processSelect">Select Process: ( Total : {processes[0].numberOfResults} )</label>
+        <label htmlFor="processSelect">Select Process: ( Total : {processes.numberOfResults} )</label>
         <select id="processSelect" value={selectedProcess} onChange={handleProcessChange}>
           <option value="">--Select a process--</option>
-          {processes[0].result.map((process, index) => (
+          {processes.result.map((process, index) => (
             <option key={index} value={process.id}>
               {process.name}
             </option>
           ))}
         </select>
         <button onClick={Next}>Next</button>
-        <Modal showModal={showModal} handleClose={closeModal} customData={customData} />
+        <Modal showModal={showModal} handleClose={closeModal} customData={customData} SpecificProcess={SpecificProcess} />
       </div>
     )}
   </div>
