@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 function CreateFiles() {
   const [MetaInfofileContent, setMetaInfoFileContent] = useState('');
@@ -104,6 +105,23 @@ function CreateFiles() {
     link.click();
   };
 
+  const createZip = () => {
+    const zip = new JSZip();
+    
+    // Create folders and add files
+    zip.file("metaifo.prop", MetaInfofileContent);
+    zip.file(".project", projectxmlFile);
+    zip.folder("src").folder("main").folder("resources").folder("scenarioflows").folder("integrationflow").file(`${dynamicName}.iflw`, iflowXML);
+    zip.folder("META-INF").file("MANIFEST.MF", MFContent);
+    zip.folder("src").folder("main").folder("resources").file("parameters.prop", PM1Content)
+    zip.folder("src").folder("main").folder("resources").file("parameters.propdef", PM2Content)
+
+    // Generate the zip file and trigger download
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      saveAs(content, `${dynamicName}.zip`);
+    });
+  };
+
   return (
     <div>
       <button onClick={handleMetaInfoDownload}> metaifo.prop</button>
@@ -118,6 +136,8 @@ function CreateFiles() {
         onChange={(e) => setDynamicName(e.target.value)}
         placeholder="Enter a dynamic name"
       />
+
+     <button onClick={createZip}>Download ZIP</button>
     </div>
   );
 }
