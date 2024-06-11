@@ -203,12 +203,6 @@ function HomePage(){
     setSelectedProcess(event.target.value);
   };
 
-  const customData = {
-    title: 'Rest to SFTP',
-    content: 'This is some custom content for the modal.'
-  };
-
-
   console.log(selectedProcess)
 //  console.log(processes)
   console.log(SpecificProcess)
@@ -282,7 +276,7 @@ function HomePage(){
           ))}
         </select>
         <button onClick={Next}>Next</button>
-        <Modal showModal={showModal} handleClose={closeModal} customData={customData} SpecificProcess={SpecificProcess} />
+        <Modal showModal={showModal} handleClose={closeModal} SpecificProcess={SpecificProcess} />
       </div>
     )}
   </div>

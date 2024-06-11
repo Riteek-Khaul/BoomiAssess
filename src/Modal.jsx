@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Modal.css";
 
-const Modal = ({ showModal, handleClose, customData, SpecificProcess }) => {
+const Modal = ({ showModal, handleClose, SpecificProcess }) => {
 
 
   const [firstPart, setFirstPart] = useState([]);
