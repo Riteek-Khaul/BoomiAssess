@@ -11,7 +11,7 @@ function HomePage(){
   const [showMigratePage, setShowMigratePage] = useState(false);
   const [file, setFile] = useState(null);
   const [boomiaccountId, setBoomiAccountId] = useState('');
-  const [processes, setProcesses] = useState([]);
+  const [processes, setProcesses] = useState({ type: 'QueryResult', numberOfResults: 0, result: [] });
   const [selectedProcess, setSelectedProcess] = useState('');
   const [showModal, setShowModal] = useState(true);
   const [SpecificProcess, setSpecificProcess] = useState();
@@ -254,33 +254,48 @@ function HomePage(){
         </div>
       )}
 
-{showMigratePage && (
-  <div id="migratePage" className="page">
-    <h2>Migrate Processes</h2>
-    {processes.length === 0 && (
-      <>
-        <label htmlFor="boomiAccountId">Boomi Account ID:</label>
-        <input type="text" id="boomiAccountId" placeholder="Enter Boomi Account ID" value={boomiaccountId} onChange={handleAccountIdChange} />
-        <button onClick={getProcesses}>Fetch All Processes</button>
-      </>
-    )}
-    {processes && (
-      <div>
-        <label htmlFor="processSelect">Select Process: ( Total : {processes.numberOfResults} )</label>
-        <select id="processSelect" value={selectedProcess} onChange={handleProcessChange}>
-          <option value="">--Select a process--</option>
-          {processes.result.map((process, index) => (
-            <option key={index} value={process.id}>
-              {process.name}
-            </option>
-          ))}
-        </select>
-        <button onClick={Next}>Next</button>
-        <Modal showModal={showModal} handleClose={closeModal} SpecificProcess={SpecificProcess} />
-      </div>
-    )}
-  </div>
-)}
+{
+  showMigratePage && (
+    <div id="migratePage" className="page">
+      <h2>Migrate Processes</h2>
+      {processes.result.length === 0 ? (
+        <>
+          <label htmlFor="boomiAccountId">Boomi Account ID:</label>
+          <input
+            type="text"
+            id="boomiAccountId"
+            placeholder="Enter Boomi Account ID"
+            value={boomiaccountId}
+            onChange={handleAccountIdChange}
+          />
+          <button onClick={getProcesses}>Fetch All Processes</button>
+        </>
+      ) : (
+        <div>
+          <label htmlFor="processSelect">Select Process: ( Total : {processes.numberOfResults} )</label>
+          <select
+            id="processSelect"
+            value={selectedProcess}
+            onChange={handleProcessChange}
+          >
+            <option value="">--Select a process--</option>
+            {processes.result.map((process, index) => (
+              <option key={index} value={process.id}>
+                {process.name}
+              </option>
+            ))}
+          </select>
+          <button onClick={Next}>Next</button>
+          <Modal
+            showModal={showModal}
+            handleClose={closeModal}
+            SpecificProcess={SpecificProcess}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
 
       <div id="note" className="note">
         <p>

@@ -2,26 +2,24 @@ import React, { useState, useEffect } from "react";
 import "./Modal.css";
 
 const Modal = ({ showModal, handleClose, SpecificProcess }) => {
-
-
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
-
 
   const Migrate = () => {
     alert("Process Migrated Successfully!");
     handleClose();
   };
 
-  useEffect(() => { 
+  useEffect(() => {
+    if (SpecificProcess) {
+      const parts = SpecificProcess.split('\n\n');
+      const firstPartData = parts[0]?.split('\n').map(line => line.split(',')) || [];
+      const secondPartData = parts[1]?.split('\n').map(line => line.split(',')) || [];
 
-    const parts = SpecificProcess.split('\n\n');
-    const firstPartData = parts[0].split('\n').map(line => line.split(','));
-    const secondPartData = parts[1].split('\n').map(line => line.split(','));
-
-    setFirstPart(firstPartData);
-    setSecondPart(secondPartData);
-   }, []);
+      setFirstPart(firstPartData);
+      setSecondPart(secondPartData);
+    }
+  }, [SpecificProcess]);
 
   return (
     <>
@@ -29,17 +27,16 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3>Migrating : {secondPart[1][1]} </h3>
+              <h3>Migrating: {secondPart[1] && secondPart[1][1]} </h3>
               <button className="close-button" onClick={handleClose}>
                 &times;
               </button>
             </div>
             <div className="modal-content">
               <p>
-                <span>Used Shapes / Connectors (Boomi) |</span>{" "}
+                <span>Used Shapes / Connectors (Boomi) | </span>
                 <span>CPI Alternatives </span>
               </p>
-
               <table border="1">
                 <thead>
                   <tr>
@@ -59,12 +56,11 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
                   ))}
                 </tbody>
               </table>
-
             </div>
             <p>
-              Note : Resources like Message mappings/User
-              Credentials/certificates are not directly migrted in this process,
-              need manual intervension.
+              Note: Resources like Message mappings/User
+              Credentials/certificates are not directly migrated in this process,
+              need manual intervention.
             </p>
             <div className="modal-footer">
               <button onClick={handleClose} id="cancelbtn">
