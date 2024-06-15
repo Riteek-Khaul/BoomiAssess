@@ -72,3 +72,10 @@
    background-color: orangered;
    margin-right:10px;
   }
+  .tables-container {
+    display: flex;
+  }
+  .connectorTable{
+    margin-left: 10px;
+  }
+  

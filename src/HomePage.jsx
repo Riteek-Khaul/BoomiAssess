@@ -13,7 +13,7 @@ function HomePage(){
   const [boomiaccountId, setBoomiAccountId] = useState('');
   const [processes, setProcesses] = useState({ type: 'QueryResult', numberOfResults: 0, result: [] });
   const [selectedProcess, setSelectedProcess] = useState('');
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [SpecificProcess, setSpecificProcess] = useState();
 
   const openModal = () => setShowModal(true);

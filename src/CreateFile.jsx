@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import {SourceXMl} from './CPISourceXML';
 
 function CreateFiles() {
   const [MetaInfofileContent, setMetaInfoFileContent] = useState('');
   const [MFContent, setMFContent] = useState('');
   const [projectxmlFile, setProjectXmlFile] = useState(null);
-  const [dynamicName, setDynamicName] = useState('');
+  const [dynamicName, setDynamicName] = useState('Test01');
   const [PM1Content, setPM1Content] = useState('');
   const [PM2Content, setPM2Content] = useState('');
   const [iflowXML, setIflowXML] = useState('');
@@ -29,87 +30,45 @@ function CreateFiles() {
     const seconds = currentDate.getSeconds();
 
     const formattedDateTime = `${day} ${month} ${date} ${hours}:${minutes}:${seconds} UTC ${year}`;
-    const MIfileContent = `#Store metaifo properties\n#${formattedDateTime}\ndescription\n`;
+    const MIfileContent = `#Store metainfo properties\n#${formattedDateTime}\ndescription\n`;
     const blob = new Blob([MIfileContent], { type: 'text/plain' });
     setMetaInfoFileContent(blob);
 
     const PM1 = `#${formattedDateTime}`;
     const blob1 = new Blob([PM1], { type: 'text/plain' });
     setPM1Content(blob1)
-  }, [MetaInfofileContent,PM1Content]);
+  }, []);
 
 
   useEffect(() => {
     const xmlContent =TemplateData.projectData;
     const blob = new Blob([xmlContent], { type: 'text/xml' });
     setProjectXmlFile(blob);
-  }, [dynamicName]);
+  }, []);
 
   useEffect(() => {
     const xmlContent =TemplateData.parameters;
     const blob = new Blob([xmlContent], { type: 'text/xml' });
     setPM2Content(blob);
-  }, [dynamicName]);
+  }, []);
 
   useEffect(() => {
     const MFfileContent =TemplateData.manifestdata;
     const blob = new Blob([MFfileContent], { type: 'text/xml' });
     setMFContent(blob);
-  }, [dynamicName]);
+  }, []);
 
   useEffect(() => {
-    const xmlContent =TemplateData.projectData;
+    const xmlContent =SourceXMl[0].palleteItems.iflow;
     const blob = new Blob([xmlContent], { type: 'text/xml' });
     setIflowXML(blob);
-  }, [dynamicName]);
-
-  const handleMetaInfoDownload = () => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(MetaInfofileContent);
-    link.download = 'metaifo.prop';
-    link.click();
-  };
-
-  const handlePM1Download = () => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(PM1Content);
-    link.download = 'parameters.prop';
-    link.click();
-  };
-
-  const handlePM2Download = () => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(PM2Content);
-    link.download = 'parameters.propdef';
-    link.click();
-  };
-
-  const handleProjectXMLDownload = () => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(projectxmlFile);
-    link.download = `${dynamicName}.project`;
-    link.click();
-  };
-
-  const handleMFDownload = () => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(MFContent);
-    link.download = `${dynamicName}.MF`;
-    link.click();
-  };
-
-  const handleIflowXMLDownload = () => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(iflowXML);
-    link.download = `${dynamicName}.iflw`;
-    link.click();
-  };
+  }, []);
 
   const createZip = () => {
     const zip = new JSZip();
     
     // Create folders and add files
-    zip.file("metaifo.prop", MetaInfofileContent);
+    zip.file("metainfo.prop", MetaInfofileContent);
     zip.file(".project", projectxmlFile);
     zip.folder("src").folder("main").folder("resources").folder("scenarioflows").folder("integrationflow").file(`${dynamicName}.iflw`, iflowXML);
     zip.folder("META-INF").file("MANIFEST.MF", MFContent);
@@ -118,25 +77,20 @@ function CreateFiles() {
 
     // Generate the zip file and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {
+      const base64Zip = btoa(String.fromCharCode.apply(null, new Uint8Array(content)));
       saveAs(content, `${dynamicName}.zip`);
     });
   };
 
+
   return (
     <div>
-      <button onClick={handleMetaInfoDownload}> metaifo.prop</button>
-      <button onClick={handleProjectXMLDownload}> ${dynamicName}.project</button>
-      <button onClick={handleMFDownload}> ${dynamicName}.MF</button>
-      <button onClick={handlePM1Download}> parameters.prop</button>
-      <button onClick={handlePM2Download}> parameters.propdef</button>
-      <button onClick={handleIflowXMLDownload}> ${dynamicName}.iflw</button>
       <input
         type="text"
         value={dynamicName}
         onChange={(e) => setDynamicName(e.target.value)}
         placeholder="Enter a dynamic name"
       />
-
      <button onClick={createZip}>Download ZIP</button>
     </div>
   );
