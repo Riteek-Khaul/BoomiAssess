@@ -57,11 +57,12 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
           const actionTypeMatch = configuration.match(/@actionType:([^,]+)/);
           const connectorTypeMatch = configuration.match(/@connectorType:([^,]+)/);
           if (actionTypeMatch && connectorTypeMatch) {
-            const actionType = actionTypeMatch[1].trim();
+            const actionType = actionTypeMatch[1].trim().toUpperCase();
             const connectorType = connectorTypeMatch[1].trim();
-            if (actionType === "GET") {
+
+            if (actionType === "GET" || actionType === "EXECUTE" || actionType === "QUERY") {
               senderConnectors.push(connectorType);
-            } else if (actionType === "Send") {
+            } else if (actionType === "SEND" || actionType === "CREATE" || actionType === "UPDATE" ) {
               receiverConnectors.push(connectorType);
             }
           }

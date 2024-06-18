@@ -24,7 +24,7 @@ export const shapesMappings={
     "route":"router",
     "start":"start",
     "stop":"end",
-    "trycatch":"exceptionSubprocess",
+    "catcherrors":"exceptionSubprocess",
     "setproperties":"contentModifier",
     'cache':"noAlternative",
     "flowcontrol":"parallelMulticast",

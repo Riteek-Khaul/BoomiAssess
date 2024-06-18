@@ -1,10 +1,461 @@
-  export const SourceXMl = [
-    {
-        "palleteItems": {
-            "iflow":`
-<?xml version="1.0" encoding="UTF-8"?><bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:ifl="http:///com.sap.ifl.model/Ifl.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1">
-    <bpmn2:collaboration id="Collaboration_1" name="Default Collaboration">
-       <bpmn2:extensionElements>
+export const SourceXML = [
+  {
+    palleteItems: {
+      contentModifier: `<bpmn2:callActivity id="CallActivity_5" name="Content Modifier 1">
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>bodyType</key>
+                    <value>constant</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>propertyTable</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>headerTable</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>wrapContent</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.6</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>activityType</key>
+                    <value>Enricher</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::FlowstepVariant/cname::Enricher/version::1.6.0</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+            <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+        </bpmn2:callActivity>`,
+      messageMapping: "",
+      RequestReply:`<bpmn2:serviceTask id="ServiceTask_8" name="Request Reply 1">
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>activityType</key>
+                    <value>ExternalCall</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::FlowstepVariant/cname::ExternalCall/version::1.0.4</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
+            <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
+        </bpmn2:serviceTask>`
+    },
+    events:{
+        StartEvent:`<bpmn2:startEvent id="StartEvent_2" name="Start">
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::FlowstepVariant/cname::MessageStartEvent/version::1.0</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+            <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+            <bpmn2:messageEventDefinition/>
+        </bpmn2:startEvent>`,
+        EndEvent:`<bpmn2:endEvent id="EndEvent_2" name="End">
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::FlowstepVariant/cname::MessageEndEvent/version::1.1.0</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
+            <bpmn2:messageEventDefinition/>
+        </bpmn2:endEvent>`  
+    },
+    sequenceFlow:` <bpmn2:sequenceFlow id="SequenceFlow_9" sourceRef="ServiceTask_8" targetRef="EndEvent_2"/>`
+  },
+  {
+    SenderAdaptors: {
+      https: "",
+      sftp: `<bpmn2:messageFlow id="MessageFlow_4" name="SFTP" sourceRef="Participant_1" targetRef="StartEvent_2">
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>disconnect</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>fileName</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>Description</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>maximumReconnectAttempts</key>
+                    <value>3</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>stepwise</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentNS</key>
+                    <value>sap</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>privateKeyAlias</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>location_id</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>recursive</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>Name</key>
+                    <value>SFTP</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>TransportProtocolVersion</key>
+                    <value>1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>flatten</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentSWCVName</key>
+                    <value>external</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>path</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyPort</key>
+                    <value>8080</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>noop</key>
+                    <value>delete</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>doneFileName</key>
+                    <value>{file:name}.done</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>file.move</key>
+                    <value>.archive</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>host</key>
+                    <value>sftp://example.com</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>connectTimeout</key>
+                    <value>10000</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>file_sorting_criteria</key>
+                    <value>sort_by_none</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>maxMessagesPerPoll</key>
+                    <value>20</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>fastExistsCheck</key>
+                    <value>1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>MessageProtocol</key>
+                    <value>File</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentSWCVId</key>
+                    <value>1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>direction</key>
+                    <value>Sender</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>authentication</key>
+                    <value>public_key</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>file_sorting_direction</key>
+                    <value>sort_direction_asc</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentType</key>
+                    <value>SFTP</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>credential_name</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyProtocol</key>
+                    <value>socks5</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>readLock</key>
+                    <value>none</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>idempotentRepository</key>
+                    <value>database</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyType</key>
+                    <value>none</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyAlias</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.13</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>reconnectDelay</key>
+                    <value>1000</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyHost</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>system</key>
+                    <value>Sender</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>scheduleKey</key>
+                    <value>&lt;row&gt;&lt;cell&gt;dayValue&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;monthValue&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;yearValue&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;dateType&lt;/cell&gt;&lt;cell&gt;DAILY&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;secondValue&lt;/cell&gt;&lt;cell&gt;0&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;minutesValue&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;hourValue&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;toInterval&lt;/cell&gt;&lt;cell&gt;24&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;fromInterval&lt;/cell&gt;&lt;cell&gt;0&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;OnEverySecond&lt;/cell&gt;&lt;cell&gt;10&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;timeType&lt;/cell&gt;&lt;cell&gt;TIME_SECOND_INTERVAL&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;timeZone&lt;/cell&gt;&lt;cell&gt;( UTC 0:00 ) Greenwich Mean Time(Etc/GMT)&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;throwExceptionOnExpiry&lt;/cell&gt;&lt;cell&gt;true&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;second&lt;/cell&gt;&lt;cell&gt;0/10&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;minute&lt;/cell&gt;&lt;cell&gt;*&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;hour&lt;/cell&gt;&lt;cell&gt;0-24&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;day_of_month&lt;/cell&gt;&lt;cell&gt;?&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;month&lt;/cell&gt;&lt;cell&gt;*&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;dayOfWeek&lt;/cell&gt;&lt;cell&gt;*&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;year&lt;/cell&gt;&lt;cell&gt;*&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;startAt&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;endAt&lt;/cell&gt;&lt;cell&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;attributeBehaviour&lt;/cell&gt;&lt;cell&gt;isRunOnceRequired,isScheduleOnDayRequired,isScheduleRecurRequired&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;triggerType&lt;/cell&gt;&lt;cell&gt;cron&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;noOfSchedules&lt;/cell&gt;&lt;cell&gt;1&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell&gt;schedule1&lt;/cell&gt;&lt;cell&gt;0/10+*+0-23+?+*+*+*&amp;amp;trigger.timeZone=Etc/GMT&lt;/cell&gt;&lt;/row&gt;</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>allowDeprecatedAlgorithms</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>TransportProtocol</key>
+                    <value>SFTP</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::AdapterVariant/cname::sap:SFTP/tp::SFTP/mp::File/direction::Sender/version::1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>MessageProtocolVersion</key>
+                    <value>1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>file_lock_timeout</key>
+                    <value>15</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>username</key>
+                    <value>ABC</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+        </bpmn2:messageFlow>`,
+      ftp:""
+    },
+    ReceiverAdaptors: {
+        http: "",
+        sftp: `<bpmn2:messageFlow id="MessageFlow_11" name="SFTP" sourceRef="ServiceTask_8" targetRef="Participant_2">
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>disconnect</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>fileName</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>Description</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>maximumReconnectAttempts</key>
+                    <value>3</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>stepwise</key>
+                    <value>1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>fileExist</key>
+                    <value>Override</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentNS</key>
+                    <value>sap</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>autoCreate</key>
+                    <value>1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>privateKeyAlias</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>location_id</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>Name</key>
+                    <value>SFTP</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>TransportProtocolVersion</key>
+                    <value>1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>flatten</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>sftpSecEnabled</key>
+                    <value>1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>useTempFile</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentSWCVName</key>
+                    <value>external</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>path</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyPort</key>
+                    <value>8080</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>host</key>
+                    <value>sftp://example.com</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>connectTimeout</key>
+                    <value>10000</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>fastExistsCheck</key>
+                    <value>1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>MessageProtocol</key>
+                    <value>File</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentSWCVId</key>
+                    <value>1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>direction</key>
+                    <value>Receiver</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>authentication</key>
+                    <value>public_key</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>ComponentType</key>
+                    <value>SFTP</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>fileAppendTimeStamp</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>credential_name</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyProtocol</key>
+                    <value>socks5</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyType</key>
+                    <value>none</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyAlias</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.13</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>reconnectDelay</key>
+                    <value>1000</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>proxyHost</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>system</key>
+                    <value>Receiver</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>tempFileName</key>
+                    <value>{file:name}.tmp</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>allowDeprecatedAlgorithms</key>
+                    <value>0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>TransportProtocol</key>
+                    <value>SFTP</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::AdapterVariant/cname::sap:SFTP/tp::SFTP/mp::File/direction::Receiver/version::1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>MessageProtocolVersion</key>
+                    <value>1.13.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>username</key>
+                    <value>XYZ</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+        </bpmn2:messageFlow>`,
+         ftp:""
+      },
+  },
+  {
+    Collaboration: {
+      ExtensinElements: `<bpmn2:extensionElements>
             <ifl:property>
                 <key>namespaceMapping</key>
                 <value>sampleNamespace</value>
@@ -65,8 +516,10 @@
                 <key>cmdVariantUri</key>
                 <value>ctype::IFlowVariant/cname::IFlowConfiguration/version::1.2.4</value>
             </ifl:property>
-       </bpmn2:extensionElements>
-        <bpmn2:participant id="Participant_1" ifl:type="EndpointSender" name="Sender">
+       </bpmn2:extensionElements>`,
+    },
+    participants: {
+      Sender: `<bpmn2:participant id="Participant_1" ifl:type="EndpointSender" name="Sender">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>enableBasicAuthentication</key>
@@ -77,401 +530,23 @@
                     <value>EndpointSender</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-        </bpmn2:participant>
-        <bpmn2:participant id="Participant_2" ifl:type="EndpointRecevier" name="Receiver">
+        </bpmn2:participant>`,
+      Receiver: `<bpmn2:participant id="Participant_2" ifl:type="EndpointRecevier" name="Receiver">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>ifl:type</key>
                     <value>EndpointRecevier</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-        </bpmn2:participant>
-        <bpmn2:participant id="Participant_Process_1" ifl:type="IntegrationProcess" name="Integration Process" processRef="Process_1">
+        </bpmn2:participant>`,
+      IntegrationProcess: `<bpmn2:participant id="Participant_Process_1" ifl:type="IntegrationProcess" name="Integration Process" processRef="Process_1">
             <bpmn2:extensionElements/>
-        </bpmn2:participant>
-        <bpmn2:messageFlow id="MessageFlow_11" name="HTTP" sourceRef="ServiceTask_8" targetRef="EndEvent_2">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>Description</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>methodSourceExpression</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentNS</key>
-                    <value>sap</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>privateKeyAlias</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>httpMethod</key>
-                    <value>PATCH</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>allowedResponseHeaders</key>
-                    <value>*</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>Name</key>
-                    <value>HTTP</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>TransportProtocolVersion</key>
-                    <value>1.14.0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentSWCVName</key>
-                    <value>external</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyPort</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>enableMPLAttachments</key>
-                    <value>true</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>httpAddressQuery</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>httpRequestTimeout</key>
-                    <value>60000</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>MessageProtocol</key>
-                    <value>None</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentSWCVId</key>
-                    <value>1.14.0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>allowedRequestHeaders</key>
-                    <value>*</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>direction</key>
-                    <value>Receiver</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentType</key>
-                    <value>HTTP</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>httpShouldSendBody</key>
-                    <value>false</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>throwExceptionOnFailure</key>
-                    <value>true</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyType</key>
-                    <value>default</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.14</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyHost</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>system</key>
-                    <value>Receiver</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>authenticationMethod</key>
-                    <value>Client Certificate</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>locationID</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>TransportProtocol</key>
-                    <value>HTTP</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::AdapterVariant/cname::sap:HTTP/tp::HTTP/mp::None/direction::Receiver/version::1.14.0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>credentialName</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>MessageProtocolVersion</key>
-                    <value>1.14.0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>httpAddressWithoutQuery</key>
-                    <value>https://gorest.co.in/public/v2/users/2013</value>
-                </ifl:property>
-            </bpmn2:extensionElements>
-        </bpmn2:messageFlow>
-        <bpmn2:messageFlow id="MessageFlow_4" name="HTTPS" sourceRef="Participant_1" targetRef="StartEvent_2">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>ComponentType</key>
-                    <value>HTTPS</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>Description</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>maximumBodySize</key>
-                    <value>40</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentNS</key>
-                    <value>sap</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.4</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>urlPath</key>
-                    <value>/consume_rest_api_with_patch</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>Name</key>
-                    <value>HTTPS</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>TransportProtocolVersion</key>
-                    <value>1.4.3</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentSWCVName</key>
-                    <value>external</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>system</key>
-                    <value>Sender</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>xsrfProtection</key>
-                    <value>0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>TransportProtocol</key>
-                    <value>HTTPS</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::AdapterVariant/cname::sap:HTTPS/tp::HTTPS/mp::None/direction::Sender/version::1.4.3</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>userRole</key>
-                    <value>ESBMessaging.send</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>senderAuthType</key>
-                    <value>RoleBased</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>MessageProtocol</key>
-                    <value>None</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>MessageProtocolVersion</key>
-                    <value>1.4.3</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentSWCVId</key>
-                    <value>1.4.3</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>direction</key>
-                    <value>Sender</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>clientCertificates</key>
-                    <value/>
-                </ifl:property>
-            </bpmn2:extensionElements>
-        </bpmn2:messageFlow>
-        <bpmn2:messageFlow id="MessageFlow_5" name="SFTP" sourceRef="EndEvent_2" targetRef="Participant_2">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>disconnect</key>
-                    <value>0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>fileName</key>
-                    <value>Modifiedoutput.txt</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>Description</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>maximumReconnectAttempts</key>
-                    <value>3</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>stepwise</key>
-                    <value>1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>fileExist</key>
-                    <value>Override</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentNS</key>
-                    <value>sap</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>autoCreate</key>
-                    <value>1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>privateKeyAlias</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>location_id</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>Name</key>
-                    <value>SFTP</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>TransportProtocolVersion</key>
-                    <value>1.13.1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>flatten</key>
-                    <value>0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>sftpSecEnabled</key>
-                    <value>1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>useTempFile</key>
-                    <value>0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentSWCVName</key>
-                    <value>external</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>path</key>
-                    <value>/updatedsample/test</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyPort</key>
-                    <value>8080</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>host</key>
-                    <value>virtualhost:22</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>connectTimeout</key>
-                    <value>10000</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>fastExistsCheck</key>
-                    <value>1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>MessageProtocol</key>
-                    <value>File</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentSWCVId</key>
-                    <value>1.13.1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>direction</key>
-                    <value>Receiver</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>authentication</key>
-                    <value>user_password</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>ComponentType</key>
-                    <value>SFTP</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>fileAppendTimeStamp</key>
-                    <value>1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>credential_name</key>
-                    <value>UpdatedSampleUser</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyProtocol</key>
-                    <value>socks5</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyType</key>
-                    <value>none</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyAlias</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.13</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>reconnectDelay</key>
-                    <value>1000</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>proxyHost</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>system</key>
-                    <value>Receiver</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>tempFileName</key>
-                    <value>{file:name}.tmp</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>allowDeprecatedAlgorithms</key>
-                    <value>0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>TransportProtocol</key>
-                    <value>SFTP</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::AdapterVariant/cname::sap:SFTP/tp::SFTP/mp::File/direction::Receiver/version::1.13.1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>MessageProtocolVersion</key>
-                    <value>1.13.1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>username</key>
-                    <value/>
-                </ifl:property>
-            </bpmn2:extensionElements>
-        </bpmn2:messageFlow>
-    </bpmn2:collaboration>
-    <bpmn2:process id="Process_1" name="Integration Process">
-        <bpmn2:extensionElements>
+        </bpmn2:participant>`,
+    },
+  },
+  {
+    IntegrationProcess:{
+        extensionElements:`<bpmn2:extensionElements>
             <ifl:property>
                 <key>transactionTimeout</key>
                 <value>30</value>
@@ -488,189 +563,72 @@
                 <key>transactionalHandling</key>
                 <value>Not Required</value>
             </ifl:property>
-        </bpmn2:extensionElements>
-        <bpmn2:serviceTask id="ServiceTask_8" name="Request Reply 1">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>activityType</key>
-                    <value>ExternalCall</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::FlowstepVariant/cname::ExternalCall/version::1.0.4</value>
-                </ifl:property>
-            </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_15</bpmn2:incoming>
-            <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
-        </bpmn2:serviceTask>
-        <bpmn2:startEvent id="StartEvent_2" name="Start">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.0</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::FlowstepVariant/cname::MessageStartEvent/version::1.0</value>
-                </ifl:property>
-            </bpmn2:extensionElements>
-            <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
-            <bpmn2:messageEventDefinition/>
-        </bpmn2:startEvent>
-        <bpmn2:endEvent id="EndEvent_2" name="End">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.1</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::FlowstepVariant/cname::MessageEndEvent/version::1.1.0</value>
-                </ifl:property>
-            </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_13</bpmn2:incoming>
-            <bpmn2:messageEventDefinition/>
-        </bpmn2:endEvent>
-        <bpmn2:callActivity id="CallActivity_12" name="Content Modifier 2">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>bodyType</key>
-                    <value>expression</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>propertyTable</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>headerTable</key>
-                    <value>&lt;row&gt;&lt;cell id='Action'&gt;Create&lt;/cell&gt;&lt;cell id='Type'&gt;constant&lt;/cell&gt;&lt;cell id='Value'&gt;application/json&lt;/cell&gt;&lt;cell id='Default'&gt;&lt;/cell&gt;&lt;cell id='Name'&gt;Content-Type&lt;/cell&gt;&lt;cell id='Datatype'&gt;&lt;/cell&gt;&lt;/row&gt;</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>wrapContent</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.5</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>activityType</key>
-                    <value>Enricher</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::FlowstepVariant/cname::Enricher/version::1.5.1</value>
-                </ifl:property>
-            </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
-            <bpmn2:outgoing>SequenceFlow_13</bpmn2:outgoing>
-        </bpmn2:callActivity>
-        <bpmn2:callActivity id="CallActivity_14" name="Content Modifier 3">
-            <bpmn2:extensionElements>
-                <ifl:property>
-                    <key>bodyType</key>
-                    <value>expression</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>propertyTable</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>headerTable</key>
-                    <value>&lt;row&gt;&lt;cell id='Action'&gt;Create&lt;/cell&gt;&lt;cell id='Type'&gt;constant&lt;/cell&gt;&lt;cell id='Value'&gt;Bearer aa064a76351c8296a7c96c33811653233d3ac422d49de6cb617acb543fee49ee&lt;/cell&gt;&lt;cell id='Default'&gt;&lt;/cell&gt;&lt;cell id='Name'&gt;Authorization&lt;/cell&gt;&lt;cell id='Datatype'&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell id='Action'&gt;Create&lt;/cell&gt;&lt;cell id='Type'&gt;constant&lt;/cell&gt;&lt;cell id='Value'&gt;application/json&lt;/cell&gt;&lt;cell id='Default'&gt;&lt;/cell&gt;&lt;cell id='Name'&gt;Content-Type&lt;/cell&gt;&lt;cell id='Datatype'&gt;&lt;/cell&gt;&lt;/row&gt;&lt;row&gt;&lt;cell id='Action'&gt;Create&lt;/cell&gt;&lt;cell id='Type'&gt;constant&lt;/cell&gt;&lt;cell id='Value'&gt;application/json&lt;/cell&gt;&lt;cell id='Default'&gt;&lt;/cell&gt;&lt;cell id='Name'&gt;Accept&lt;/cell&gt;&lt;cell id='Datatype'&gt;&lt;/cell&gt;&lt;/row&gt;</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>wrapContent</key>
-                    <value/>
-                </ifl:property>
-                <ifl:property>
-                    <key>componentVersion</key>
-                    <value>1.5</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>activityType</key>
-                    <value>Enricher</value>
-                </ifl:property>
-                <ifl:property>
-                    <key>cmdVariantUri</key>
-                    <value>ctype::FlowstepVariant/cname::Enricher/version::1.5.1</value>
-                </ifl:property>
-            </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
-            <bpmn2:outgoing>SequenceFlow_15</bpmn2:outgoing>
-        </bpmn2:callActivity>
-        <bpmn2:sequenceFlow id="SequenceFlow_9" sourceRef="ServiceTask_8" targetRef="CallActivity_12"/>
-        <bpmn2:sequenceFlow id="SequenceFlow_3" sourceRef="StartEvent_2" targetRef="CallActivity_14"/>
-        <bpmn2:sequenceFlow id="SequenceFlow_13" sourceRef="CallActivity_12" targetRef="EndEvent_2"/>
-        <bpmn2:sequenceFlow id="SequenceFlow_15" sourceRef="CallActivity_14" targetRef="ServiceTask_8"/>
-    </bpmn2:process>
-    <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Collaboration Diagram">
-        <bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">
-            <bpmndi:BPMNShape bpmnElement="EndEvent_2" id="BPMNShape_EndEvent_2">
-                <dc:Bounds height="32.0" width="32.0" x="835.0" y="142.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="CallActivity_12" id="BPMNShape_CallActivity_12">
-                <dc:Bounds height="60.0" width="100.0" x="664.0" y="128.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="ServiceTask_8" id="BPMNShape_ServiceTask_8">
-                <dc:Bounds height="60.0" width="100.0" x="529.0" y="128.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="StartEvent_2" id="BPMNShape_StartEvent_2">
-                <dc:Bounds height="32.0" width="32.0" x="292.0" y="142.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="Participant_2" id="BPMNShape_Participant_2">
-                <dc:Bounds height="140.0" width="100.0" x="535.0" y="366.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="Participant_1" id="BPMNShape_Participant_1">
-                <dc:Bounds height="140.0" width="100.0" x="40.0" y="100.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="Participant_Process_1" id="BPMNShape_Participant_Process_1">
-                <dc:Bounds height="220.0" width="701.0" x="250.0" y="60.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNShape bpmnElement="CallActivity_14" id="BPMNShape_CallActivity_14">
-                <dc:Bounds height="60.0" width="100.0" x="371.0" y="128.0"/>
-            </bpmndi:BPMNShape>
-            <bpmndi:BPMNEdge bpmnElement="SequenceFlow_9" id="BPMNEdge_SequenceFlow_9" sourceElement="BPMNShape_ServiceTask_8" targetElement="BPMNShape_CallActivity_12">
-                <di:waypoint x="579.0" xsi:type="dc:Point" y="158.0"/>
-                <di:waypoint x="714.0" xsi:type="dc:Point" y="158.0"/>
-            </bpmndi:BPMNEdge>
-            <bpmndi:BPMNEdge bpmnElement="SequenceFlow_13" id="BPMNEdge_SequenceFlow_13" sourceElement="BPMNShape_CallActivity_12" targetElement="BPMNShape_EndEvent_2">
-                <di:waypoint x="714.0" xsi:type="dc:Point" y="158.0"/>
-                <di:waypoint x="851.0" xsi:type="dc:Point" y="158.0"/>
-            </bpmndi:BPMNEdge>
-            <bpmndi:BPMNEdge bpmnElement="SequenceFlow_3" id="BPMNEdge_SequenceFlow_3" sourceElement="BPMNShape_StartEvent_2" targetElement="BPMNShape_CallActivity_14">
-                <di:waypoint x="308.0" xsi:type="dc:Point" y="158.0"/>
-                <di:waypoint x="421.0" xsi:type="dc:Point" y="158.0"/>
-            </bpmndi:BPMNEdge>
-            <bpmndi:BPMNEdge bpmnElement="MessageFlow_11" id="BPMNEdge_MessageFlow_11" sourceElement="BPMNShape_ServiceTask_8" targetElement="BPMNShape_Participant_2">
-                <di:waypoint x="582.0" xsi:type="dc:Point" y="158.0"/>
-                <di:waypoint x="582.0" xsi:type="dc:Point" y="436.0"/>
-            </bpmndi:BPMNEdge>
-            <bpmndi:BPMNEdge bpmnElement="MessageFlow_4" id="BPMNEdge_MessageFlow_4" sourceElement="BPMNShape_Participant_1" targetElement="BPMNShape_StartEvent_2">
-                <di:waypoint x="90.0" xsi:type="dc:Point" y="170.0"/>
-                <di:waypoint x="308.0" xsi:type="dc:Point" y="158.0"/>
-            </bpmndi:BPMNEdge>
-            <bpmndi:BPMNEdge bpmnElement="SequenceFlow_15" id="BPMNEdge_SequenceFlow_15" sourceElement="BPMNShape_CallActivity_14" targetElement="BPMNShape_ServiceTask_8">
-                <di:waypoint x="421.0" xsi:type="dc:Point" y="158.0"/>
-                <di:waypoint x="579.0" xsi:type="dc:Point" y="158.0"/>
-            </bpmndi:BPMNEdge>
-        </bpmndi:BPMNPlane>
-    </bpmndi:BPMNDiagram>
-</bpmn2:definitions>`,
-            "contentModifier": "",
-            "messageMapping": "",
-            "Sender":"",
-            "Receiver":""
-        }
-    },
-    {
-        "Adaptors": {
-            "http": "",
-            "sftp": ""
-        }
+        </bpmn2:extensionElements>`,
+        BPMNEdge:`<bpmndi:BPMNEdge bpmnElement="SequenceFlow_3" id="BPMNEdge_SequenceFlow_3" sourceElement="BPMNShape_StartEvent_2" targetElement="BPMNShape_CallActivity_5">
+                <di:waypoint x="308.0" xsi:type="dc:Point" y="160.0"/>
+                <di:waypoint x="462.0" xsi:type="dc:Point" y="160.0"/>
+            </bpmndi:BPMNEdge>`
     }
-]
+  },
+  {
+    BPMNDiagram:{
+        BPMNShape:`<bpmndi:BPMNShape bpmnElement="EndEvent_2" id="BPMNShape_EndEvent_2">
+                <dc:Bounds height="32.0" width="32.0" x="703.0" y="142.0"/>
+            </bpmndi:BPMNShape>`,
+            BPMNEdge:`<bpmndi:BPMNEdge bpmnElement="MessageFlow_11" id="BPMNEdge_MessageFlow_11" sourceElement="BPMNShape_ServiceTask_8" targetElement="BPMNShape_Participant_2">
+                <di:waypoint x="612.0" xsi:type="dc:Point" y="162.0"/>
+                <di:waypoint x="636.0" xsi:type="dc:Point" y="340.0"/>
+            </bpmndi:BPMNEdge>`
+    }
+  }
+
+];
+
+
+// SourceXML=[
+//     {
+//       palleteItems:{
+//       contentModifier:"",
+//       messageMapping:"",
+//       RequestReply:""  
+//     },
+//        events:{
+//          StartEvent:"",
+//          EndEvent:"",
+//     },
+//      sequenceFlow:""
+//     },
+//     {
+//       SenderAdaptors: {
+//         https: "",
+//         sftp:"",
+//         FTP:""
+//     },
+//      ReceiverAdaptors: {
+//        http: "",
+//        sftp:"",
+//        FTP:""
+//      },
+//     },
+//     {
+//       Collaboration:{
+//         ExtensinElements:""
+//       },
+//       participants: {
+//       Sender:"",
+//       Receiver:"",
+//       IntegrationProcess:""
+//     },
+//   },
+//     {
+//       IntegrationProcess:{
+//         extensionElements:"",
+//         BPMNEdge:""
+//       },
+//     },
+//      {
+//       BPMNDiagram:{
+//         BPMNShape:""
+//          }
+//     }
+//   ];
