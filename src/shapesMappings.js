@@ -1,6 +1,6 @@
 
 export const shapesMappings={
-    "disk":"sftp/ftp",
+    "disk":"sftp",
     "map":"messageMapping",
     "message":"contentModifier",
     "processcall":"processCall",

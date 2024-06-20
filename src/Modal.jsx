@@ -2,72 +2,96 @@ import React, { useState, useEffect } from "react";
 import "./Modal.css";
 import axios from "axios";
 import { shapesMappings } from "./shapesMappings";
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import {SourceXML} from './CPISourceXML';
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import { SourceXML } from "./CPISourceXML";
 
 const Modal = ({ showModal, handleClose, SpecificProcess }) => {
+
+  const [boomiProcessData,setBoomiProcessData] =useState(SpecificProcess);
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
-  const [MetaInfofileContent, setMetaInfoFileContent] = useState('');
-  const [MFContent, setMFContent] = useState('');
+  const [shapeArray, setShapeArray] = useState([]);
+  const [shapeCounter, setShapeCounter] = useState(0);
+  const [MetaInfofileContent, setMetaInfoFileContent] = useState("");
+  const [MFContent, setMFContent] = useState("");
   const [projectxmlFile, setProjectXmlFile] = useState(null);
-  const [dynamicName, setDynamicName] = useState('Test01');
-  const [PM1Content, setPM1Content] = useState('');
-  const [PM2Content, setPM2Content] = useState('');
-  const [iflowXML, setIflowXML] = useState('');
+  const [dynamicName, setDynamicName] = useState("Test01");
+  const [PM1Content, setPM1Content] = useState("");
+  const [PM2Content, setPM2Content] = useState("");
+  const [iflowXML, setIflowXML] = useState("");
+  const [proceedClicked, setProceedClicked] = useState(false);
 
   useEffect(() => {
-    if (SpecificProcess) {
-      const parts = SpecificProcess.split('\n\n');
-      const firstPartData = parts[0]?.split('\n').map(line => line.split(',')) || [];
-      const secondPartData = parts[1]?.split('\n').map(line => line.split(',')) || [];
+
+    setBoomiProcessData(SpecificProcess);
+    if (boomiProcessData) {
+      const parts = boomiProcessData.split("\n\n");
+      const firstPartData =
+        parts[0]?.split("\n").map((line) => line.split(",")) || [];
+      const secondPartData =
+        parts[1]?.split("\n").map((line) => line.split(",")) || [];
 
       setFirstPart(firstPartData);
       setSecondPart(secondPartData);
 
       const senderConnectors = [];
       const receiverConnectors = [];
+      let counter = 0;
 
-      secondPartData.slice(1).forEach(line => {
+      secondPartData.slice(1).forEach((line) => {
         const row = line;
         const shapeType = row[3];
         const configuration = row.slice(4).join(",");
+
+        const invalidShapes = ["connectoraction", "start", "stop"];
+
+        // Check if the shapeType is valid
+        if (!invalidShapes.includes(shapeType) && shapeType != undefined) {
+          setShapeArray((prevShapeArray) => [...prevShapeArray, shapeType]);
+        }
+
+        if (shapeType !== "connectoraction" && shapeType !== "catcherrors") {
+          counter++;
+        }
+
         if (shapeType === "connectoraction") {
           const actionTypeMatch = configuration.match(/@actionType:([^,]+)/);
-          const connectorTypeMatch = configuration.match(/@connectorType:([^,]+)/);
+          const connectorTypeMatch = configuration.match(
+            /@connectorType:([^,]+)/
+          );
           if (actionTypeMatch && connectorTypeMatch) {
             const actionType = actionTypeMatch[1].trim().toUpperCase();
             const connectorType = connectorTypeMatch[1].trim();
 
-            if (actionType === "GET" || actionType === "EXECUTE" || actionType === "QUERY") {
-              senderConnectors.push(connectorType);
-            } else if (actionType === "SEND" || actionType === "CREATE" || actionType === "UPDATE" ) {
-              receiverConnectors.push(connectorType);
+            if (
+              actionType === "GET" ||
+              actionType === "EXECUTE" ||
+              actionType === "QUERY"
+            ) {
+              senderConnectors.push(shapesMappings[connectorType]);
+            } else if (
+              actionType === "SEND" ||
+              actionType === "CREATE" ||
+              actionType === "UPDATE"
+            ) {
+              receiverConnectors.push(shapesMappings[connectorType]);
             }
           }
         }
       });
-      setDynamicName((secondPart[1] && secondPart[1][1]))
+      setShapeCounter(counter);
+      setDynamicName(secondPart[1] && secondPart[1][1]);
       setConnectors({
         sender: senderConnectors,
-        receiver: receiverConnectors
+        receiver: receiverConnectors,
       });
     }
-  }, [SpecificProcess]);
 
-
-  const TemplateData = {
-    "manifestdata": `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\nImport-Package: com.sap.esb.application.services.cxf.interceptor,com.sap.esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.camel,com.sap.it.op.agent.collector.cxf,com.sap.it.op.agent.mpl,javax.jms,javax.jws,javax.wsdl,javax.xml.bind.annotation,javax.xml.namespace,javax.xml.ws,org.apache.camel;version=\"2.8\",org.apache.camel.builder;version=\"2.8\",org.apache.camel.builder.xml;version=\"2.8\",org.apache.camel.component.cxf,org.apache.camel.model;version=\"2.8\",org.apache.camel.processor;version=\"2.8\",org.apache.camel.processor.aggregate;version=\"2.8\",org.apache.camel.spring.spi;version=\"2.8\",org.apache.commons.logging,org.apache.cxf.binding,org.apache.cxf.binding.soap,org.apache.cxf.binding.soap.spring,org.apache.cxf.bus,org.apache.cxf.bus.resource,org.apache.cxf.bus.spring,org.apache.cxf.buslifecycle,org.apache.cxf.catalog,org.apache.cxf.configuration.jsse;version=\"2.5\",org.apache.cxf.configuration.spring,org.apache.cxf.endpoint,org.apache.cxf.headers,org.apache.cxf.interceptor,org.apache.cxf.management.counters;version=\"2.5\",org.apache.cxf.message,org.apache.cxf.phase,org.apache.cxf.resource,org.apache.cxf.service.factory,org.apache.cxf.service.model,org.apache.cxf.transport,org.apache.cxf.transport.common.gzip,org.apache.cxf.transport.http,org.apache.cxf.transport.http.policy,org.apache.cxf.workqueue,org.apache.cxf.ws.rm.persistence,org.apache.cxf.wsdl11,org.osgi.framework;version=\"1.6.0\",org.slf4j;version=\"1.6\",org.springframework.beans.factory.config;version=\"3.0\",com.sap.esb.camel.security.cms,org.apache.camel.spi,com.sap.esb.webservice.audit.log,com.sap.esb.camel.endpoint.configurator.api,com.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.processor.idempotent.jdbc,org.osgi.service.blueprint;version=\"[1.0.0,2.0.0)\"\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
-    "projectData": `<?xml version=\"1.0\" encoding=\"UTF-8\"?><projectDescription>\n   <name>${dynamicName}</name>\n   <comment/>\n   <projects/>\n   <buildSpec>\n      <buildCommand>\n         <name>org.eclipse.jdt.core.javabuilder</name>\n         <arguments/>\n      </buildCommand>\n   </buildSpec>\n   <natures>\n      <nature>org.eclipse.jdt.core.javanature</nature>\n      <nature>com.sap.ide.ifl.project.support.project.nature</nature>\n      <nature>com.sap.ide.ifl.bsn</nature>\n   </natures>\n</projectDescription>`,
-    "parameters":`<?xml version="1.0" encoding="UTF-8" standalone="no"?><parameters><param_references/></parameters>`
-  };
-
-  useEffect(() => {
     const currentDate = new Date();
-    const day = currentDate.toLocaleString('en-US', { weekday: 'short' });
-    const month = currentDate.toLocaleString('en-US', { month: 'short' });
+    const day = currentDate.toLocaleString("en-US", { weekday: "short" });
+    const month = currentDate.toLocaleString("en-US", { month: "short" });
     const date = currentDate.getDate();
     const year = currentDate.getFullYear();
     const hours = currentDate.getHours();
@@ -76,101 +100,141 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
 
     const formattedDateTime = `${day} ${month} ${date} ${hours}:${minutes}:${seconds} UTC ${year}`;
     const MIfileContent = `#Store metainfo properties\n#${formattedDateTime}\ndescription\n`;
-    const blob = new Blob([MIfileContent], { type: 'text/plain' });
+    const blob = new Blob([MIfileContent], { type: "text/plain" });
     setMetaInfoFileContent(blob);
 
     const PM1 = `#${formattedDateTime}`;
-    const blob1 = new Blob([PM1], { type: 'text/plain' });
-    setPM1Content(blob1)
-  }, []);
+    const blob1 = new Blob([PM1], { type: "text/plain" });
+    setPM1Content(blob1);
 
-  useEffect(() => {
-    const xmlContent =TemplateData.projectData;
-    const blob = new Blob([xmlContent], { type: 'text/xml' });
-    setProjectXmlFile(blob);
-  }, []);
+    const projectDataContent = TemplateData.projectData;
+    const blob2 = new Blob([projectDataContent], { type: "text/xml" });
+    setProjectXmlFile(blob2);
 
-  useEffect(() => {
-    const xmlContent =TemplateData.parameters;
-    const blob = new Blob([xmlContent], { type: 'text/xml' });
-    setPM2Content(blob);
-  }, []);
+    const parametersContent = TemplateData.parameters;
+    const blob3 = new Blob([parametersContent], { type: "text/xml" });
+    setPM2Content(blob3);
 
-  useEffect(() => {
-    const MFfileContent =TemplateData.manifestdata;
-    const blob = new Blob([MFfileContent], { type: 'text/xml' });
-    setMFContent(blob);
-  }, []);
+    const MFfileContent = TemplateData.manifestdata;
+    const blob4 = new Blob([MFfileContent], { type: "text/xml" });
+    setMFContent(blob4);
+  }, [SpecificProcess]);
+
+  const TemplateData = {
+    manifestdata: `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\nImport-Package: com.sap.esb.application.services.cxf.interceptor,com.sap.esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.camel,com.sap.it.op.agent.collector.cxf,com.sap.it.op.agent.mpl,javax.jms,javax.jws,javax.wsdl,javax.xml.bind.annotation,javax.xml.namespace,javax.xml.ws,org.apache.camel;version=\"2.8\",org.apache.camel.builder;version=\"2.8\",org.apache.camel.builder.xml;version=\"2.8\",org.apache.camel.component.cxf,org.apache.camel.model;version=\"2.8\",org.apache.camel.processor;version=\"2.8\",org.apache.camel.processor.aggregate;version=\"2.8\",org.apache.camel.spring.spi;version=\"2.8\",org.apache.commons.logging,org.apache.cxf.binding,org.apache.cxf.binding.soap,org.apache.cxf.binding.soap.spring,org.apache.cxf.bus,org.apache.cxf.bus.resource,org.apache.cxf.bus.spring,org.apache.cxf.buslifecycle,org.apache.cxf.catalog,org.apache.cxf.configuration.jsse;version=\"2.5\",org.apache.cxf.configuration.spring,org.apache.cxf.endpoint,org.apache.cxf.headers,org.apache.cxf.interceptor,org.apache.cxf.management.counters;version=\"2.5\",org.apache.cxf.message,org.apache.cxf.phase,org.apache.cxf.resource,org.apache.cxf.service.factory,org.apache.cxf.service.model,org.apache.cxf.transport,org.apache.cxf.transport.common.gzip,org.apache.cxf.transport.http,org.apache.cxf.transport.http.policy,org.apache.cxf.workqueue,org.apache.cxf.ws.rm.persistence,org.apache.cxf.wsdl11,org.osgi.framework;version=\"1.6.0\",org.slf4j;version=\"1.6\",org.springframework.beans.factory.config;version=\"3.0\",com.sap.esb.camel.security.cms,org.apache.camel.spi,com.sap.esb.webservice.audit.log,com.sap.esb.camel.endpoint.configurator.api,com.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.processor.idempotent.jdbc,org.osgi.service.blueprint;version=\"[1.0.0,2.0.0)\"\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
+    projectData: `<?xml version=\"1.0\" encoding=\"UTF-8\"?><projectDescription>\n   <name>${dynamicName}</name>\n   <comment/>\n   <projects/>\n   <buildSpec>\n      <buildCommand>\n         <name>org.eclipse.jdt.core.javabuilder</name>\n         <arguments/>\n      </buildCommand>\n   </buildSpec>\n   <natures>\n      <nature>org.eclipse.jdt.core.javanature</nature>\n      <nature>com.sap.ide.ifl.project.support.project.nature</nature>\n      <nature>com.sap.ide.ifl.bsn</nature>\n   </natures>\n</projectDescription>`,
+    parameters: `<?xml version="1.0" encoding="UTF-8" standalone="no"?><parameters><param_references/></parameters>`,
+  };
 
   // Function to create collaboration part
-const createCollaboration = () => {
-  const extensionElements = SourceXML[2].Collaboration.ExtensinElements;
-  const participants = `${SourceXML[2].participants.Sender}${SourceXML[2].participants.Receiver}${SourceXML[2].participants.IntegrationProcess}`;
-  const messageFlow = `${SourceXML[1].SenderAdaptors.sftp}${SourceXML[1].ReceiverAdaptors.sftp}`;
-  return `<bpmn2:collaboration id="Collaboration_1" name="Default Collaboration">${extensionElements}${participants}${messageFlow}</bpmn2:collaboration>`;
-};
+  const createCollaboration = () => {
+    const extensionElements = SourceXML[2].Collaboration.ExtensinElements;
+    const participants = `${SourceXML[2].participants.Sender}${SourceXML[2].participants.Receiver}${SourceXML[2].participants.IntegrationProcess}`;
+    let messageFlow = "";
 
-// Function to create process part
-const createProcess = () => {
-  const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
-  const events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
-  const callActivity = `${SourceXML[0].palleteItems.contentModifier}${SourceXML[0].palleteItems.messageMapping}${SourceXML[0].palleteItems.RequestReply}`;
-  const sequenceFlow = SourceXML[0].sequenceFlow;
-  return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${callActivity}${sequenceFlow} </bpmn2:process>`;
-};
+    connectors.sender.forEach((senderConnector) => {
+      messageFlow += SourceXML[1].SenderAdaptors[senderConnector];
+    });
 
-// Function to create BPMPlane_1 part
-const createBPMPlane_1 = () => {
-  const bpmnShape = `${SourceXML[4].BPMNDiagram.BPMNShape}`;
-  const bpmnEdge  =  `${SourceXML[4].BPMNDiagram.B}`;
-  return `<bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">${bpmnShape}${bpmnEdge}</bpmndi:BPMNPlane>`;
-};
+    connectors.receiver.forEach((receiverConnector) => {
+      messageFlow += SourceXML[1].ReceiverAdaptors[receiverConnector];
+    });
 
-// Function to create BPMNDiagram part
-const createBPMNDiagram = (bpmPlane_1, bpmPlane_2) => {
-  return `<bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Collaboration Diagram">${bpmPlane_1}${bpmPlane_2}</bpmndi:BPMNDiagram>`;
-};
+    // const messageFlow = `${SourceXML[1].SenderAdaptors[connectors.sender[0]]}${SourceXML[1].ReceiverAdaptors[connectors.receiver[0]]}`;
+    return `<bpmn2:collaboration id="Collaboration_1" name="Default Collaboration">${extensionElements}${participants}${messageFlow}</bpmn2:collaboration>`;
+  };
 
+  // Function to create process part
+  const createProcess = () => {
+    const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
+    const events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
 
-const generateIflowXML = () => {
-  const defaultXMLCode = `<?xml version="1.0" encoding="UTF-8"?><bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:ifl="http:///com.sap.ifl.model/Ifl.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1">`
-  const collaboration = createCollaboration();
-  const process = createProcess();
-  const bpmPlane_1 = createBPMPlane_1();
-  const bpmPlane_2 = ""; // Assuming BPMPlane_2 is not defined in the requirement
-  const bpmnDiagram = createBPMNDiagram(bpmPlane_1, bpmPlane_2);
+    let palleteItems = "";
 
-  const iflowXMLCode = `${defaultXMLCode}${collaboration}${process}${bpmnDiagram}</bpmn2:definitions>`;
-  return iflowXMLCode;
-};
+    shapeArray.forEach((ele) => {
+      palleteItems += `${SourceXML[0].palleteItems[shapesMappings[ele]]}`;
+    });
 
-const iflowXMLCode = generateIflowXML();
+    let sequenceFlows = "";
+    for (let i = 0; i <= shapeCounter - 1; i++) {
+      sequenceFlows += SourceXML[0].sequenceFlow;
+    }
+    return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${palleteItems}${sequenceFlows} </bpmn2:process>`;
+  };
 
-  useEffect(() => {
-    const xmlContent =iflowXMLCode;
-    const blob = new Blob([xmlContent], { type: 'text/xml' });
+  // Function to create BPMPlane_1 part
+  const createBPMPlane_1 = () => {
+    let bpmnShapes = "";
+    for (let i = 0; i < firstPart.length - 1; i++) {
+      bpmnShapes += `${SourceXML[4].BPMNDiagram.BPMNShape}`;
+    }
+    let bpmnEdges = "";
+    for (let i = 0; i < firstPart.length - 2; i++) {
+      bpmnEdges += `${SourceXML[4].BPMNDiagram.BPMNEdge}`;
+    }
+    return `<bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">${bpmnShapes}${bpmnEdges}</bpmndi:BPMNPlane>`;
+  };
+
+  // Function to create BPMNDiagram part
+  const createBPMNDiagram = (bpmPlane_1, bpmPlane_2) => {
+    return `<bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Collaboration Diagram">${bpmPlane_1}${bpmPlane_2}</bpmndi:BPMNDiagram>`;
+  };
+
+  const generateIflowXML = () => {
+    const defaultXMLCode = `<?xml version="1.0" encoding="UTF-8"?><bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:ifl="http:///com.sap.ifl.model/Ifl.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1">`;
+    const collaboration = createCollaboration();
+    const process = createProcess();
+    const bpmPlane_1 = createBPMPlane_1();
+    const bpmPlane_2 = ""; // Assuming BPMPlane_2 is not defined in the requirement
+    const bpmnDiagram = createBPMNDiagram(bpmPlane_1, bpmPlane_2);
+
+    const iflowXMLCode = `${defaultXMLCode}${collaboration}${process}${bpmnDiagram}</bpmn2:definitions>`;
+    return iflowXMLCode;
+  };
+
+  const ProceedForMigration = () => {
+    const xmlContent = generateIflowXML();
+    const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
-  }, []);
+    setProceedClicked(true);
+  };
 
-  const createZip = () => {
+  const DownloadZip = () => {
     const zip = new JSZip();
-    
+
     // Create folders and add files
     zip.file("metainfo.prop", MetaInfofileContent);
     zip.file(".project", projectxmlFile);
     zip.folder("src").folder("main").folder("resources").folder("scenarioflows").folder("integrationflow").file(`${dynamicName}.iflw`, iflowXML);
     zip.folder("META-INF").file("MANIFEST.MF", MFContent);
-    zip.folder("src").folder("main").folder("resources").file("parameters.prop", PM1Content)
-    zip.folder("src").folder("main").folder("resources").file("parameters.propdef", PM2Content)
+    zip.folder("src").folder("main").folder("resources").file("parameters.prop", PM1Content);
+    zip.folder("src").folder("main").folder("resources").file("parameters.propdef", PM2Content);
 
     // Generate the zip file and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {
-      const base64Zip = btoa(String.fromCharCode.apply(null, new Uint8Array(content)));
       saveAs(content, `${dynamicName}.zip`);
     });
   };
 
   const Migrate = async () => {
+
+    const zip = new JSZip();
+
+    // Create folders and add files
+    zip.file("metainfo.prop", MetaInfofileContent);
+    zip.file(".project", projectxmlFile);
+    zip.folder("src").folder("main").folder("resources").folder("scenarioflows").folder("integrationflow").file(`${dynamicName}.iflw`, iflowXML);
+    zip.folder("META-INF").file("MANIFEST.MF", MFContent);
+    zip.folder("src").folder("main").folder("resources").file("parameters.prop", PM1Content);
+    zip.folder("src").folder("main").folder("resources").file("parameters.propdef", PM2Content);
+
+    // Generate the zip file and trigger download
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      const base64Zip = btoa(
+        String.fromCharCode.apply(null, new Uint8Array(content))
+      );
+    });
+
     try {
       const url =
         "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/api/v1/IntegrationDesigntimeArtifacts";
@@ -199,7 +263,20 @@ const iflowXMLCode = generateIflowXML();
     }
   };
 
-  
+  const handleCloseModal = () => {
+    handleClose();
+    setShapeArray([]);
+  };
+
+  console.log(shapeArray);
+  console.log(firstPart);
+  console.log(connectors);
+  console.log(shapeCounter);
+  console.log(dynamicName);
+  console.log(shapeArray);
+  console.log(shapeArray);
+  console.log(shapeArray);
+
 
   return (
     <>
@@ -208,55 +285,59 @@ const iflowXMLCode = generateIflowXML();
           <div className="modal">
             <div className="modal-header">
               <h3>Migrating: {secondPart[1] && secondPart[1][1]} </h3>
-              <button className="close-button" onClick={handleClose}>
-                &times;
-              </button>
             </div>
             <div className="modal-content">
               <p>
                 <span>Used Shapes / Connectors in Boomi Process </span>
               </p>
               <div className="tables-container">
-              <table border="1">
-                <thead>
-                  <tr>
-                    <th>Shape/Connector</th>
-                    <th>CPI Alternative</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {firstPart.slice(1).map((row, index) => (
-                    <tr key={index}>
-                      {row.map((cell, cellIndex) =>
-                        cellIndex === 0 ? (
-                          <React.Fragment key={cellIndex}>
-                            <td>{cell}</td>
-                            <td>{shapesMappings[cell] || "No Alternative"}</td>
-                          </React.Fragment>
-                        ) : null
-                      )}
+                <table border="1">
+                  <thead>
+                    <tr>
+                      <th>Shape/Connector</th>
+                      <th>CPI Alternative</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="connectorTable">
-              <table border="1">
-                <thead>
-                  <tr>
-                    <th>Sender</th>
-                    <th>Receiver</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.from({ length: Math.max(connectors.sender.length, connectors.receiver.length) }).map((_, index) => (
-                    <tr key={index}>
-                      <td>{connectors.sender[index] || ''}</td>
-                      <td>{connectors.receiver[index] || ''}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              </div>
+                  </thead>
+                  <tbody>
+                    {firstPart.slice(1).map((row, index) => (
+                      <tr key={index}>
+                        {row.map((cell, cellIndex) =>
+                          cellIndex === 0 ? (
+                            <React.Fragment key={cellIndex}>
+                              <td>{cell}</td>
+                              <td>
+                                {shapesMappings[cell] || "No Alternative"}
+                              </td>
+                            </React.Fragment>
+                          ) : null
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="connectorTable">
+                  <table border="1">
+                    <thead>
+                      <tr>
+                        <th>Sender</th>
+                        <th>Receiver</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({
+                        length: Math.max(
+                          connectors.sender.length,
+                          connectors.receiver.length
+                        ),
+                      }).map((_, index) => (
+                        <tr key={index}>
+                          <td>{connectors.sender[index] || ""}</td>
+                          <td>{connectors.receiver[index] || ""}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
             <p>
@@ -265,11 +346,21 @@ const iflowXMLCode = generateIflowXML();
               process, need manual intervention.
             </p>
             <div className="modal-footer">
-              <button onClick={handleClose} id="cancelbtn">
+              <button onClick={handleCloseModal} id="cancelbtn">
                 Cancel
               </button>
-              <button onClick={createZip} id="cancelbtn" >Download ZIP</button>
-              <button onClick={Migrate}>Migrate</button>
+              {proceedClicked ? (
+                <>
+                  <button onClick={DownloadZip} id="cancelbtn">
+                    Download ZIP
+                  </button>
+                  <button onClick={Migrate}>Migrate</button>
+                </>
+              ) : (
+                <button onClick={ProceedForMigration}>
+                  Proceed for Migration
+                </button>
+              )}
             </div>
           </div>
         </div>

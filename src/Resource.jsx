@@ -69,7 +69,7 @@ const ResourceDownloader = () => {
             <input
               type="text"
               name="scripts"
-              placeholder="Enter Scripts ID"
+              placeholder="Enter Process ID"
               value={resourceIds.scripts}
               onChange={handleInputChange}
             />

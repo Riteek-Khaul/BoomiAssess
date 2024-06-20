@@ -203,9 +203,7 @@ function HomePage(){
     setSelectedProcess(event.target.value);
   };
 
-  console.log(selectedProcess)
-//  console.log(processes)
-  console.log(SpecificProcess)
+
 
 
   return (
@@ -290,6 +288,7 @@ function HomePage(){
             showModal={showModal}
             handleClose={closeModal}
             SpecificProcess={SpecificProcess}
+            setSpecificProcess={setSpecificProcess}
           />
         </div>
       )}
