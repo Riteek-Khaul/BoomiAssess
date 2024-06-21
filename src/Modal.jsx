@@ -7,8 +7,7 @@ import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
 
 const Modal = ({ showModal, handleClose, SpecificProcess }) => {
-
-  const [boomiProcessData,setBoomiProcessData] =useState(SpecificProcess);
+  const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
@@ -24,7 +23,6 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   const [proceedClicked, setProceedClicked] = useState(false);
 
   useEffect(() => {
-
     setBoomiProcessData(SpecificProcess);
     if (boomiProcessData) {
       const parts = boomiProcessData.split("\n\n");
@@ -131,13 +129,44 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     const extensionElements = SourceXML[2].Collaboration.ExtensinElements;
     const participants = `${SourceXML[2].participants.Sender}${SourceXML[2].participants.Receiver}${SourceXML[2].participants.IntegrationProcess}`;
     let messageFlow = "";
+    let messageFlowCounter = 1;
+
+    function updateMessageFlowIds(xmlString, messageFlowCounter) {
+      // Parse the XML string to a DOM object
+      let parser = new DOMParser();
+      let xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+      // Get all bpmn2:messageFlow elements
+      let messageFlows = xmlDoc.getElementsByTagName("bpmn2:messageFlow");
+
+      // Loop through each messageFlow and update the id attribute
+      for (let i = 0; i < messageFlows.length; i++) {
+        let messageFlow = messageFlows[i];
+        let originalId = messageFlow.getAttribute("id");
+        let newId = `${originalId}${messageFlowCounter}`;
+        messageFlow.setAttribute("id", newId);
+        messageFlowCounter += 1;
+      }
+
+      // Serialize the updated DOM back to a string
+      let serializer = new XMLSerializer();
+      let updatedXML = serializer.serializeToString(xmlDoc);
+
+      return { updatedXML, messageFlowCounter };
+    }
 
     connectors.sender.forEach((senderConnector) => {
-      messageFlow += SourceXML[1].SenderAdaptors[senderConnector];
+      let sourceXML = SourceXML[1].SenderAdaptors[senderConnector];
+      let result = updateMessageFlowIds(sourceXML, messageFlowCounter);
+      messageFlow += result.updatedXML;
+      messageFlowCounter = result.messageFlowCounter;
     });
 
     connectors.receiver.forEach((receiverConnector) => {
-      messageFlow += SourceXML[1].ReceiverAdaptors[receiverConnector];
+      let sourceXML = SourceXML[1].ReceiverAdaptors[receiverConnector];
+      let result = updateMessageFlowIds(sourceXML, messageFlowCounter);
+      messageFlow += result.updatedXML;
+      messageFlowCounter = result.messageFlowCounter;
     });
 
     // const messageFlow = `${SourceXML[1].SenderAdaptors[connectors.sender[0]]}${SourceXML[1].ReceiverAdaptors[connectors.receiver[0]]}`;
@@ -150,34 +179,133 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     const events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
 
     let palleteItems = "";
+    let callActivityCounter = 1;
+
+    function updatePalleteItemsIds(xmlString, callActivityCounter) {
+      // Parse the XML string to a DOM object
+      let parser = new DOMParser();
+      let xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+      // Update callActivity ids, incoming, and outgoing tags
+      let callActivities = xmlDoc.getElementsByTagName("bpmn2:callActivity");
+      for (let i = 0; i < callActivities.length; i++) {
+        let callActivity = callActivities[i];
+
+        // Update the id attribute
+        let originalId = callActivity.getAttribute("id");
+        let newId = `${originalId}${callActivityCounter}`;
+        callActivity.setAttribute("id", newId);
+
+        // Update the incoming tag
+        let incoming = callActivity.getElementsByTagName("bpmn2:incoming")[0];
+        if (incoming) {
+          let originalIncoming = incoming.textContent;
+          incoming.textContent = `${originalIncoming}${callActivityCounter}`;
+        }
+
+        // Update the outgoing tag
+        let outgoing = callActivity.getElementsByTagName("bpmn2:outgoing")[0];
+        if (outgoing) {
+          let originalOutgoing = outgoing.textContent;
+          outgoing.textContent = `${originalOutgoing}${
+            callActivityCounter + 1
+          }`;
+        }
+
+        callActivityCounter += 1;
+      }
+
+      // Serialize the updated DOM back to a string
+      let serializer = new XMLSerializer();
+      let updatedXML = serializer.serializeToString(xmlDoc);
+
+      return { updatedXML, callActivityCounter };
+    }
 
     shapeArray.forEach((ele) => {
-      palleteItems += `${SourceXML[0].palleteItems[shapesMappings[ele]]}`;
+      let sourceXML = SourceXML[0].palleteItems[shapesMappings[ele]];
+      let result = updatePalleteItemsIds(sourceXML, callActivityCounter);
+      palleteItems += result.updatedXML;
+      callActivityCounter = result.callActivityCounter;
     });
 
+    // Function to update id, sourceRef, and targetRef attributes in sequenceFlow
+function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
+  let parser = new DOMParser();
+  let xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+  let sequenceFlows = xmlDoc.getElementsByTagName("bpmn2:sequenceFlow");
+  for (let i = 0; i < sequenceFlows.length; i++) {
+    let sequenceFlow = sequenceFlows[i];
+
+    let originalId = sequenceFlow.getAttribute("id");
+    let newId = `${originalId}${sequenceFlowCounter}`;
+    sequenceFlow.setAttribute("id", newId);
+
+    // let sourceRef = sequenceFlow.getAttribute("sourceRef");
+    // sequenceFlow.setAttribute("sourceRef", `${sourceRef}${sequenceFlowCounter}`);
+
+    // let targetRef = sequenceFlow.getAttribute("targetRef");
+    // sequenceFlow.setAttribute("targetRef", `${targetRef}${sequenceFlowCounter}`);
+
+    sequenceFlowCounter += 1;
+  }
+
+  let serializer = new XMLSerializer();
+  let updatedXML = serializer.serializeToString(xmlDoc);
+
+  return { updatedXML, sequenceFlowCounter };
+}
+
     let sequenceFlows = "";
-    for (let i = 0; i <= shapeCounter - 1; i++) {
-      sequenceFlows += SourceXML[0].sequenceFlow;
+    let sequenceFlowCounter = 1;
+
+    for (let i = 0; i < shapeCounter - 1; i++) {
+      let result = updateSequenceFlowIds(SourceXML[0].sequenceFlow, sequenceFlowCounter);
+      sequenceFlows += result.updatedXML;
+      sequenceFlowCounter = result.sequenceFlowCounter;
     }
+
     return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${palleteItems}${sequenceFlows} </bpmn2:process>`;
   };
 
   // Function to create BPMPlane_1 part
   const createBPMPlane_1 = () => {
-    let bpmnShapes = "";
-    for (let i = 0; i < firstPart.length - 1; i++) {
-      bpmnShapes += `${SourceXML[4].BPMNDiagram.BPMNShape}`;
+    let bpmnShapes = SourceXML[4].BPMNDiagram.defaultBPMNShape;
+
+    for (let i = 1; i <= shapeArray.length; i++) {
+
+      const bpmnElement = `CallActivity_${i}`;
+      const id = `BPMNShape_CallActivity_${i}`;
+      
+      // Construct each BPMNShape element with updated attributes
+      bpmnShapes += `
+          <bpmndi:BPMNShape bpmnElement="${bpmnElement}" id="${id}">
+              <dc:Bounds height="60.0" width="100.0" x="412.0" y="132.0"/>
+          </bpmndi:BPMNShape>
+      `;
     }
-    let bpmnEdges = "";
-    for (let i = 0; i < firstPart.length - 2; i++) {
-      bpmnEdges += `${SourceXML[4].BPMNDiagram.BPMNEdge}`;
+
+    let bpmnEdges = SourceXML[4].BPMNDiagram.defaultBPMNEdge;
+
+    for (let i = 1; i <= shapeArray.length + 1; i++) {
+      const bpmnElement = `SequenceFlow_${i}`;
+      const id = `BPMNEdge_SequenceFlow_${i}`;
+      
+      // Construct each BPMNShape element with updated attributes
+      bpmnEdges += `
+          <bpmndi:BPMNEdge bpmnElement="${bpmnElement}" id="${id}" sourceElement="" targetElement="">
+                <di:waypoint x="308.0" xsi:type="dc:Point" y="160.0"/>
+                <di:waypoint x="462.0" xsi:type="dc:Point" y="160.0"/>
+          </bpmndi:BPMNEdge>
+      `;
     }
     return `<bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">${bpmnShapes}${bpmnEdges}</bpmndi:BPMNPlane>`;
   };
 
   // Function to create BPMNDiagram part
-  const createBPMNDiagram = (bpmPlane_1, bpmPlane_2) => {
-    return `<bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Collaboration Diagram">${bpmPlane_1}${bpmPlane_2}</bpmndi:BPMNDiagram>`;
+  const createBPMNDiagram = (bpmPlane_1) => {
+    return `<bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Collaboration Diagram">${bpmPlane_1}</bpmndi:BPMNDiagram>`;
   };
 
   const generateIflowXML = () => {
@@ -185,8 +313,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     const collaboration = createCollaboration();
     const process = createProcess();
     const bpmPlane_1 = createBPMPlane_1();
-    const bpmPlane_2 = ""; // Assuming BPMPlane_2 is not defined in the requirement
-    const bpmnDiagram = createBPMNDiagram(bpmPlane_1, bpmPlane_2);
+    const bpmnDiagram = createBPMNDiagram(bpmPlane_1);
 
     const iflowXMLCode = `${defaultXMLCode}${collaboration}${process}${bpmnDiagram}</bpmn2:definitions>`;
     return iflowXMLCode;
@@ -205,10 +332,24 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     // Create folders and add files
     zip.file("metainfo.prop", MetaInfofileContent);
     zip.file(".project", projectxmlFile);
-    zip.folder("src").folder("main").folder("resources").folder("scenarioflows").folder("integrationflow").file(`${dynamicName}.iflw`, iflowXML);
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("scenarioflows")
+      .folder("integrationflow")
+      .file(`${dynamicName}.iflw`, iflowXML);
     zip.folder("META-INF").file("MANIFEST.MF", MFContent);
-    zip.folder("src").folder("main").folder("resources").file("parameters.prop", PM1Content);
-    zip.folder("src").folder("main").folder("resources").file("parameters.propdef", PM2Content);
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .file("parameters.prop", PM1Content);
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .file("parameters.propdef", PM2Content);
 
     // Generate the zip file and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {
@@ -217,16 +358,29 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   };
 
   const Migrate = async () => {
-
     const zip = new JSZip();
 
     // Create folders and add files
     zip.file("metainfo.prop", MetaInfofileContent);
     zip.file(".project", projectxmlFile);
-    zip.folder("src").folder("main").folder("resources").folder("scenarioflows").folder("integrationflow").file(`${dynamicName}.iflw`, iflowXML);
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("scenarioflows")
+      .folder("integrationflow")
+      .file(`${dynamicName}.iflw`, iflowXML);
     zip.folder("META-INF").file("MANIFEST.MF", MFContent);
-    zip.folder("src").folder("main").folder("resources").file("parameters.prop", PM1Content);
-    zip.folder("src").folder("main").folder("resources").file("parameters.propdef", PM2Content);
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .file("parameters.prop", PM1Content);
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .file("parameters.propdef", PM2Content);
 
     // Generate the zip file and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {

@@ -1,7 +1,7 @@
 export const SourceXML = [
   {
     palleteItems: {
-      contentModifier: `<bpmn2:callActivity id="CallActivity_1" name="Content Modifier 1">
+      contentModifier: `<bpmn2:callActivity id="CallActivity_" name="Content Modifier 1">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>bodyType</key>
@@ -32,10 +32,10 @@ export const SourceXML = [
                     <value>ctype::FlowstepVariant/cname::Enricher/version::1.6.0</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
-            <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+            <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+            <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
         </bpmn2:callActivity>`,
-        messageMapping: `<bpmn2:callActivity id="CallActivity_2" name="Message Mapping 1">
+        messageMapping: `<bpmn2:callActivity id="CallActivity_" name="Message Mapping 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>mappinguri</key>
@@ -78,10 +78,10 @@ export const SourceXML = [
                 <value/>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_19</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_22</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        xsltMapping: `<bpmn2:callActivity id="CallActivity_3" name="XSLT Mapping 1">
+        xsltMapping: `<bpmn2:callActivity id="CallActivity_" name="XSLT Mapping 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>mappingoutputformat</key>
@@ -127,7 +127,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_30</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_19</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        groovyScript: `<bpmn2:callActivity id="CallActivity_4" name="Groovy Script 1">
+        groovyScript: `<bpmn2:callActivity id="CallActivity_" name="Groovy Script 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>scriptFunction</key>
@@ -161,7 +161,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_20</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        router:`<bpmn2:exclusiveGateway default="SequenceFlow_1" id="ExclusiveGateway_7" name="Router 1">
+        router:`<bpmn2:exclusiveGateway default="SequenceFlow_" id="ExclusiveGateway_7" name="Router 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>componentVersion</key>
@@ -185,7 +185,7 @@ export const SourceXML = [
         <bpmn2:outgoing>SequenceFlow_24</bpmn2:outgoing>
         <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>`,
-        base64Encoder:`<bpmn2:callActivity id="CallActivity_5" name="Base64 Encoder 1">
+        base64Encoder:`<bpmn2:callActivity id="CallActivity_" name="Base64 Encoder 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>componentVersion</key>
@@ -207,7 +207,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        base64Decoder:`<bpmn2:callActivity id="CallActivity_6" name="Base64 Encoder 1">
+        base64Decoder:`<bpmn2:callActivity id="CallActivity_" name="Base64 Encoder 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>componentVersion</key>
@@ -229,7 +229,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_21</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_24</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        csvtoxmlConverter:`<bpmn2:callActivity id="CallActivity_7" name="CSV to XML Converter 1">
+        csvtoxmlConverter:`<bpmn2:callActivity id="CallActivity_" name="CSV to XML Converter 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>Field_Separator_in_CSV</key>
@@ -271,7 +271,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_11</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_18</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        processCall:`<bpmn2:callActivity id="CallActivity_8" name="Process Call 1">
+        processCall:`<bpmn2:callActivity id="CallActivity_" name="Process Call 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>processId</key>
@@ -297,7 +297,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
     </bpmn2:callActivity>`,        
-        xmlValidator:`<bpmn2:callActivity id="CallActivity_9" name="XML Validator 1">
+        xmlValidator:`<bpmn2:callActivity id="CallActivity_" name="XML Validator 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>xmlSchemaSource</key>
@@ -331,7 +331,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_16</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_30</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        parallelMulticast:`<bpmn2:parallelGateway id="ParallelGateway_10" name="Parallel Multicast 1">
+        parallelMulticast:`<bpmn2:parallelGateway id="ParallelGateway_" name="Parallel Multicast 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>componentVersion</key>
@@ -355,7 +355,7 @@ export const SourceXML = [
         <bpmn2:outgoing>SequenceFlow_56</bpmn2:outgoing>
         <bpmn2:outgoing>SequenceFlow_50</bpmn2:outgoing>
     </bpmn2:parallelGateway>`,
-        sequentialMulticast:`<bpmn2:parallelGateway id="ParallelGateway_11" name="Sequential Multicast 1">
+        sequentialMulticast:`<bpmn2:parallelGateway id="ParallelGateway_" name="Sequential Multicast 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>routingSequenceTable</key>
@@ -382,7 +382,7 @@ export const SourceXML = [
         <bpmn2:outgoing>SequenceFlow_64</bpmn2:outgoing>
         <bpmn2:outgoing>SequenceFlow_61</bpmn2:outgoing>
     </bpmn2:parallelGateway>`,
-      RequestReply:`<bpmn2:serviceTask id="ServiceTask_1" name="Request Reply 1">
+      RequestReply:`<bpmn2:serviceTask id="ServiceTask_" name="Request Reply 1">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>componentVersion</key>
@@ -413,7 +413,7 @@ export const SourceXML = [
                     <value>ctype::FlowstepVariant/cname::MessageStartEvent/version::1.0</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-            <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+            <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
             <bpmn2:messageEventDefinition/>
         </bpmn2:startEvent>`,
         EndEvent:`<bpmn2:endEvent id="EndEvent_1" name="End">
@@ -427,15 +427,15 @@ export const SourceXML = [
                     <value>ctype::FlowstepVariant/cname::MessageEndEvent/version::1.1.0</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
+            <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
             <bpmn2:messageEventDefinition/>
         </bpmn2:endEvent>`  
     },
-    sequenceFlow:` <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="ServiceTask_1" targetRef="EndEvent_2"/>`
+    sequenceFlow:` <bpmn2:sequenceFlow id="SequenceFlow_" sourceRef="" targetRef=""/>`
   },
   {
     SenderAdaptors: {
-        https: `<bpmn2:messageFlow id="MessageFlow_1" name="HTTPS" sourceRef="Participant_1" targetRef="StartEvent_2">
+        https: `<bpmn2:messageFlow id="MessageFlow_1" name="HTTPS" sourceRef="Participant_1" targetRef="StartEvent_1">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>ComponentType</key>
@@ -519,7 +519,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2:extensionElements>
         </bpmn2:messageFlow>`,
-        sftp: `<bpmn2:messageFlow id="MessageFlow_2" name="SFTP" sourceRef="Participant_1" targetRef="StartEvent_2">
+        sftp: `<bpmn2:messageFlow id="MessageFlow_" name="SFTP" sourceRef="Participant_1" targetRef="StartEvent_1">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>disconnect</key>
@@ -710,7 +710,7 @@ export const SourceXML = [
         ftp:""
     },
     ReceiverAdaptors: {
-        http: `<bpmn2:messageFlow id="MessageFlow_3" name="HTTP" sourceRef="ServiceTask_31" targetRef="Participant_2">
+        http: `<bpmn2:messageFlow id="MessageFlow_" name="HTTP" sourceRef="ServiceTask_" targetRef="Participant_">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>Description</key>
@@ -854,7 +854,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2:extensionElements>
         </bpmn2:messageFlow>`,
-            sftp: `<bpmn2:messageFlow id="MessageFlow_4" name="SFTP" sourceRef="ServiceTask_8" targetRef="Participant_2">
+            sftp: `<bpmn2:messageFlow id="MessageFlow_" name="SFTP" sourceRef="ServiceTask_" targetRef="Participant_">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>disconnect</key>
@@ -1022,7 +1022,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2:extensionElements>
         </bpmn2:messageFlow>`,
-            ftp: `<bpmn2:messageFlow id="MessageFlow_5" name="FTP" sourceRef="ServiceTask_31" targetRef="Participant_2">
+            ftp: `<bpmn2:messageFlow id="MessageFlow_" name="FTP" sourceRef="ServiceTask_" targetRef="Participant_">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>disconnect</key>
@@ -1170,7 +1170,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2: extensionElements >
         </bpmn2: messageFlow > `,
-        odata:`< bpmn2:messageFlow id = "MessageFlow_6" name = "OData" sourceRef = "ServiceTask_43" targetRef = "Participant_46" >
+        odata:`< bpmn2:messageFlow id = "MessageFlow_" name = "OData" sourceRef = "ServiceTask_" targetRef = "Participant_" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>batchEntities</key>
@@ -1330,7 +1330,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
          </bpmn2: messageFlow > `,
-        soap:`< bpmn2:messageFlow id = "MessageFlow_7" name = "SOAP" sourceRef = "ServiceTask_36" targetRef = "Participant_35" >
+        soap:`< bpmn2:messageFlow id = "MessageFlow_" name = "SOAP" sourceRef = "ServiceTask_" targetRef = "Participant_" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>cleanupHeaders</key>
@@ -1538,7 +1538,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
         </bpmn2: messageFlow > `,
-        openconnectors : ` < bpmn2:messageFlow id = "MessageFlow_8" name = "OpenConnectors" sourceRef = "ServiceTask_31" targetRef = "Participant_2" >
+        openconnectors : ` < bpmn2:messageFlow id = "MessageFlow_" name = "OpenConnectors" sourceRef = "ServiceTask_" targetRef = "Participant_" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>xmlRequestContentType</key>
@@ -1642,7 +1642,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
         </bpmn2: messageFlow > `,
-        mail:`< bpmn2:messageFlow id = "MessageFlow_8" name = "Mail" sourceRef = "ServiceTask_36" targetRef = "Participant_35" >
+        mail:`< bpmn2:messageFlow id = "MessageFlow_" name = "Mail" sourceRef = "CallActivity_2" targetRef = "Participant_2" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>server</key>
@@ -1939,12 +1939,34 @@ export const SourceXML = [
   },
   {
     BPMNDiagram:{
-        BPMNShape:`<bpmndi:BPMNShape bpmnElement="EndEvent_2" id="BPMNShape_EndEvent_2">
+            defaultBPMNShape:` <bpmndi:BPMNShape bpmnElement="EndEvent_1" id="BPMNShape_EndEvent_1">
                 <dc:Bounds height="32.0" width="32.0" x="703.0" y="142.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="StartEvent_1" id="BPMNShape_StartEvent_1">
+                <dc:Bounds height="32.0" width="32.0" x="292.0" y="142.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="Participant_2" id="BPMNShape_Participant_2">
+                <dc:Bounds height="140.0" width="100.0" x="585.0" y="323.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="Participant_1" id="BPMNShape_Participant_1">
+                <dc:Bounds height="140.0" width="100.0" x="40.0" y="100.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="Participant_Process_1" id="BPMNShape_Participant_Process_1">
+                <dc:Bounds height="220.0" width="540.0" x="250.0" y="60.0"/>
             </bpmndi:BPMNShape>`,
-            BPMNEdge:`<bpmndi:BPMNEdge bpmnElement="MessageFlow_11" id="BPMNEdge_MessageFlow_11" sourceElement="BPMNShape_ServiceTask_8" targetElement="BPMNShape_Participant_2">
-                <di:waypoint x="612.0" xsi:type="dc:Point" y="162.0"/>
-                <di:waypoint x="636.0" xsi:type="dc:Point" y="340.0"/>
+            BPMNShape:`<bpmndi:BPMNShape bpmnElement="CallActivity_" id="BPMNShape_CallActivity_">
+                <dc:Bounds height="60.0" width="100.0" x="412.0" y="132.0"/>
+            </bpmndi:BPMNShape>`,
+            defaultBPMNEdge:`<bpmndi:BPMNEdge bpmnElement="MessageFlow_1" id="BPMNEdge_MessageFlow_1" sourceElement="BPMNShape_Participant_1" targetElement="BPMNShape_StartEvent_1">
+                <di:waypoint x="90.0" xsi:type="dc:Point" y="170.0"/>
+                <di:waypoint x="308.0" xsi:type="dc:Point" y="158.0"/>
+            </bpmndi:BPMNEdge><bpmndi:BPMNEdge bpmnElement="MessageFlow_2" id="BPMNEdge_MessageFlow_2" sourceElement="BPMNShape_EndEvent_1" targetElement="BPMNShape_Participant_2">
+                <di:waypoint x="90.0" xsi:type="dc:Point" y="170.0"/>
+                <di:waypoint x="308.0" xsi:type="dc:Point" y="158.0"/>
+            </bpmndi:BPMNEdge>`,
+            BPMNEdge:`<bpmndi:BPMNEdge bpmnElement="SequenceFlow_" id="BPMNEdge_SequenceFlow_" sourceElement="" targetElement="">
+                <di:waypoint x="308.0" xsi:type="dc:Point" y="160.0"/>
+                <di:waypoint x="462.0" xsi:type="dc:Point" y="160.0"/>
             </bpmndi:BPMNEdge>`
     }
   }
