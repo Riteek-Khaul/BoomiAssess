@@ -266,6 +266,12 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   const handleCloseModal = () => {
     handleClose();
     setShapeArray([]);
+    setBoomiProcessData(SpecificProcess); // Reset to initial value
+    setFirstPart([]); // Reset to initial value
+    setSecondPart([]); // Reset to initial value
+    setConnectors({ sender: [], receiver: [] }); // Reset to initial value
+    setShapeArray([]); // Reset to initial value
+    setShapeCounter(0); // Reset to initial value
   };
 
   console.log(shapeArray);
@@ -273,10 +279,6 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   console.log(connectors);
   console.log(shapeCounter);
   console.log(dynamicName);
-  console.log(shapeArray);
-  console.log(shapeArray);
-  console.log(shapeArray);
-
 
   return (
     <>

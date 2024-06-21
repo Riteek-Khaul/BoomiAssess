@@ -17,7 +17,10 @@ function HomePage(){
   const [SpecificProcess, setSpecificProcess] = useState();
 
   const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
+  const closeModal = () => {
+    setShowModal(false);
+    setSpecificProcess(null); // Reset SpecificProcess state when closing modal
+  };
 
   const navigate = useNavigate();
 
@@ -116,7 +119,6 @@ function HomePage(){
   };
 
   
-
   const getPDF = async (pdfContent) => {
     try {
       const url = "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/makeresultpdf";
@@ -205,7 +207,6 @@ function HomePage(){
 
 
 
-
   return (
     <div className="App">
       <div id="navbar">
@@ -284,12 +285,15 @@ function HomePage(){
             ))}
           </select>
           <button onClick={Next}>Next</button>
-          <Modal
+          {
+            SpecificProcess && (
+              <Modal
             showModal={showModal}
             handleClose={closeModal}
             SpecificProcess={SpecificProcess}
-            setSpecificProcess={setSpecificProcess}
           />
+            )
+          }
         </div>
       )}
     </div>

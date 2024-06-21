@@ -1330,7 +1330,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
          </bpmn2: messageFlow > `,
-        Soap:`< bpmn2:messageFlow id = "MessageFlow_7" name = "SOAP" sourceRef = "ServiceTask_36" targetRef = "Participant_35" >
+        soap:`< bpmn2:messageFlow id = "MessageFlow_7" name = "SOAP" sourceRef = "ServiceTask_36" targetRef = "Participant_35" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>cleanupHeaders</key>
