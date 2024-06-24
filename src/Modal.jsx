@@ -5,7 +5,7 @@ import { shapesMappings } from "./shapesMappings";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
-const { XMLParser, XMLBuilder, XMLValidator} = require("fast-xml-parser");
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
@@ -22,6 +22,33 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   const [PM2Content, setPM2Content] = useState("");
   const [iflowXML, setIflowXML] = useState("");
   const [proceedClicked, setProceedClicked] = useState(false);
+  const [ipackge, setipackge] =
+    useState(`Import-Package: com.sap.esb.application.services.cxf.interceptor,com.sap
+ .esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.cam
+ el,com.sap.it.op.agent.collector.cxf,com.sap.it.op.agent.mpl,javax.jms,
+ javax.jws,javax.wsdl,javax.xml.bind.annotation,javax.xml.namespace,java
+ x.xml.ws,org.apache.camel;version="2.8",org.apache.camel.builder;versio
+ n="2.8",org.apache.camel.builder.xml;version="2.8",org.apache.camel.com
+ ponent.cxf,org.apache.camel.model;version="2.8",org.apache.camel.proces
+ sor;version="2.8",org.apache.camel.processor.aggregate;version="2.8",or
+ g.apache.camel.spring.spi;version="2.8",org.apache.commons.logging,org.
+ apache.cxf.binding,org.apache.cxf.binding.soap,org.apache.cxf.binding.s
+ oap.spring,org.apache.cxf.bus,org.apache.cxf.bus.resource,org.apache.cx
+ f.bus.spring,org.apache.cxf.buslifecycle,org.apache.cxf.catalog,org.apa
+ che.cxf.configuration.jsse;version="2.5",org.apache.cxf.configuration.s
+ pring,org.apache.cxf.endpoint,org.apache.cxf.headers,org.apache.cxf.int
+ erceptor,org.apache.cxf.management.counters;version="2.5",org.apache.cx
+ f.message,org.apache.cxf.phase,org.apache.cxf.resource,org.apache.cxf.s
+ ervice.factory,org.apache.cxf.service.model,org.apache.cxf.transport,or
+ g.apache.cxf.transport.common.gzip,org.apache.cxf.transport.http,org.ap
+ ache.cxf.transport.http.policy,org.apache.cxf.workqueue,org.apache.cxf.
+ ws.rm.persistence,org.apache.cxf.wsdl11,org.osgi.framework;version="1.6
+ .0",org.slf4j;version="1.6",org.springframework.beans.factory.config;ve
+ rsion="3.0",com.sap.esb.camel.security.cms,org.apache.camel.spi,com.sap
+ .esb.webservice.audit.log,com.sap.esb.camel.endpoint.configurator.api,c
+ om.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.proc
+ essor.idempotent.jdbc,org.osgi.service.blueprint;version="[1.0.0,2.0.0)
+ "`);
 
   useEffect(() => {
     setBoomiProcessData(SpecificProcess);
@@ -90,7 +117,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   }, [SpecificProcess]);
 
   const TemplateData = {
-    manifestdata: `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\nImport-Package: com.sap.esb.application.services.cxf.interceptor,com.sap.esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.camel,com.sap.it.op.agent.collector.cxf,com.sap.it.op.agent.mpl,javax.jms,javax.jws,javax.wsdl,javax.xml.bind.annotation,javax.xml.namespace,javax.xml.ws,org.apache.camel;version=\"2.8\",org.apache.camel.builder;version=\"2.8\",org.apache.camel.builder.xml;version=\"2.8\",org.apache.camel.component.cxf,org.apache.camel.model;version=\"2.8\",org.apache.camel.processor;version=\"2.8\",org.apache.camel.processor.aggregate;version=\"2.8\",org.apache.camel.spring.spi;version=\"2.8\",org.apache.commons.logging,org.apache.cxf.binding,org.apache.cxf.binding.soap,org.apache.cxf.binding.soap.spring,org.apache.cxf.bus,org.apache.cxf.bus.resource,org.apache.cxf.bus.spring,org.apache.cxf.buslifecycle,org.apache.cxf.catalog,org.apache.cxf.configuration.jsse;version=\"2.5\",org.apache.cxf.configuration.spring,org.apache.cxf.endpoint,org.apache.cxf.headers,org.apache.cxf.interceptor,org.apache.cxf.management.counters;version=\"2.5\",org.apache.cxf.message,org.apache.cxf.phase,org.apache.cxf.resource,org.apache.cxf.service.factory,org.apache.cxf.service.model,org.apache.cxf.transport,org.apache.cxf.transport.common.gzip,org.apache.cxf.transport.http,org.apache.cxf.transport.http.policy,org.apache.cxf.workqueue,org.apache.cxf.ws.rm.persistence,org.apache.cxf.wsdl11,org.osgi.framework;version=\"1.6.0\",org.slf4j;version=\"1.6\",org.springframework.beans.factory.config;version=\"3.0\",com.sap.esb.camel.security.cms,org.apache.camel.spi,com.sap.esb.webservice.audit.log,com.sap.esb.camel.endpoint.configurator.api,com.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.processor.idempotent.jdbc,org.osgi.service.blueprint;version=\"[1.0.0,2.0.0)\"\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
+    manifestdata: `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\n${ipackge}\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
     projectData: `<?xml version=\"1.0\" encoding=\"UTF-8\"?><projectDescription>\n   <name>${dynamicName}</name>\n   <comment/>\n   <projects/>\n   <buildSpec>\n      <buildCommand>\n         <name>org.eclipse.jdt.core.javabuilder</name>\n         <arguments/>\n      </buildCommand>\n   </buildSpec>\n   <natures>\n      <nature>org.eclipse.jdt.core.javanature</nature>\n      <nature>com.sap.ide.ifl.project.support.project.nature</nature>\n      <nature>com.sap.ide.ifl.bsn</nature>\n   </natures>\n</projectDescription>`,
     parameters: `<?xml version="1.0" encoding="UTF-8" standalone="no"?><parameters><param_references/></parameters>`,
   };
@@ -135,25 +162,29 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     let messageFlowCounter = 1;
 
     function updateMessageFlowIds(xmlString, messageFlowCounter) {
-   
       const options = {
         ignoreAttributes: false, // Parse attributes as well
         attributeNamePrefix: "@_", // Prefix for attribute names
-    };
+      };
 
-    // Parse XML string to JSON object
-    const parser = new XMLParser(options);
-    let jsonObj = parser.parse(xmlString);
+      // Parse XML string to JSON object
+      const parser = new XMLParser(options);
+      let jsonObj = parser.parse(xmlString);
 
       // Example manipulation: Update callActivity id attribute
-       if (jsonObj['bpmn2:messageFlow'] && jsonObj['bpmn2:messageFlow']['@_id']) {
-        jsonObj['bpmn2:messageFlow']['@_id'] = `${jsonObj['bpmn2:messageFlow']['@_id']}${messageFlowCounter}`;
+      if (
+        jsonObj["bpmn2:messageFlow"] &&
+        jsonObj["bpmn2:messageFlow"]["@_id"]
+      ) {
+        jsonObj["bpmn2:messageFlow"][
+          "@_id"
+        ] = `${jsonObj["bpmn2:messageFlow"]["@_id"]}${messageFlowCounter}`;
         messageFlowCounter += 1;
-    }
+      }
 
-         // Convert JSON object back to XML string
-    const builder = new XMLBuilder(options);
-    const updatedXML = builder.build(jsonObj);
+      // Convert JSON object back to XML string
+      const builder = new XMLBuilder(options);
+      const updatedXML = builder.build(jsonObj);
 
       return { updatedXML, messageFlowCounter };
     }
@@ -183,32 +214,40 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     let callActivityCounter = 1;
 
     function updatePalleteItemsIds(xmlString, callActivityCounter) {
-    
       const options = {
         ignoreAttributes: false, // Parse attributes as well
         attributeNamePrefix: "@_", // Prefix for attribute names
-    };
+      };
 
-    // Parse XML string to JSON object
-    const parser = new XMLParser(options);
-    let jsonObj = parser.parse(xmlString);
+      // Parse XML string to JSON object
+      const parser = new XMLParser(options);
+      let jsonObj = parser.parse(xmlString);
 
       // Example manipulation: Update callActivity id attribute
-      if (jsonObj['bpmn2:callActivity'] && jsonObj['bpmn2:callActivity']['@_id']) {
-        jsonObj['bpmn2:callActivity']['@_id'] = `${jsonObj['bpmn2:callActivity']['@_id']}${callActivityCounter}`;
-  
-              jsonObj['bpmn2:callActivity']['bpmn2:incoming'] = `${jsonObj['bpmn2:callActivity']['bpmn2:incoming']}${callActivityCounter}`;
-              jsonObj['bpmn2:callActivity']['bpmn2:outgoing']= `${jsonObj['bpmn2:callActivity']['bpmn2:outgoing']}${callActivityCounter + 1}`;
-  
-          callActivityCounter += 1;
+      if (
+        jsonObj["bpmn2:callActivity"] &&
+        jsonObj["bpmn2:callActivity"]["@_id"]
+      ) {
+        jsonObj["bpmn2:callActivity"][
+          "@_id"
+        ] = `${jsonObj["bpmn2:callActivity"]["@_id"]}${callActivityCounter}`;
+
+        jsonObj["bpmn2:callActivity"][
+          "bpmn2:incoming"
+        ] = `${jsonObj["bpmn2:callActivity"]["bpmn2:incoming"]}${callActivityCounter}`;
+        jsonObj["bpmn2:callActivity"]["bpmn2:outgoing"] = `${
+          jsonObj["bpmn2:callActivity"]["bpmn2:outgoing"]
+        }${callActivityCounter + 1}`;
+
+        callActivityCounter += 1;
       }
-        // Convert JSON object back to XML string
-               // Convert JSON object back to XML string
-    const builder = new XMLBuilder(options);
-    const updatedXML = builder.build(jsonObj);
-  
+      // Convert JSON object back to XML string
+      // Convert JSON object back to XML string
+      const builder = new XMLBuilder(options);
+      const updatedXML = builder.build(jsonObj);
+
       return { updatedXML, callActivityCounter };
-  }
+    }
 
     shapeArray.forEach((ele) => {
       let sourceXML = SourceXML[0].palleteItems[shapesMappings[ele]];
@@ -217,36 +256,75 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
       callActivityCounter = result.callActivityCounter;
     });
 
-    function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
-  
+    function updateSequenceFlowIds(
+      xmlString,
+      sequenceFlowCounter,
+      requireData
+    ) {
       const options = {
         ignoreAttributes: false, // Parse attributes as well
         attributeNamePrefix: "@_", // Prefix for attribute names
-       };
+      };
 
-    // Parse XML string to JSON object
-    const parser = new XMLParser(options);
-    let jsonObj = parser.parse(xmlString);
-  
+      // Parse XML string to JSON object
+      const parser = new XMLParser(options);
+      let jsonObj = parser.parse(xmlString);
+      const RD = parser.parse(requireData, options);
+
+      const elementMap = {};
+
+      // Build a map of elements with their IDs and incoming/outgoing values
+      Object.keys(RD.definitions).forEach((key) => {
+        const element = RD.definitions[key];
+        if (Array.isArray(element)) {
+          element.forEach((item) => {
+            if (item["@_id"]) {
+              elementMap[item["@_id"]] = item;
+            }
+          });
+        } else if (element["@_id"]) {
+          elementMap[element["@_id"]] = element;
+        }
+      });
+
       // Example manipulation: Update sequenceFlow id attribute
-      if (jsonObj && jsonObj['bpmn2:sequenceFlow']) {
-          jsonObj['bpmn2:sequenceFlow']['@_id']= `${jsonObj['bpmn2:sequenceFlow']['@_id']}${sequenceFlowCounter}`;
-          sequenceFlowCounter += 1;
+      if (jsonObj && jsonObj["bpmn2:sequenceFlow"]) {
+        jsonObj["bpmn2:sequenceFlow"][
+          "@_id"
+        ] = `${jsonObj["bpmn2:sequenceFlow"]["@_id"]}${sequenceFlowCounter}`;
+
+        const id = jsonObj["bpmn2:sequenceFlow"]["@_id"];
+
+        // Find and update sourceRef and targetRef
+        Object.values(elementMap).forEach((parent) => {
+          if (parent["bpmn2:outgoing"] && parent["bpmn2:outgoing"] === id) {
+            jsonObj["bpmn2:sequenceFlow"]["@_sourceRef"] = parent["@_id"];
+          }
+          if (parent["bpmn2:incoming"] && parent["bpmn2:incoming"] === id) {
+            jsonObj["bpmn2:sequenceFlow"]["@_targetRef"] = parent["@_id"];
+          }
+        });
+
+        sequenceFlowCounter += 1;
       }
-  
-          // Convert JSON object back to XML string
-                 // Convert JSON object back to XML string
-    const builder = new XMLBuilder(options);
-    const updatedXML = builder.build(jsonObj);
-  
+      
+      // Convert JSON object back to XML string
+      const builder = new XMLBuilder(options);
+      const updatedXML = builder.build(jsonObj);
+
       return { updatedXML, sequenceFlowCounter };
-  }
+    }
 
     let sequenceFlows = "";
     let sequenceFlowCounter = 1;
+    const requireData = `<definitions>${palleteItems}${events}</definitions>`;
 
     for (let i = 1; i <= shapeArray.length + 1; i++) {
-      let result = updateSequenceFlowIds(SourceXML[0].sequenceFlow,sequenceFlowCounter);
+      let result = updateSequenceFlowIds(
+        SourceXML[0].sequenceFlow,
+        sequenceFlowCounter,
+        requireData
+      );
       sequenceFlows += result.updatedXML;
       sequenceFlowCounter = result.sequenceFlowCounter;
     }
