@@ -1170,7 +1170,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2: extensionElements >
         </bpmn2: messageFlow > `,
-        odata:`< bpmn2:messageFlow id = "MessageFlow_" name = "OData" sourceRef = "ServiceTask_" targetRef = "Participant_" >
+        odata:`<bpmn2:messageFlow id="MessageFlow_" name="OData" sourceRef="ServiceTask_" targetRef="Participant_" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>batchEntities</key>
@@ -1330,7 +1330,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
          </bpmn2: messageFlow > `,
-        soap:`< bpmn2:messageFlow id = "MessageFlow_" name = "SOAP" sourceRef = "ServiceTask_" targetRef = "Participant_" >
+        soap:`<bpmn2:messageFlow id ="MessageFlow_" name="SOAP" sourceRef="ServiceTask_" targetRef="Participant_" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>cleanupHeaders</key>
@@ -1538,7 +1538,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
         </bpmn2: messageFlow > `,
-        openconnectors : ` < bpmn2:messageFlow id = "MessageFlow_" name = "OpenConnectors" sourceRef = "ServiceTask_" targetRef = "Participant_" >
+        openconnectors : `<bpmn2:messageFlow id="MessageFlow_" name="OpenConnectors" sourceRef="ServiceTask_" targetRef="Participant_" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>xmlRequestContentType</key>
@@ -1642,7 +1642,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
         </bpmn2: messageFlow > `,
-        mail:`< bpmn2:messageFlow id = "MessageFlow_" name = "Mail" sourceRef = "CallActivity_2" targetRef = "Participant_2" >
+        mail:`<bpmn2:messageFlow id="MessageFlow_" name="Mail" sourceRef="CallActivity_2" targetRef="Participant_2" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>server</key>
@@ -1821,7 +1821,7 @@ export const SourceXML = [
             <value>1.0</value>
         </ifl:property>
     </bpmn2:extensionElements>
-        </bpmn2: messageFlow > `,
+        </bpmn2:messageFlow > `,
       },
   },
   {

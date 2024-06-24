@@ -5,6 +5,7 @@ import { shapesMappings } from "./shapesMappings";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
+const { XMLParser, XMLBuilder, XMLValidator} = require("fast-xml-parser");
 
 const Modal = ({ showModal, handleClose, SpecificProcess }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
@@ -80,13 +81,21 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
         }
       });
       setShapeCounter(counter);
-      setDynamicName(secondPart[1] && secondPart[1][1]);
+      setDynamicName(secondPartData[1][1]);
       setConnectors({
         sender: senderConnectors,
         receiver: receiverConnectors,
       });
     }
+  }, [SpecificProcess]);
 
+  const TemplateData = {
+    manifestdata: `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\nImport-Package: com.sap.esb.application.services.cxf.interceptor,com.sap.esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.camel,com.sap.it.op.agent.collector.cxf,com.sap.it.op.agent.mpl,javax.jms,javax.jws,javax.wsdl,javax.xml.bind.annotation,javax.xml.namespace,javax.xml.ws,org.apache.camel;version=\"2.8\",org.apache.camel.builder;version=\"2.8\",org.apache.camel.builder.xml;version=\"2.8\",org.apache.camel.component.cxf,org.apache.camel.model;version=\"2.8\",org.apache.camel.processor;version=\"2.8\",org.apache.camel.processor.aggregate;version=\"2.8\",org.apache.camel.spring.spi;version=\"2.8\",org.apache.commons.logging,org.apache.cxf.binding,org.apache.cxf.binding.soap,org.apache.cxf.binding.soap.spring,org.apache.cxf.bus,org.apache.cxf.bus.resource,org.apache.cxf.bus.spring,org.apache.cxf.buslifecycle,org.apache.cxf.catalog,org.apache.cxf.configuration.jsse;version=\"2.5\",org.apache.cxf.configuration.spring,org.apache.cxf.endpoint,org.apache.cxf.headers,org.apache.cxf.interceptor,org.apache.cxf.management.counters;version=\"2.5\",org.apache.cxf.message,org.apache.cxf.phase,org.apache.cxf.resource,org.apache.cxf.service.factory,org.apache.cxf.service.model,org.apache.cxf.transport,org.apache.cxf.transport.common.gzip,org.apache.cxf.transport.http,org.apache.cxf.transport.http.policy,org.apache.cxf.workqueue,org.apache.cxf.ws.rm.persistence,org.apache.cxf.wsdl11,org.osgi.framework;version=\"1.6.0\",org.slf4j;version=\"1.6\",org.springframework.beans.factory.config;version=\"3.0\",com.sap.esb.camel.security.cms,org.apache.camel.spi,com.sap.esb.webservice.audit.log,com.sap.esb.camel.endpoint.configurator.api,com.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.processor.idempotent.jdbc,org.osgi.service.blueprint;version=\"[1.0.0,2.0.0)\"\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
+    projectData: `<?xml version=\"1.0\" encoding=\"UTF-8\"?><projectDescription>\n   <name>${dynamicName}</name>\n   <comment/>\n   <projects/>\n   <buildSpec>\n      <buildCommand>\n         <name>org.eclipse.jdt.core.javabuilder</name>\n         <arguments/>\n      </buildCommand>\n   </buildSpec>\n   <natures>\n      <nature>org.eclipse.jdt.core.javanature</nature>\n      <nature>com.sap.ide.ifl.project.support.project.nature</nature>\n      <nature>com.sap.ide.ifl.bsn</nature>\n   </natures>\n</projectDescription>`,
+    parameters: `<?xml version="1.0" encoding="UTF-8" standalone="no"?><parameters><param_references/></parameters>`,
+  };
+
+  const buildDefaultProjectFiles = () => {
     const currentDate = new Date();
     const day = currentDate.toLocaleString("en-US", { weekday: "short" });
     const month = currentDate.toLocaleString("en-US", { month: "short" });
@@ -116,12 +125,6 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     const MFfileContent = TemplateData.manifestdata;
     const blob4 = new Blob([MFfileContent], { type: "text/xml" });
     setMFContent(blob4);
-  }, [SpecificProcess]);
-
-  const TemplateData = {
-    manifestdata: `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\nImport-Package: com.sap.esb.application.services.cxf.interceptor,com.sap.esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.camel,com.sap.it.op.agent.collector.cxf,com.sap.it.op.agent.mpl,javax.jms,javax.jws,javax.wsdl,javax.xml.bind.annotation,javax.xml.namespace,javax.xml.ws,org.apache.camel;version=\"2.8\",org.apache.camel.builder;version=\"2.8\",org.apache.camel.builder.xml;version=\"2.8\",org.apache.camel.component.cxf,org.apache.camel.model;version=\"2.8\",org.apache.camel.processor;version=\"2.8\",org.apache.camel.processor.aggregate;version=\"2.8\",org.apache.camel.spring.spi;version=\"2.8\",org.apache.commons.logging,org.apache.cxf.binding,org.apache.cxf.binding.soap,org.apache.cxf.binding.soap.spring,org.apache.cxf.bus,org.apache.cxf.bus.resource,org.apache.cxf.bus.spring,org.apache.cxf.buslifecycle,org.apache.cxf.catalog,org.apache.cxf.configuration.jsse;version=\"2.5\",org.apache.cxf.configuration.spring,org.apache.cxf.endpoint,org.apache.cxf.headers,org.apache.cxf.interceptor,org.apache.cxf.management.counters;version=\"2.5\",org.apache.cxf.message,org.apache.cxf.phase,org.apache.cxf.resource,org.apache.cxf.service.factory,org.apache.cxf.service.model,org.apache.cxf.transport,org.apache.cxf.transport.common.gzip,org.apache.cxf.transport.http,org.apache.cxf.transport.http.policy,org.apache.cxf.workqueue,org.apache.cxf.ws.rm.persistence,org.apache.cxf.wsdl11,org.osgi.framework;version=\"1.6.0\",org.slf4j;version=\"1.6\",org.springframework.beans.factory.config;version=\"3.0\",com.sap.esb.camel.security.cms,org.apache.camel.spi,com.sap.esb.webservice.audit.log,com.sap.esb.camel.endpoint.configurator.api,com.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.processor.idempotent.jdbc,org.osgi.service.blueprint;version=\"[1.0.0,2.0.0)\"\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
-    projectData: `<?xml version=\"1.0\" encoding=\"UTF-8\"?><projectDescription>\n   <name>${dynamicName}</name>\n   <comment/>\n   <projects/>\n   <buildSpec>\n      <buildCommand>\n         <name>org.eclipse.jdt.core.javabuilder</name>\n         <arguments/>\n      </buildCommand>\n   </buildSpec>\n   <natures>\n      <nature>org.eclipse.jdt.core.javanature</nature>\n      <nature>com.sap.ide.ifl.project.support.project.nature</nature>\n      <nature>com.sap.ide.ifl.bsn</nature>\n   </natures>\n</projectDescription>`,
-    parameters: `<?xml version="1.0" encoding="UTF-8" standalone="no"?><parameters><param_references/></parameters>`,
   };
 
   // Function to create collaboration part
@@ -132,25 +135,25 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     let messageFlowCounter = 1;
 
     function updateMessageFlowIds(xmlString, messageFlowCounter) {
-      // Parse the XML string to a DOM object
-      let parser = new DOMParser();
-      let xmlDoc = parser.parseFromString(xmlString, "application/xml");
+   
+      const options = {
+        ignoreAttributes: false, // Parse attributes as well
+        attributeNamePrefix: "@_", // Prefix for attribute names
+    };
 
-      // Get all bpmn2:messageFlow elements
-      let messageFlows = xmlDoc.getElementsByTagName("bpmn2:messageFlow");
+    // Parse XML string to JSON object
+    const parser = new XMLParser(options);
+    let jsonObj = parser.parse(xmlString);
 
-      // Loop through each messageFlow and update the id attribute
-      for (let i = 0; i < messageFlows.length; i++) {
-        let messageFlow = messageFlows[i];
-        let originalId = messageFlow.getAttribute("id");
-        let newId = `${originalId}${messageFlowCounter}`;
-        messageFlow.setAttribute("id", newId);
+      // Example manipulation: Update callActivity id attribute
+       if (jsonObj['bpmn2:messageFlow'] && jsonObj['bpmn2:messageFlow']['@_id']) {
+        jsonObj['bpmn2:messageFlow']['@_id'] = `${jsonObj['bpmn2:messageFlow']['@_id']}${messageFlowCounter}`;
         messageFlowCounter += 1;
-      }
+    }
 
-      // Serialize the updated DOM back to a string
-      let serializer = new XMLSerializer();
-      let updatedXML = serializer.serializeToString(xmlDoc);
+         // Convert JSON object back to XML string
+    const builder = new XMLBuilder(options);
+    const updatedXML = builder.build(jsonObj);
 
       return { updatedXML, messageFlowCounter };
     }
@@ -169,11 +172,9 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
       messageFlowCounter = result.messageFlowCounter;
     });
 
-    // const messageFlow = `${SourceXML[1].SenderAdaptors[connectors.sender[0]]}${SourceXML[1].ReceiverAdaptors[connectors.receiver[0]]}`;
     return `<bpmn2:collaboration id="Collaboration_1" name="Default Collaboration">${extensionElements}${participants}${messageFlow}</bpmn2:collaboration>`;
   };
 
-  // Function to create process part
   const createProcess = () => {
     const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
     const events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
@@ -182,45 +183,32 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     let callActivityCounter = 1;
 
     function updatePalleteItemsIds(xmlString, callActivityCounter) {
-      // Parse the XML string to a DOM object
-      let parser = new DOMParser();
-      let xmlDoc = parser.parseFromString(xmlString, "application/xml");
+    
+      const options = {
+        ignoreAttributes: false, // Parse attributes as well
+        attributeNamePrefix: "@_", // Prefix for attribute names
+    };
 
-      // Update callActivity ids, incoming, and outgoing tags
-      let callActivities = xmlDoc.getElementsByTagName("bpmn2:callActivity");
-      for (let i = 0; i < callActivities.length; i++) {
-        let callActivity = callActivities[i];
+    // Parse XML string to JSON object
+    const parser = new XMLParser(options);
+    let jsonObj = parser.parse(xmlString);
 
-        // Update the id attribute
-        let originalId = callActivity.getAttribute("id");
-        let newId = `${originalId}${callActivityCounter}`;
-        callActivity.setAttribute("id", newId);
-
-        // Update the incoming tag
-        let incoming = callActivity.getElementsByTagName("bpmn2:incoming")[0];
-        if (incoming) {
-          let originalIncoming = incoming.textContent;
-          incoming.textContent = `${originalIncoming}${callActivityCounter}`;
-        }
-
-        // Update the outgoing tag
-        let outgoing = callActivity.getElementsByTagName("bpmn2:outgoing")[0];
-        if (outgoing) {
-          let originalOutgoing = outgoing.textContent;
-          outgoing.textContent = `${originalOutgoing}${
-            callActivityCounter + 1
-          }`;
-        }
-
-        callActivityCounter += 1;
+      // Example manipulation: Update callActivity id attribute
+      if (jsonObj['bpmn2:callActivity'] && jsonObj['bpmn2:callActivity']['@_id']) {
+        jsonObj['bpmn2:callActivity']['@_id'] = `${jsonObj['bpmn2:callActivity']['@_id']}${callActivityCounter}`;
+  
+              jsonObj['bpmn2:callActivity']['bpmn2:incoming'] = `${jsonObj['bpmn2:callActivity']['bpmn2:incoming']}${callActivityCounter}`;
+              jsonObj['bpmn2:callActivity']['bpmn2:outgoing']= `${jsonObj['bpmn2:callActivity']['bpmn2:outgoing']}${callActivityCounter + 1}`;
+  
+          callActivityCounter += 1;
       }
-
-      // Serialize the updated DOM back to a string
-      let serializer = new XMLSerializer();
-      let updatedXML = serializer.serializeToString(xmlDoc);
-
+        // Convert JSON object back to XML string
+               // Convert JSON object back to XML string
+    const builder = new XMLBuilder(options);
+    const updatedXML = builder.build(jsonObj);
+  
       return { updatedXML, callActivityCounter };
-    }
+  }
 
     shapeArray.forEach((ele) => {
       let sourceXML = SourceXML[0].palleteItems[shapesMappings[ele]];
@@ -229,44 +217,41 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
       callActivityCounter = result.callActivityCounter;
     });
 
-    // Function to update id, sourceRef, and targetRef attributes in sequenceFlow
-function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
-  let parser = new DOMParser();
-  let xmlDoc = parser.parseFromString(xmlString, "application/xml");
+    function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
+  
+      const options = {
+        ignoreAttributes: false, // Parse attributes as well
+        attributeNamePrefix: "@_", // Prefix for attribute names
+       };
 
-  let sequenceFlows = xmlDoc.getElementsByTagName("bpmn2:sequenceFlow");
-  for (let i = 0; i < sequenceFlows.length; i++) {
-    let sequenceFlow = sequenceFlows[i];
-
-    let originalId = sequenceFlow.getAttribute("id");
-    let newId = `${originalId}${sequenceFlowCounter}`;
-    sequenceFlow.setAttribute("id", newId);
-
-    // let sourceRef = sequenceFlow.getAttribute("sourceRef");
-    // sequenceFlow.setAttribute("sourceRef", `${sourceRef}${sequenceFlowCounter}`);
-
-    // let targetRef = sequenceFlow.getAttribute("targetRef");
-    // sequenceFlow.setAttribute("targetRef", `${targetRef}${sequenceFlowCounter}`);
-
-    sequenceFlowCounter += 1;
+    // Parse XML string to JSON object
+    const parser = new XMLParser(options);
+    let jsonObj = parser.parse(xmlString);
+  
+      // Example manipulation: Update sequenceFlow id attribute
+      if (jsonObj && jsonObj['bpmn2:sequenceFlow']) {
+          jsonObj['bpmn2:sequenceFlow']['@_id']= `${jsonObj['bpmn2:sequenceFlow']['@_id']}${sequenceFlowCounter}`;
+          sequenceFlowCounter += 1;
+      }
+  
+          // Convert JSON object back to XML string
+                 // Convert JSON object back to XML string
+    const builder = new XMLBuilder(options);
+    const updatedXML = builder.build(jsonObj);
+  
+      return { updatedXML, sequenceFlowCounter };
   }
-
-  let serializer = new XMLSerializer();
-  let updatedXML = serializer.serializeToString(xmlDoc);
-
-  return { updatedXML, sequenceFlowCounter };
-}
 
     let sequenceFlows = "";
     let sequenceFlowCounter = 1;
 
-    for (let i = 0; i < shapeCounter - 1; i++) {
-      let result = updateSequenceFlowIds(SourceXML[0].sequenceFlow, sequenceFlowCounter);
+    for (let i = 1; i <= shapeArray.length + 1; i++) {
+      let result = updateSequenceFlowIds(SourceXML[0].sequenceFlow,sequenceFlowCounter);
       sequenceFlows += result.updatedXML;
       sequenceFlowCounter = result.sequenceFlowCounter;
     }
 
-    return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${palleteItems}${sequenceFlows} </bpmn2:process>`;
+    return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${palleteItems}${sequenceFlows}</bpmn2:process>`;
   };
 
   // Function to create BPMPlane_1 part
@@ -274,10 +259,9 @@ function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
     let bpmnShapes = SourceXML[4].BPMNDiagram.defaultBPMNShape;
 
     for (let i = 1; i <= shapeArray.length; i++) {
-
       const bpmnElement = `CallActivity_${i}`;
       const id = `BPMNShape_CallActivity_${i}`;
-      
+
       // Construct each BPMNShape element with updated attributes
       bpmnShapes += `
           <bpmndi:BPMNShape bpmnElement="${bpmnElement}" id="${id}">
@@ -291,7 +275,7 @@ function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
     for (let i = 1; i <= shapeArray.length + 1; i++) {
       const bpmnElement = `SequenceFlow_${i}`;
       const id = `BPMNEdge_SequenceFlow_${i}`;
-      
+
       // Construct each BPMNShape element with updated attributes
       bpmnEdges += `
           <bpmndi:BPMNEdge bpmnElement="${bpmnElement}" id="${id}" sourceElement="" targetElement="">
@@ -320,6 +304,7 @@ function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
   };
 
   const ProceedForMigration = () => {
+    const defualtProjectFiles = buildDefaultProjectFiles();
     const xmlContent = generateIflowXML();
     const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
@@ -428,11 +413,11 @@ function updateSequenceFlowIds(xmlString, sequenceFlowCounter) {
     setShapeCounter(0); // Reset to initial value
   };
 
-  console.log(shapeArray);
-  console.log(firstPart);
-  console.log(connectors);
-  console.log(shapeCounter);
-  console.log(dynamicName);
+  // console.log(shapeArray);
+  // console.log(firstPart);
+  // console.log(connectors);
+  // console.log(shapeCounter);
+  // console.log(dynamicName);
 
   return (
     <>
