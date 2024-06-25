@@ -208,7 +208,32 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
 
   const createProcess = () => {
     const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
-    const events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
+    let events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
+
+    function EndEventUpdate(events,counter) {
+      const options = {
+          ignoreAttributes: false,
+          attributeNamePrefix: "@_",
+      };
+  
+      const parser = new XMLParser(options);
+      const builder = new XMLBuilder(options);
+      
+      // Parse the XML events string to a JSON object
+      let jsonObj = parser.parse(events);
+  
+      // Locate the endEvent element and update its incoming element
+      if (jsonObj['bpmn2:endEvent']) {
+          jsonObj['bpmn2:endEvent']['bpmn2:incoming'] = `SequenceFlow_${counter}`;
+      }
+  
+      // Convert the JSON object back to an XML string
+      let updatedEvents = builder.build(jsonObj);
+  
+      return updatedEvents;
+  }
+
+   events = EndEventUpdate(events,shapeArray.length+1);
 
     let palleteItems = "";
     let callActivityCounter = 1;

@@ -427,7 +427,7 @@ export const SourceXML = [
                     <value>ctype::FlowstepVariant/cname::MessageEndEvent/version::1.1.0</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+            <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
             <bpmn2:messageEventDefinition/>
         </bpmn2:endEvent>`  
     },
@@ -710,7 +710,7 @@ export const SourceXML = [
         ftp:""
     },
     ReceiverAdaptors: {
-        http: `<bpmn2:messageFlow id="MessageFlow_" name="HTTP" sourceRef="ServiceTask_" targetRef="Participant_">
+        http: `<bpmn2:messageFlow id="MessageFlow_" name="HTTP" sourceRef="EndEvent_1" targetRef="Participant_2">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>Description</key>
@@ -854,7 +854,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2:extensionElements>
         </bpmn2:messageFlow>`,
-            sftp: `<bpmn2:messageFlow id="MessageFlow_" name="SFTP" sourceRef="ServiceTask_" targetRef="Participant_">
+            sftp: `<bpmn2:messageFlow id="MessageFlow_" name="SFTP" sourceRef="EndEvent_1" targetRef="Participant_2">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>disconnect</key>
@@ -1022,7 +1022,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2:extensionElements>
         </bpmn2:messageFlow>`,
-            ftp: `<bpmn2:messageFlow id="MessageFlow_" name="FTP" sourceRef="ServiceTask_" targetRef="Participant_">
+            ftp: `<bpmn2:messageFlow id="MessageFlow_" name="FTP" sourceRef="EndEvent_1" targetRef="Participant_2">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>disconnect</key>
@@ -1170,7 +1170,7 @@ export const SourceXML = [
                 </ifl:property>
             </bpmn2: extensionElements >
         </bpmn2: messageFlow > `,
-        odata:`<bpmn2:messageFlow id="MessageFlow_" name="OData" sourceRef="ServiceTask_" targetRef="Participant_" >
+        odata:`<bpmn2:messageFlow id="MessageFlow_" name="OData" sourceRef="EndEvent_1" targetRef="Participant_2" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>batchEntities</key>
@@ -1330,7 +1330,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
          </bpmn2: messageFlow > `,
-        soap:`<bpmn2:messageFlow id ="MessageFlow_" name="SOAP" sourceRef="ServiceTask_" targetRef="Participant_" >
+        soap:`<bpmn2:messageFlow id ="MessageFlow_" name="SOAP" sourceRef="EndEvent_1" targetRef="Participant_2" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>cleanupHeaders</key>
@@ -1538,7 +1538,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
         </bpmn2: messageFlow > `,
-        openconnectors : `<bpmn2:messageFlow id="MessageFlow_" name="OpenConnectors" sourceRef="ServiceTask_" targetRef="Participant_" >
+        openconnectors : `<bpmn2:messageFlow id="MessageFlow_" name="OpenConnectors" sourceRef="EndEvent_1" targetRef="Participant_2" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>xmlRequestContentType</key>
@@ -1642,7 +1642,7 @@ export const SourceXML = [
         </ifl:property>
     </bpmn2:extensionElements>
         </bpmn2: messageFlow > `,
-        mail:`<bpmn2:messageFlow id="MessageFlow_" name="Mail" sourceRef="CallActivity_2" targetRef="Participant_2" >
+        mail:`<bpmn2:messageFlow id="MessageFlow_" name="Mail" sourceRef="EndEvent_1" targetRef="Participant_2" >
     <bpmn2:extensionElements>
         <ifl:property>
             <key>server</key>
