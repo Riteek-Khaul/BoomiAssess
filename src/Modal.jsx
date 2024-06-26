@@ -7,10 +7,12 @@ import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
-const Modal = ({ showModal, handleClose, SpecificProcess }) => {
+const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiaccountId }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
+  const [APiDetails,setApiDetails] =useState({ selectedProcess:selectedProcess,boomiaccountId:boomiaccountId });
+  const [scriptsArray, setScriptsArray] = useState([]);
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
   const [shapeArray, setShapeArray] = useState([]);
   const [shapeCounter, setShapeCounter] = useState(0);
@@ -157,6 +159,8 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     const MFfileContent = TemplateData.manifestdata;
     const blob4 = new Blob([MFfileContent], { type: "text/xml" });
     setMFContent(blob4);
+
+
   };
 
   // Function to create collaboration part
@@ -456,12 +460,23 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
       .folder("resources")
       .folder("mapping")
 
-    zip
-      .folder("src")
-      .folder("main")
-      .folder("resources")
-      .folder("script")
-
+      if (scriptsArray.length > 0) {
+        scriptsArray.forEach((scriptObj, i) => {
+            let extension = '';
+            if (scriptObj.language === 'groovy') {
+                extension = '.groovy';
+            } else if (scriptObj.language === 'javascript') {
+                extension = '.js';
+            }
+            zip
+                .folder("src")
+                .folder("main")
+                .folder("resources")
+                .folder("script")
+                .file(`script${i + 1}${extension}`,scriptObj.scriptBlobContent);
+        });
+      }
+  
     zip
       .folder("src")
       .folder("main")
@@ -546,6 +561,52 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     }
   };
 
+  const ReuseScripts = async () => {
+    if (selectedProcess) {
+      alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
+      try {
+        const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallscripts';
+        const response = await axios.get(url, {
+          params: {
+            boomiaccountId: boomiaccountId,
+            selectedProcess: selectedProcess
+          },
+          headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+        setScriptsArray(response.data);
+        console.log(response)
+        if (scriptsArray.length > 0) {
+          const updatedScriptsArray = scriptsArray.map((scriptObj) => {
+            let mimeType;
+            if (scriptObj.language === "groovy") {
+              mimeType = "application/x-groovy";
+            } else if (scriptObj.language === "javascript") {
+              mimeType = "application/javascript";
+            } else {
+              mimeType = "text/plain"; // Default fallback MIME type
+            }
+        
+            const blob = new Blob([scriptObj.script], { type: mimeType });
+            return { ...scriptObj, scriptBlobContent: blob };
+          });
+          console.log(updatedScriptsArray)
+          setScriptsArray(updatedScriptsArray);
+        }
+       
+      } catch (error) {
+        console.error('Error fetching scripts:', error);
+        alert("Something Went wrong!...Please check the Account ID/processID or Associated Credentials!")
+      }
+    } else {
+      alert('Please enter Process ID.');
+    }
+  };
+
+
   const handleCloseModal = () => {
     handleClose();
     setShapeArray([]);
@@ -557,7 +618,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     setShapeCounter(0); // Reset to initial value
   };
 
-   console.log(shapeArray);
+  // console.log(shapeArray);
   // console.log(firstPart);
   // console.log(connectors);
   // console.log(shapeCounter);
@@ -636,6 +697,9 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
               </button>
               {proceedClicked ? (
                 <>
+                 <button onClick={ReuseScripts} id="cancelbtn">
+                    Reuse Resources
+                  </button>
                   <button onClick={DownloadZip} id="cancelbtn">
                     Download ZIP
                   </button>

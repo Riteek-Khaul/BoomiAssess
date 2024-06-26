@@ -291,6 +291,8 @@ function HomePage(){
             showModal={showModal}
             handleClose={closeModal}
             SpecificProcess={SpecificProcess}
+            boomiaccountId={boomiaccountId}
+            selectedProcess={selectedProcess}
           />
             )
           }
