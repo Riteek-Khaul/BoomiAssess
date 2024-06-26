@@ -176,7 +176,7 @@ function HomePage(){
 
   const Next = async () => {
     if (selectedProcess) {
-      alert(`Fetching processes for Process ID: ${selectedProcess}`);
+      alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
       try {
         const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getspecificprocess';
         const response = await axios.get(url, {

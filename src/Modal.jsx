@@ -68,8 +68,13 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
 
       secondPartData.slice(1).forEach((line) => {
         const row = line;
-        const shapeType = row[3];
+        let shapeType = row[3];
         const configuration = row.slice(4).join(",");
+
+        if (shapeType === 'dataprocess') {
+          const match = configuration.match(/@name:([^,]+)/)
+          shapeType=match[1]
+      }
 
         const invalidShapes = ["connectoraction", "start", "stop"];
 
@@ -439,6 +444,42 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
       .folder("resources")
       .file("parameters.propdef", PM2Content);
 
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("json")
+
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("mapping")
+
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("script")
+
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("xsd")
+
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("edmx")
+
+    zip
+      .folder("src")
+      .folder("main")
+      .folder("resources")
+      .folder("wsdl")
+
     // Generate the zip file and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {
       saveAs(content, `${dynamicName}.zip`);
@@ -516,7 +557,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess }) => {
     setShapeCounter(0); // Reset to initial value
   };
 
-  // console.log(shapeArray);
+   console.log(shapeArray);
   // console.log(firstPart);
   // console.log(connectors);
   // console.log(shapeCounter);

@@ -127,7 +127,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_30</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_19</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        groovyScript: `<bpmn2:callActivity id="CallActivity_" name="Groovy Script 1">
+    groovyScript: `<bpmn2:callActivity id="CallActivity_" name="Groovy Script 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>scriptFunction</key>
@@ -155,11 +155,11 @@ export const SourceXML = [
             </ifl:property>
             <ifl:property>
                 <key>script</key>
-                <value>script1.groovy</value>
+                <value></value>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_20</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,
         router:`<bpmn2:exclusiveGateway default="SequenceFlow_" id="ExclusiveGateway_7" name="Router 1">
         <bpmn2:extensionElements>
@@ -489,7 +489,7 @@ export const SourceXML = [
   },
   {
     SenderAdaptors: {
-        https: `<bpmn2:messageFlow id="MessageFlow_" name="HTTPS" sourceRef="Participant_1" targetRef="StartEvent_1">
+        http: `<bpmn2:messageFlow id="MessageFlow_" name="HTTPS" sourceRef="Participant_1" targetRef="StartEvent_1">
             <bpmn2:extensionElements>
                 <ifl:property>
                     <key>ComponentType</key>
