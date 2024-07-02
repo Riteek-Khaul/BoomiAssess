@@ -6,6 +6,7 @@ import SuccessPage from './SuccessPage';
 import CreateFile from './CreateFile';
 import ResourceDownloader from './Resource';
 import IflowXML from './IflowXML';
+import GeneratePDF from './GeneratePDF';
 
 function App(){
 
@@ -16,6 +17,7 @@ function App(){
         <Route path="/test" element={<CreateFile />} />
         <Route path="/resource" element={<ResourceDownloader />} />
         <Route path="/buildXml" element={<IflowXML />} />
+        <Route path="/pdf" element={<GeneratePDF />} />
       </Routes>
   );
 }

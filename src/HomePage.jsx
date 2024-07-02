@@ -3,6 +3,12 @@ import './App.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { Chart, registerables } from 'chart.js';
+import html2canvas from 'html2canvas';
+
+Chart.register(...registerables);
 
 
 function HomePage(){
@@ -85,9 +91,10 @@ function HomePage(){
 
       const parts = response.data.split(/\n\s*\n/);
       const pdfContent = [parts[0], parts[1]].join('\n');
-    //   alert("Getting your files ready to download!");
+    //   console.log("Getting your files ready to download!");
 
-      await getPDF(pdfContent);
+    await getPDF(pdfContent);
+    // await generatePDF(pdfContent);
 
       const part2Csv = parts[2].split('\n').map(line => line.trim()).join('\n');
       downloadCSV('MainResult.csv', part2Csv);
@@ -118,7 +125,6 @@ function HomePage(){
     }
   };
 
-  
   const getPDF = async (pdfContent) => {
     try {
       const url = "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/makeresultpdf";
@@ -143,6 +149,156 @@ function HomePage(){
       alert("Something Went wrong!...Please review the uploaded file or contact support!")
     }
   };
+
+  const parseCSV = (csvString) => {
+    const rows = csvString.trim().split('\n');
+    return rows.slice(1).map(row => row.split(','));
+  };
+  
+  const generatePDF = async (pdfContent) => {
+    const doc = new jsPDF();
+
+    // Split the data into two parts: shape data and category data
+    const [csvShapeData, csvCategoryData] = pdfContent.split('\n\n');
+    
+    // Parse CSV data
+    const shapeData = parseCSV(csvShapeData);
+    const categoryData = parseCSV(csvCategoryData);
+
+    // Title
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Move From Boomi to SAP Integration Suite", 10, 10);
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 255);
+    doc.text("Migration Assessment Report", 10, 20);
+
+    // Info
+    const currentDate = new Date().toLocaleDateString();
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`System: Dev\nDate of Report: ${currentDate}`, 10, 30);
+
+    // Agenda
+    doc.setTextColor(0, 0, 0);
+    doc.text("Contents\n \nIntroduction\nMigration Assessment\nAssessment Categories\nScenario Categorization Summary\nAdapter Type Summary\n", 10, 40);
+
+    // Introduction
+    doc.setFontSize(14);
+    doc.text("Introduction", 10, 80);
+    doc.setFontSize(12);
+    const introductionText = "By introducing the SAP Business Technology Platform (BTP), the integration topic has moved to a new stage. Certainly, there is an infrastructure change running cloud-based services and solutions. This means that administration and operational tasks may differ. The innovative technology also impacts the SAP Integration Suite design and runtime. Nested as a service on SAP BTP, SAP Integration Suite runs in SAP BTP, Cloud Foundry environment. This foundation is an open-source platform as a service (PaaS). It is designed to be configured, deployed, managed, scaled, and upgraded on any cloud Infrastructure as a Service (IaaS) provider. Please be aware of what features the Cloud Foundry environment on SAP BTP supports and doesn't support. However, the intention of SAP Integration Suite is to connect and automate processes and data efficiently across the heterogeneous IT landscape and business network by providing comprehensive integration capabilities and best practices to accelerate and modernize integration.";
+    const introductionLines = doc.splitTextToSize(introductionText, 180);
+    doc.text(introductionLines, 10, 90);
+
+    // Migration Assessment
+    doc.setFontSize(14);
+    doc.text("Migration Assessment", 10, 160);
+
+    // Assessment Categories
+    doc.setFontSize(12);
+    doc.text("Assessment Categories", 10, 170);
+    doc.setTextColor(0, 128, 0);
+    doc.text("• Ready to migrate: ", 10, 180);
+    doc.setTextColor(0, 0, 0);
+    const readyText = "These Boomi processes match to the SAP Integration Suite. They can be moved manually to the SAP Integration Suite. The move might include additional steps within SAP Integration Suite to configure this scenario properly.";
+    const readyLines = doc.splitTextToSize(readyText, 180);
+    doc.text(readyLines, 10, 185);
+    
+    doc.setTextColor(0, 0, 255);
+    doc.text("• Adjustment required: ", 10, 205);
+    doc.setTextColor(0, 0, 0);
+    const adjustmentText = "These Boomi processes partially match to the scenarios offered in SAP Integration Suite. They can be moved to SAP Integration Suite manually. Further adjustments to the end-to-end integration process based on best practices are required.";
+    const adjustmentLines = doc.splitTextToSize(adjustmentText, 180);
+    doc.text(adjustmentLines, 10, 210);
+    
+    doc.setTextColor(255, 0, 0);
+    doc.text("• Evaluation required: ", 10, 230);
+    doc.setTextColor(0, 0, 0);
+    const evaluationText = "For these Boomi processes, some items require further evaluation before the scenario can be moved to SAP Integration Suite.";
+    const evaluationLines = doc.splitTextToSize(evaluationText, 180);
+    doc.text(evaluationLines, 10, 235);
+
+    // Scenario Categorization Summary
+    doc.setFontSize(14);
+    doc.text("Scenario Categorization Summary:", 10, 255);
+
+    // Add a new page for the pie chart
+    doc.addPage();
+
+    // Create Pie Chart
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: categoryData.map(row => row[0]),
+        datasets: [{
+          data: categoryData.map(row => parseFloat(row[2])),
+          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#8BC34A'],
+        }],
+      },
+      options: {
+        responsive: false,
+        animation: false
+      }
+    });
+
+    // Append the canvas to the document for rendering
+    document.body.appendChild(canvas);
+
+    // Ensure the chart is fully rendered
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const canvasImage = await html2canvas(canvas, { useCORS: true });
+    const imgData = canvasImage.toDataURL('image/png');
+
+    // Remove the canvas from the document
+    document.body.removeChild(canvas);
+
+    doc.addImage(imgData, 'PNG', 10, 20, 180, 80); // Adjust the position and size as needed
+
+    // Scenario Categorization Table
+    doc.autoTable({
+      head: [['Current Status', 'Integration Scenarios', '% of Total Scenarios']],
+      body: categoryData.map(row => [row[0], row[1], row[2]]),
+      startY: 110,
+      theme: 'striped',
+      headStyles: { fillColor: [100, 100, 255] },
+    });
+
+    // Summary Paragraph
+    const summaryText = `\n Based on our migration assessment:\n• ${categoryData[0][2]} of the Boomi processes reviewed from your current Boomi Account can be moved manually to the SAP Integration Suite.\n• ${categoryData[1][2]} of the Boomi processes reviewed from your Boomi Account can be moved manually with some adjustments.\n• ${categoryData[2][2]} of the interfaces should be further analyzed and re-evaluated prior to the move to SAP Integration Suite.\n`;
+    const summaryLines = doc.splitTextToSize(summaryText, 180);
+    doc.text(summaryLines, 10, doc.previousAutoTable.finalY + 10);
+
+    // Adapter Type Summary
+    doc.setFontSize(14);
+    doc.text("Adapter/Connector/Shape Type Summary:", 10, doc.previousAutoTable.finalY + 60);
+
+    // Adapter Type Table
+    doc.autoTable({
+      head: [['Type', 'Count']],
+      body: shapeData.map(row => [row[0], row[1]]),
+      startY: doc.previousAutoTable.finalY + 70,
+      theme: 'striped',
+      headStyles: { fillColor: [100, 100, 255] },
+    });
+
+    // Thank You
+    doc.setFontSize(12);
+    doc.setTextColor(255, 165, 0);
+    const thankYouText = "Thank you!";
+    const textWidth = doc.getTextWidth(thankYouText);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const centeredX = (pageWidth - textWidth) / 2;
+    doc.text(thankYouText, centeredX, doc.previousAutoTable.finalY + 70);
+
+    // Save the PDF
+    doc.save('Result.pdf');
+  };
+
 
   const handleFileInput = (event) => {
     setFile(event.target.files[0]);

@@ -581,7 +581,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>fileName</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>Description</key>
@@ -629,7 +629,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>path</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>proxyPort</key>
@@ -693,7 +693,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>credential_name</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>proxyProtocol</key>
@@ -1017,7 +1017,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>fileName</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>Description</key>
@@ -1061,7 +1061,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>path</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>proxyPort</key>
@@ -1085,7 +1085,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>host</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>connectTimeout</key>
@@ -1121,7 +1121,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>credential_name</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>readLock</key>
@@ -1331,7 +1331,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>fileName</key>
-                    <value/>
+                    <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>Description</key>
@@ -1391,7 +1391,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>path</key>
-                    <value/>
+                     <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>proxyPort</key>
@@ -1435,7 +1435,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>credential_name</key>
-                    <value/>
+                     <value></value>
                 </ifl:property>
                 <ifl:property>
                     <key>proxyProtocol</key>
