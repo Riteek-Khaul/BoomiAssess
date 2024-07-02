@@ -2135,7 +2135,7 @@ export const SourceXML = [
         </ifl:property>
         <ifl:property>
             <key>subject</key>
-            <value />
+            <value></value>
         </ifl:property>
         <ifl:property>
             <key>encrypt.smime.aes.keysize</key>

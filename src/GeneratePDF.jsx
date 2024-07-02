@@ -4,7 +4,7 @@ import 'jspdf-autotable';
 import { Chart, registerables } from 'chart.js';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
-import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender} from './utils';
+import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver} from './utils';
 import {SourceXML} from  './CPISourceXML'
 
 Chart.register(...registerables);
@@ -22,14 +22,14 @@ const GeneratePDF = () => {
 
 
   const targetConnectorsData = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bns:Component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="b4db2a3c-7287-433d-82b9-9a018fe6e72e" version="1" name="New SFTP Connector Operation" type="connector-action" subType="sftp" createdDate="2024-06-07T10:02:05Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-07T10:02:05Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion="true" folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
+<bns:Component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="03e286dc-5012-41cd-ba6c-c38de9b7ef55" version="1" name="New Mail Connector Operation 2" type="connector-action" subType="mail" createdDate="2024-06-13T06:48:46Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-13T06:48:46Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion="true" folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
     <bns:encryptedValues/>
     <bns:description></bns:description>
     <bns:object>
         <Operation xmlns="">
             <Archiving directory="" enabled="false"/>
             <Configuration>
-                <SFTPSendAction moveToDirectory="" moveToForceOverride="false" remoteDirectory="/sample/Archive" sftpaction="actionputrename"/>
+                <MailSendAction bodyContentType="text/plain" dataContentType="text/plain" disposition="inline" from="dipalisarwade24@gmail.com" subject="" to="dipali.trade2021@gmail.com"/>
             </Configuration>
             <Tracking>
                 <TrackedFields/>
@@ -39,19 +39,15 @@ const GeneratePDF = () => {
     </bns:object>
 </bns:Component>
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bns:Component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="587d1ed0-fe1a-4b45-afe9-0d922b41ad40" version="1" name="New SFTP Connection" type="connector-settings" subType="sftp" createdDate="2024-06-07T10:01:46Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-07T10:01:46Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion="true" folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
+<bns:Component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="85155e10-c455-4f3c-b395-ed69914cf19c" version="1" name="New Mail Connection" type="connector-settings" subType="mail" createdDate="2024-06-13T06:46:59Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-13T06:46:59Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion="true" folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
     <bns:encryptedValues>
-        <bns:encryptedValue path="//SFTPSettings/AuthSettings/@password" isSet="true"/>
+        <bns:encryptedValue path="//MailSettings/AuthSettings/@password" isSet="true"/>
     </bns:encryptedValues>
     <bns:description></bns:description>
     <bns:object>
-        <SFTPSettings xmlns="" host="virtualhost" port="22">
-            <AuthSettings password="8bea35f1f4b4fce42c2f9d8ba78ffbc875d4c46d37f36b00e8f6eab50209cc48ca29559fbd8bcdf5ca154d68b4a2afb943e52bb4a202ed12f8410b9bd6b835a7" user="testuser"/>
-            <ProxySettings host="" proxyEnabled="false" type="ATOM" user=""/>
-            <SSHOptions dhKeySizeMax1024="false" sshkeyauth="false" sshkeypath="">
-                <knownHostEntry/>
-            </SSHOptions>
-        </SFTPSettings>
+        <MailSettings xmlns="" host="smtp.gmail.com" port="587" usesmtpauth="true" usessl="false" usetls="true">
+            <AuthSettings password="88024c8b2275e825dfef11781139755dd4df85deb751c95fd15e66f44b64475e544f601357772a375db6777a831f8597aa48f2e6a2e0b07f8c9edb09f17ad4f8" user="dipalisarwade24@gmail.com"/>
+        </MailSettings>
     </bns:object>
 </bns:Component>`;
 
@@ -248,11 +244,14 @@ Total Processes,2,100.00%`;
     // let ftp = SourceXML[1].SenderAdaptors.ftp
     // const updatedXMl = FTP_Sender(ftp,targetConnectorsData);  
 
-    let sftp = SourceXML[1].ReceiverAdaptors.sftp
-    const updatedXMl = SFTP_Receiver(sftp,targetConnectorsData); 
+    // let sftp = SourceXML[1].ReceiverAdaptors.sftp
+    // const updatedXMl = SFTP_Receiver(sftp,targetConnectorsData); 
 
-      //  let sftp = SourceXML[1].SenderAdaptors.sftp
-      //  const updatedXMl = SFTP_Sender(sftp,targetConnectorsData); 
+    //  let sftp = SourceXML[1].SenderAdaptors.sftp
+    //  const updatedXMl = SFTP_Sender(sftp,targetConnectorsData); 
+
+       let mail = SourceXML[1].ReceiverAdaptors.mail
+       const updatedXMl = MAIL_Receiver(mail,targetConnectorsData); 
 
     console.log(updatedXMl)
   }

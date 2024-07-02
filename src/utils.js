@@ -380,3 +380,116 @@ export function SFTP_Sender(sourceXML,targetConnectorData){
     
       return updatedSourceXML;
 }
+
+export function MAIL_Receiver(sourceXML,targetConnectorData){
+
+  const options = {
+      ignoreAttributes: false, // Parse attributes as well
+      attributeNamePrefix: "@_", // Prefix for attribute names
+    };
+  
+    // Parse XML string to JSON object
+    const parser = new XMLParser(options);
+    let jsonObjSourceXML = parser.parse(sourceXML);
+    let jsonObjectConnectorData = parser.parse(targetConnectorData);
+  
+     // Extract components
+     const components = jsonObjectConnectorData['bns:Component'];
+     
+     if (components.length < 2) {
+       throw new Error("Expected at least two bns:Component elements");
+     }
+  
+      // Extract data from the first component
+    const firstComponent = components[0];
+    const componentName = firstComponent['@_name'];
+    const ArchieveDir = firstComponent['bns:object']['Operation']['Archiving']['@_directory'];
+    const bodyContentType = firstComponent['bns:object']['Operation']['Configuration']['MailSendAction']['@_bodyContentType'];
+    const dataContentType = firstComponent['bns:object']['Operation']['Configuration']['MailSendAction']['@_dataContentType'];
+    const disposition = firstComponent['bns:object']['Operation']['Configuration']['MailSendAction']['@_disposition'];
+    const from = firstComponent['bns:object']['Operation']['Configuration']['MailSendAction']['@_from'];
+    const to = firstComponent['bns:object']['Operation']['Configuration']['MailSendAction']['@_to'];
+    const subject = firstComponent['bns:object']['Operation']['Configuration']['MailSendAction']['@_subject'];
+  
+    // Extract data from the second component
+    const secondComponent = components[1];
+    const host = secondComponent['bns:object']['MailSettings']['@_host'];
+    const port = secondComponent['bns:object']['MailSettings']['@_port'];
+    const userName = secondComponent['bns:object']['MailSettings']['AuthSettings']['@_user'];
+  
+    const targetXML = `
+      <bpmn2:messageFlow id="MessageFlow_" name="${componentName}" sourceRef="EndEvent_1" targetRef="Participant_2" >
+        <bpmn2:extensionElements>
+          ${Object.entries(jsonObjSourceXML['bpmn2:messageFlow']['bpmn2:extensionElements']['ifl:property']).map(([, prop]) => {
+            const key = prop['key'];
+            const value = prop['value'];
+  
+            switch (key) {
+              case 'Name':
+                return `
+                  <ifl:property>
+                    <key>Name</key>
+                    <value>${componentName}</value>
+                  </ifl:property>
+                `;
+              case 'content_type':
+                return `
+                  <ifl:property>
+                    <key>content_type</key>
+                    <value>${dataContentType}</value>
+                  </ifl:property>
+                `;
+              case 'subject':
+                return `
+                  <ifl:property>
+                    <key>subject</key>
+                    <value>${subject}</value>
+                  </ifl:property>
+                `;
+              case 'server':
+                return `
+                  <ifl:property>
+                    <key>server</key>
+                    <value>${host}</value>
+                  </ifl:property>
+                `;
+                case 'from':
+                return `
+                  <ifl:property>
+                    <key>from</key>
+                    <value>${from}</value>
+                  </ifl:property>
+                `;
+                case 'to':
+                return `
+                  <ifl:property>
+                    <key>to</key>
+                    <value>${to}</value>
+                  </ifl:property>
+                `;
+              case 'user':
+                return `
+                  <ifl:property>
+                    <key>user</key>
+                    <value>${userName}</value>
+                  </ifl:property>
+                `;
+              default:
+                return `
+                  <ifl:property>
+                    <key>${key}</key>
+                    <value>${value}</value>
+                  </ifl:property>
+                `;
+            }
+          }).join('')}
+        </bpmn2:extensionElements>
+      </bpmn2:messageFlow>
+    `;
+  
+    // Convert JSON object back to XML string
+    const builder = new XMLBuilder(options);
+    const updatedSourceXML = builder.build(parser.parse(targetXML));
+  
+    return updatedSourceXML;
+}

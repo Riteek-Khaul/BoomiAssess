@@ -23,6 +23,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   const [PM1Content, setPM1Content] = useState("");
   const [PM2Content, setPM2Content] = useState("");
   const [iflowXML, setIflowXML] = useState("");
+  const [connectorDetails,setConnectorDetails] = useState('');
   const [proceedClicked, setProceedClicked] = useState(false);
   const [ipackge, setipackge] =
     useState(`Import-Package: com.sap.esb.application.services.cxf.interceptor,com.sap
@@ -415,8 +416,36 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     return iflowXMLCode;
   };
 
+  const getConnectorDetails = async () => {
+    if (selectedProcess) {
+      alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
+      console.log(boomiaccountId,selectedProcess)
+      try {
+        const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getcomponentsdetails';
+        const response = await axios.get(url, {
+          params: {
+            boomiaccountId: boomiaccountId,
+            selectedProcess: selectedProcess
+          },
+          headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+        setConnectorDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching processes:', error);
+        alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+      }
+    } else {
+      alert('Please enter Boomi Account ID.');
+    }
+  };
+
   const ProceedForMigration = () => {
     const defualtProjectFiles = buildDefaultProjectFiles();
+    const ConnectorsDetails =getConnectorDetails();
     const xmlContent = generateIflowXML();
     const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
