@@ -5,7 +5,9 @@ import { shapesMappings } from "./shapesMappings";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
+import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver,Test} from './utils';
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
+
 
 const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiaccountId }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
@@ -23,7 +25,10 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   const [PM1Content, setPM1Content] = useState("");
   const [PM2Content, setPM2Content] = useState("");
   const [iflowXML, setIflowXML] = useState("");
-  const [connectorDetails,setConnectorDetails] = useState('');
+  const [updatedConnectorDetails, setUpdatedConnectorDetails] = useState({
+    sender: "",
+    receiver: ""
+  });
   const [proceedClicked, setProceedClicked] = useState(false);
   const [ipackge, setipackge] =
     useState(`Import-Package: com.sap.esb.application.services.cxf.interceptor,com.sap
@@ -201,14 +206,39 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
 
     connectors.sender.forEach((senderConnector) => {
       let sourceXML = SourceXML[1].SenderAdaptors[senderConnector];
-      let result = updateMessageFlowIds(sourceXML, messageFlowCounter);
+       // update the connector config details
+      let updatedSourceXML ='';
+
+      if(senderConnector=="ftp"){
+         updatedSourceXML = FTP_Sender(sourceXML,updatedConnectorDetails.sender); 
+        }else if(senderConnector=="sftp"){
+         updatedSourceXML = SFTP_Sender(sourceXML,updatedConnectorDetails.sender); 
+        }else{
+         updatedSourceXML = sourceXML;
+      }
+  
+      let result = updateMessageFlowIds(updatedSourceXML, messageFlowCounter);
       messageFlow += result.updatedXML;
       messageFlowCounter = result.messageFlowCounter;
     });
 
     connectors.receiver.forEach((receiverConnector) => {
       let sourceXML = SourceXML[1].ReceiverAdaptors[receiverConnector];
-      let result = updateMessageFlowIds(sourceXML, messageFlowCounter);
+
+       // update the connector config details
+       let updatedSourceXML ='';
+      
+      if(receiverConnector=="http"){
+         updatedSourceXML = HTTP_Receiver(sourceXML,updatedConnectorDetails.receiver); 
+        }else if(receiverConnector=="sftp"){
+         updatedSourceXML = SFTP_Receiver(sourceXML,updatedConnectorDetails.receiver); 
+        }else if(receiverConnector=="mail"){
+          updatedSourceXML = MAIL_Receiver(sourceXML,updatedConnectorDetails.receiver); 
+         }else{
+         updatedSourceXML = sourceXML;
+      }
+
+      let result = updateMessageFlowIds(updatedSourceXML, messageFlowCounter);
       messageFlow += result.updatedXML;
       messageFlowCounter = result.messageFlowCounter;
     });
@@ -433,7 +463,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
             'X-Requested-With': 'XMLHttpRequest',
           },
         });
-        setConnectorDetails(response.data);
+        classifyConnectorData(response.data);
       } catch (error) {
         console.error('Error fetching processes:', error);
         alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
@@ -441,6 +471,40 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     } else {
       alert('Please enter Boomi Account ID.');
     }
+  };
+
+  const classifyConnectorData = (connectorDetails) => {
+    const options = {
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+    };
+
+    const senderType = connectors.sender[0];
+    const receiverType = connectors.receiver[0];
+
+    const parser = new XMLParser(options);
+    const builder = new XMLBuilder(options);
+
+    // Parse XML to JSON
+    let jsonObjectConnectorData = parser.parse(connectorDetails);
+
+    // Extract components
+    const components = jsonObjectConnectorData['multimap:Messages']['multimap:Message1']['bns:Component'];
+
+    let newUpdatedConnectorDetails = {
+      sender: "",
+      receiver: ""
+    };
+
+    components.forEach(element => {
+      const elementXml = builder.build({ 'bns:Component': element });
+      if (element['@_subType'] === senderType) {
+        newUpdatedConnectorDetails.sender += elementXml;
+      } else if (element['@_subType'] === receiverType) {
+        newUpdatedConnectorDetails.receiver += elementXml;
+      }
+    });
+    setUpdatedConnectorDetails(newUpdatedConnectorDetails);
   };
 
   const ProceedForMigration = () => {

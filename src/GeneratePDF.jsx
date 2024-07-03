@@ -4,8 +4,9 @@ import 'jspdf-autotable';
 import { Chart, registerables } from 'chart.js';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
-import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver} from './utils';
+import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver,Test} from './utils';
 import {SourceXML} from  './CPISourceXML'
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 Chart.register(...registerables);
 
@@ -14,41 +15,84 @@ const GeneratePDF = () => {
   const [boomiaccountId, setBoomiAccountId] = useState('craveinfotech-93BT0P');
   const [selectedProcess, setSelectedProcess] = useState('56de4dbd-bdb0-4a49-bff8-aeed71857347');
   const [connectorDetails,setConnectorDetails] = useState('');
+  const [updatedConnectorDetails, setUpdatedConnectorDetails] = useState({
+    sender: "",
+    receiver: ""
+  });
 
   const parseCSV = (csvString) => {
     const rows = csvString.trim().split('\n');
     return rows.slice(1).map(row => row.split(','));
   };
 
+  const classifyConnectorData = () => {
+    const options = {
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+    };
 
-  const targetConnectorsData = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bns:Component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="03e286dc-5012-41cd-ba6c-c38de9b7ef55" version="1" name="New Mail Connector Operation 2" type="connector-action" subType="mail" createdDate="2024-06-13T06:48:46Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-13T06:48:46Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion="true" folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
-    <bns:encryptedValues/>
-    <bns:description></bns:description>
-    <bns:object>
-        <Operation xmlns="">
-            <Archiving directory="" enabled="false"/>
-            <Configuration>
-                <MailSendAction bodyContentType="text/plain" dataContentType="text/plain" disposition="inline" from="dipalisarwade24@gmail.com" subject="" to="dipali.trade2021@gmail.com"/>
-            </Configuration>
-            <Tracking>
-                <TrackedFields/>
-            </Tracking>
-            <Caching/>
-        </Operation>
-    </bns:object>
+    const senderType = "ftp";
+    const receiverType = "http";
+
+    const parser = new XMLParser(options);
+    const builder = new XMLBuilder(options);
+
+    // Parse XML to JSON
+    let jsonObjectConnectorData = parser.parse(connectorDetails);
+
+    // Extract components
+    const components = jsonObjectConnectorData['multimap:Messages']['multimap:Message1']['bns:Component'];
+
+    let newUpdatedConnectorDetails = {
+      sender: "",
+      receiver: ""
+    };
+
+    components.forEach(element => {
+      const elementXml = builder.build({ 'bns:Component': element });
+      if (element['@_subType'] === senderType) {
+        newUpdatedConnectorDetails.sender += elementXml;
+      } else if (element['@_subType'] === receiverType) {
+        newUpdatedConnectorDetails.receiver += elementXml;
+      }
+    });
+    setUpdatedConnectorDetails(newUpdatedConnectorDetails);
+  };
+
+
+  const targetConnectorsData = `<bns:Component
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="b1243733-85bb-4459-9833-31bf6a745f4d" version="5" name="Crave FTP Connection" type="connector-settings" subType="ftp" createdDate="2024-06-13T18:39:44Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-14T06:22:22Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
+	<bns:encryptedValues>
+		<bns:encryptedValue path="//FTPSettings/AuthSettings/@password" isSet></bns:encryptedValue>
+	</bns:encryptedValues>
+	<bns:description></bns:description>
+	<bns:object>
+		<FTPSettings
+			xmlns="" connectionMode="passive" host="us232.siteground.us" port="21">
+			<AuthSettings password="407876da24a40fb333ad89528f71f75d6ab2f2f5860308f5dba32848bd2aa2754d9ec3d9b89255839009447bf3c5d7aa89f044c6bdcabc629fd0666dc1b4be34" user="integration@craveinfotech.com"></AuthSettings>
+			<SSLOptions clientauth="false" sslmode="none"></SSLOptions>
+		</FTPSettings>
+	</bns:object>
 </bns:Component>
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bns:Component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="85155e10-c455-4f3c-b395-ed69914cf19c" version="1" name="New Mail Connection" type="connector-settings" subType="mail" createdDate="2024-06-13T06:46:59Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-13T06:46:59Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion="true" folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
-    <bns:encryptedValues>
-        <bns:encryptedValue path="//MailSettings/AuthSettings/@password" isSet="true"/>
-    </bns:encryptedValues>
-    <bns:description></bns:description>
-    <bns:object>
-        <MailSettings xmlns="" host="smtp.gmail.com" port="587" usesmtpauth="true" usessl="false" usetls="true">
-            <AuthSettings password="88024c8b2275e825dfef11781139755dd4df85deb751c95fd15e66f44b64475e544f601357772a375db6777a831f8597aa48f2e6a2e0b07f8c9edb09f17ad4f8" user="dipalisarwade24@gmail.com"/>
-        </MailSettings>
-    </bns:object>
+<bns:Component
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:bns="http://api.platform.boomi.com/" folderFullPath="Crave Infotech" componentId="28cb16ff-219c-437f-9bd5-52a3316310a5" version="9" name="Crave FTP Connector Operation" type="connector-action" subType="ftp" createdDate="2024-06-13T18:42:27Z" createdBy="ankur.thakre@craveinfotech.com" modifiedDate="2024-06-14T06:23:31Z" modifiedBy="ankur.thakre@craveinfotech.com" deleted="false" currentVersion folderName="Crave Infotech" folderId="Rjo2NzkyMjE5" branchName="main" branchId="Qjo0MjkzNTI">
+	<bns:encryptedValues></bns:encryptedValues>
+	<bns:description></bns:description>
+	<bns:object>
+		<Operation
+			xmlns="">
+			<Archiving directory="/cpi/archive" enabled></Archiving>
+			<Configuration>
+				<FTPGetAction fileToMove="*csv" ftpaction="actionget" maxFileCount="1" remoteDirectory="/cpi" transferType="binary"></FTPGetAction>
+			</Configuration>
+			<Tracking>
+				<TrackedFields></TrackedFields>
+			</Tracking>
+			<Caching></Caching>
+		</Operation>
+	</bns:object>
 </bns:Component>`;
 
   const pdfContent = `Type,Count
@@ -250,18 +294,22 @@ Total Processes,2,100.00%`;
     //  let sftp = SourceXML[1].SenderAdaptors.sftp
     //  const updatedXMl = SFTP_Sender(sftp,targetConnectorsData); 
 
-       let mail = SourceXML[1].ReceiverAdaptors.mail
-       const updatedXMl = MAIL_Receiver(mail,targetConnectorsData); 
+      //  let mail = SourceXML[1].ReceiverAdaptors.mail
+      //  const updatedXMl = MAIL_Receiver(mail,targetConnectorsData); 
+
+      let ftp = SourceXML[1].ReceiverAdaptors.ftp
+      const updatedXMl = Test(ftp,updatedConnectorDetails.sender); 
 
     console.log(updatedXMl)
   }
- // console.log(connectorDetails)
+
 
   return (
     <div>
       <button onClick={generatePDF}>Generate PDF</button>
       <button onClick={getConnectorDetails}>Get Adptors Details</button>
       <button onClick={mapData}>Map data</button>
+      <button onClick={classifyConnectorData}>Classify Connector data</button>
     </div>
   );
 };
