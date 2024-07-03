@@ -816,7 +816,6 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
                   Proceed for Migration
                 </button>
                 </>
-                
               )}
             </div>
           </div>

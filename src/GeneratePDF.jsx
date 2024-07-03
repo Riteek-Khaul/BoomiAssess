@@ -6,7 +6,12 @@ import html2canvas from 'html2canvas';
 import axios from 'axios';
 import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver,Test} from './utils';
 import {SourceXML} from  './CPISourceXML'
+import { Stepper, Step, StepLabel, Box, Button } from '@mui/material';
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
+
+const steps = ['Shapes Used', 
+  'Connector Details','Transfer Details','Reuse Resources','Create Flow']; 
+
 
 Chart.register(...registerables);
 
@@ -19,6 +24,77 @@ const GeneratePDF = () => {
     sender: "",
     receiver: ""
   });
+
+  const [activeStepCount, setActiveStepCount] = useState(0); 
+  const [skip, setSkip] =useState(new Set()); 
+
+const StepOne = () => <div>Step One : Shapes Used </div>;
+const StepTwo = () => <div>Step Two :  <button>Fetch Connector Details</button></div>;
+const StepThree = () => <div>Step Three :  <button>Transfer Connector Details</button></div>;
+const StepFour = () => <div>Step Four :  <button>Reuse Resources</button></div>;
+const CompleteStep = () => (
+  <div>
+    <h3>Ready to Migrate or Download!</h3>
+    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 4 }}>
+      <Box sx={{ flex: '1 1 auto' }} />
+      <Button onClick={handleStepReset}>Reset</Button>
+    </Box>
+  </div>
+);
+
+  const optionalStep = (step) => { 
+      return step === 3; 
+  }; 
+
+  const skipStep = (step) => { 
+      return skip.has(step); 
+  }; 
+
+  const handleStepNext = () => { 
+      let newSkipped = skip; 
+      if (skipStep(activeStepCount)) { 
+          newSkipped = new Set(newSkipped.values()); 
+          newSkipped.delete(activeStepCount); 
+      } 
+
+      setActiveStepCount((prevActiveStep) => prevActiveStep + 1); 
+      setSkip(newSkipped); 
+  }; 
+
+  const handleStepBack = () => { 
+      setActiveStepCount((prevActiveStep) => prevActiveStep - 1); 
+  }; 
+
+  const handleStepSkip = () => { 
+
+      setActiveStepCount((prevActiveStep) => prevActiveStep + 1); 
+      setSkip((prevSkipped) => { 
+          const newSkipped = new Set(prevSkipped.values()); 
+          newSkipped.add(activeStepCount); 
+          return newSkipped; 
+      }); 
+  }; 
+
+  const handleStepReset = () => { 
+      setActiveStepCount(0); 
+  }; 
+
+  const renderStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return <StepOne />;
+      case 1:
+        return <StepTwo />;
+      case 2:
+        return <StepThree />;
+      case 3:
+        return <StepFour />;
+      case 4:
+          return <CompleteStep />;
+      default:
+        return <div>Unknown step</div>;
+    }
+  };
 
   const parseCSV = (csvString) => {
     const rows = csvString.trim().split('\n');
@@ -311,6 +387,50 @@ Total Processes,2,100.00%`;
       <button onClick={getConnectorDetails}>Get Adptors Details</button>
       <button onClick={mapData}>Map data</button>
       <button onClick={classifyConnectorData}>Classify Connector data</button>
+      <div style={{ width: "100%" }}>
+      <Stepper activeStep={activeStepCount} alternativeLabel>
+        {steps.map((label, index) => {
+          const stepProps = {};
+          const labelProps = {};
+          if (skipStep(index)) {
+            stepProps.completed = false;
+          }
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}>{label}</StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      {activeStepCount === steps.length ? (
+        <div>
+          <CompleteStep />
+        </div>
+      ) : (
+        <div>
+          {renderStepContent(activeStepCount)}
+          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+            <Button
+              color="primary"
+              disabled={activeStepCount === 0}
+              onClick={handleStepBack}
+              sx={{ mr: 1 }}
+            >
+              Previous
+            </Button>
+            <Box sx={{ flex: '1 1 auto' }} />
+            {optionalStep(activeStepCount) && (
+              <Button color="primary" onClick={handleStepSkip} sx={{ mr: 1 }}>
+                Skip
+              </Button>
+            )}
+            <Button onClick={handleStepNext}>
+              {activeStepCount === steps.length - 1 ? 'Done' : 'Next'}
+            </Button>
+          </Box>
+        </div>
+      )}
+    </div>
     </div>
   );
 };
