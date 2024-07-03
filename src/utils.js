@@ -108,6 +108,8 @@ export function FTP_Sender(sourceXML,targetConnectorData){
        // Extract components
        const components = jsonObjectConnectorData['bns:Component'];
        
+       console.log(components)
+       
        if (components.length < 2) {
          throw new Error("Expected at least two bns:Component elements");
        }

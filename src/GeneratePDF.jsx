@@ -303,6 +303,7 @@ Total Processes,2,100.00%`;
     console.log(updatedXMl)
   }
 
+   console.log(connectorDetails)
 
   return (
     <div>

@@ -25,6 +25,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   const [PM1Content, setPM1Content] = useState("");
   const [PM2Content, setPM2Content] = useState("");
   const [iflowXML, setIflowXML] = useState("");
+  const [connectorDetails,setConnectorDetails] = useState('');
   const [updatedConnectorDetails, setUpdatedConnectorDetails] = useState({
     sender: "",
     receiver: ""
@@ -463,7 +464,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
             'X-Requested-With': 'XMLHttpRequest',
           },
         });
-        classifyConnectorData(response.data);
+        setConnectorDetails(response.data);
       } catch (error) {
         console.error('Error fetching processes:', error);
         alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
@@ -473,7 +474,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     }
   };
 
-  const classifyConnectorData = (connectorDetails) => {
+  const classifyConnectorData = () => {
     const options = {
       ignoreAttributes: false,
       attributeNamePrefix: "@_",
@@ -488,8 +489,8 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     // Parse XML to JSON
     let jsonObjectConnectorData = parser.parse(connectorDetails);
 
-    // Extract components
-    const components = jsonObjectConnectorData['multimap:Messages']['multimap:Message1']['bns:Component'];
+     // Extract components
+     const components = jsonObjectConnectorData['multimap:Messages']['multimap:Message1']['bns:Component'];
 
     let newUpdatedConnectorDetails = {
       sender: "",
@@ -507,9 +508,12 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     setUpdatedConnectorDetails(newUpdatedConnectorDetails);
   };
 
+
+
   const ProceedForMigration = () => {
+    // const ConnectorsDetails =getConnectorDetails();
     const defualtProjectFiles = buildDefaultProjectFiles();
-    const ConnectorsDetails =getConnectorDetails();
+  //  const separeted = classifyConnectorData();
     const xmlContent = generateIflowXML();
     const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
@@ -716,6 +720,8 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   // console.log(connectors);
   // console.log(shapeCounter);
   // console.log(dynamicName);
+   console.log(connectorDetails);
+   console.log(updatedConnectorDetails)
 
   return (
     <>
@@ -799,9 +805,18 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
                   <button onClick={Migrate}>Migrate</button>
                 </>
               ) : (
+                <>
+                  <button onClick={getConnectorDetails}>
+                   GetDetails
+                </button>
+                <button onClick={classifyConnectorData}>
+                  Classify Details
+                </button>
                 <button onClick={ProceedForMigration}>
                   Proceed for Migration
                 </button>
+                </>
+                
               )}
             </div>
           </div>
