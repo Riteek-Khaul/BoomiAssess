@@ -5,8 +5,10 @@ import { shapesMappings } from "./shapesMappings";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
+import { Stepper, Step, StepLabel, Box, Button } from '@mui/material';
 import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver,Test} from './utils';
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
+
 
 
 const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiaccountId }) => {
@@ -31,6 +33,8 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     receiver: ""
   });
   const [proceedClicked, setProceedClicked] = useState(false);
+  const [activeStepCount, setActiveStepCount] = useState(0); 
+  const [skip, setSkip] =useState(new Set()); 
   const [ipackge, setipackge] =
     useState(`Import-Package: com.sap.esb.application.services.cxf.interceptor,com.sap
  .esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.cam
@@ -58,6 +62,138 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
  om.sap.esb.camel.jdbc.idempotency.reorg,javax.sql,org.apache.camel.proc
  essor.idempotent.jdbc,org.osgi.service.blueprint;version="[1.0.0,2.0.0)
  "`);
+
+
+ const steps = ['Shapes Used','Connector Details','Transfer Details','Reuse Resources','Create Flow']; 
+ const StepOne = () => { 
+    return(<div className="tables-container">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Shape/Connector</th>
+            <th>CPI Alternative</th>
+          </tr>
+        </thead>
+        <tbody>
+          {firstPart.slice(1).map((row, index) => (
+            <tr key={index}>
+              {row.map((cell, cellIndex) =>
+                cellIndex === 0 ? (
+                  <React.Fragment key={cellIndex}>
+                    <td>{cell}</td>
+                    <td>
+                      {shapesMappings[cell] || "No Alternative"}
+                    </td>
+                  </React.Fragment>
+                ) : null
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>)
+ }
+
+ const StepTwo = () => {
+  return(
+    <div className="connectorTable">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Sender</th>
+          <th>Receiver</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({
+          length: Math.max(
+            connectors.sender.length,
+            connectors.receiver.length
+          ),
+        }).map((_, index) => (
+          <tr key={index}>
+            <td>{connectors.sender[index] || ""}</td>
+            <td>{connectors.receiver[index] || ""}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <button onClick={getConnectorDetails}> GetDetails </button>
+  </div>
+  )
+ }
+ const StepThree = () =>  <button onClick={classifyConnectorData}>Classify Details</button>
+ const StepFour = () => {
+  return(
+    <div>
+       <button onClick={ReuseScripts} id="cancelbtn"> Reuse Resources </button>
+       <p> Note: Resources like Message mappings/User Credentials/certificates are not directly migrated in this process, need manual intervention.</p>
+    </div>
+  )
+ }
+
+ const CompleteStep = () => (
+  <div>
+    <h3>Ready to Migrate or Download!</h3>
+    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 4 }}>
+      <Box sx={{ flex: '1 1 auto' }} />
+      <Button onClick={handleStepReset}>Reset</Button>
+    </Box>
+  </div>
+);
+
+  const optionalStep = (step) => { 
+      return step === 3; 
+  }; 
+
+  const skipStep = (step) => { 
+      return skip.has(step); 
+  }; 
+
+  const handleStepNext = () => { 
+      let newSkipped = skip; 
+      if (skipStep(activeStepCount)) { 
+          newSkipped = new Set(newSkipped.values()); 
+          newSkipped.delete(activeStepCount); 
+      } 
+      setActiveStepCount((prevActiveStep) => prevActiveStep + 1); 
+      setSkip(newSkipped); 
+  }; 
+
+  const handleStepBack = () => { 
+      setActiveStepCount((prevActiveStep) => prevActiveStep - 1); 
+  }; 
+
+  const handleStepSkip = () => { 
+      setActiveStepCount((prevActiveStep) => prevActiveStep + 1); 
+      setSkip((prevSkipped) => { 
+          const newSkipped = new Set(prevSkipped.values()); 
+          newSkipped.add(activeStepCount); 
+          return newSkipped; 
+      }); 
+  }; 
+
+  const handleStepReset = () => { 
+      setActiveStepCount(0); 
+  }; 
+
+  const renderStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return <StepOne />;
+      case 1:
+        return <StepTwo />;
+      case 2:
+        return <StepThree />;
+      case 3:
+        return <StepFour />;
+      case 4:
+          return <CompleteStep />;
+      default:
+        return <div>Unknown step</div>;
+    }
+  };
+
 
   useEffect(() => {
     setBoomiProcessData(SpecificProcess);
@@ -732,73 +868,59 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
               <h3>Migrating: {secondPart[1] && secondPart[1][1]} </h3>
             </div>
             <div className="modal-content">
-              <p>
-                <span>Used Shapes / Connectors in Boomi Process </span>
-              </p>
-              <div className="tables-container">
-                <table border="1">
-                  <thead>
-                    <tr>
-                      <th>Shape/Connector</th>
-                      <th>CPI Alternative</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {firstPart.slice(1).map((row, index) => (
-                      <tr key={index}>
-                        {row.map((cell, cellIndex) =>
-                          cellIndex === 0 ? (
-                            <React.Fragment key={cellIndex}>
-                              <td>{cell}</td>
-                              <td>
-                                {shapesMappings[cell] || "No Alternative"}
-                              </td>
-                            </React.Fragment>
-                          ) : null
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="connectorTable">
-                  <table border="1">
-                    <thead>
-                      <tr>
-                        <th>Sender</th>
-                        <th>Receiver</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Array.from({
-                        length: Math.max(
-                          connectors.sender.length,
-                          connectors.receiver.length
-                        ),
-                      }).map((_, index) => (
-                        <tr key={index}>
-                          <td>{connectors.sender[index] || ""}</td>
-                          <td>{connectors.receiver[index] || ""}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+            <div style={{ width: "100%" }}>
+      <Stepper activeStep={activeStepCount} alternativeLabel>
+        {steps.map((label, index) => {
+          const stepProps = {};
+          const labelProps = {};
+          if (skipStep(index)) {
+            stepProps.completed = false;
+          }
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}>{label}</StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      {activeStepCount === steps.length ? (
+        <div>
+          <CompleteStep />
+        </div>
+      ) : (
+        <div>
+          {renderStepContent(activeStepCount)}
+          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+            <Button
+              color="primary"
+              disabled={activeStepCount === 0}
+              onClick={handleStepBack}
+              sx={{ mr: 1 }}
+            >
+              Previous
+            </Button>
+            <Box sx={{ flex: '1 1 auto' }} />
+            {optionalStep(activeStepCount) && (
+              <Button color="primary" onClick={handleStepSkip} sx={{ mr: 1 }}>
+                Skip
+              </Button>
+            )}
+            <Button onClick={handleStepNext}>
+              {activeStepCount === steps.length - 1 ? 'Click on Proceed for Migration' : 'Next'}
+            </Button>
+          </Box>
+        </div>
+      )}
+    </div>
+          
+              
             </div>
-            <p>
-              Note: Resources like Message mappings/User
-              Credentials/certificates are not directly migrated in this
-              process, need manual intervention.
-            </p>
             <div className="modal-footer">
               <button onClick={handleCloseModal} id="cancelbtn">
                 Cancel
               </button>
               {proceedClicked ? (
                 <>
-                 <button onClick={ReuseScripts} id="cancelbtn">
-                    Reuse Resources
-                  </button>
                   <button onClick={DownloadZip} id="cancelbtn">
                     Download ZIP
                   </button>
@@ -806,12 +928,6 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
                 </>
               ) : (
                 <>
-                  <button onClick={getConnectorDetails}>
-                   GetDetails
-                </button>
-                <button onClick={classifyConnectorData}>
-                  Classify Details
-                </button>
                 <button onClick={ProceedForMigration}>
                   Proceed for Migration
                 </button>
