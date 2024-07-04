@@ -5,17 +5,31 @@ import { shapesMappings } from "./shapesMappings";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
-import { Stepper, Step, StepLabel, Box, Button } from '@mui/material';
-import {HTTP_Receiver,FTP_Sender,SFTP_Receiver,SFTP_Sender,MAIL_Receiver,Test} from './utils';
+import { Stepper, Step, StepLabel, Box, Button } from "@mui/material";
+import {
+  HTTP_Receiver,
+  FTP_Sender,
+  SFTP_Receiver,
+  SFTP_Sender,
+  MAIL_Receiver,
+  Test,
+} from "./utils";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
-
-
-const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiaccountId }) => {
+const Modal = ({
+  showModal,
+  handleClose,
+  SpecificProcess,
+  selectedProcess,
+  boomiaccountId,
+}) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
-  const [APiDetails,setApiDetails] =useState({ selectedProcess:selectedProcess,boomiaccountId:boomiaccountId });
+  const [APiDetails, setApiDetails] = useState({
+    selectedProcess: selectedProcess,
+    boomiaccountId: boomiaccountId,
+  });
   const [scriptsArray, setScriptsArray] = useState([]);
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
   const [shapeArray, setShapeArray] = useState([]);
@@ -27,14 +41,14 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   const [PM1Content, setPM1Content] = useState("");
   const [PM2Content, setPM2Content] = useState("");
   const [iflowXML, setIflowXML] = useState("");
-  const [connectorDetails,setConnectorDetails] = useState('');
+  const [connectorDetails, setConnectorDetails] = useState("");
   const [updatedConnectorDetails, setUpdatedConnectorDetails] = useState({
     sender: "",
-    receiver: ""
+    receiver: "",
   });
   const [proceedClicked, setProceedClicked] = useState(false);
-  const [activeStepCount, setActiveStepCount] = useState(0); 
-  const [skip, setSkip] =useState(new Set()); 
+  const [activeStepCount, setActiveStepCount] = useState(0);
+  const [skip, setSkip] = useState(new Set());
   const [ipackge, setipackge] =
     useState(`Import-Package: com.sap.esb.application.services.cxf.interceptor,com.sap
  .esb.security,com.sap.it.op.agent.api,com.sap.it.op.agent.collector.cam
@@ -63,119 +77,130 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
  essor.idempotent.jdbc,org.osgi.service.blueprint;version="[1.0.0,2.0.0)
  "`);
 
-
- const steps = ['Shapes Used','Connector Details','Transfer Details','Reuse Resources','Create Flow']; 
- const StepOne = () => { 
-    return(<div className="tables-container">
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Shape/Connector</th>
-            <th>CPI Alternative</th>
-          </tr>
-        </thead>
-        <tbody>
-          {firstPart.slice(1).map((row, index) => (
-            <tr key={index}>
-              {row.map((cell, cellIndex) =>
-                cellIndex === 0 ? (
-                  <React.Fragment key={cellIndex}>
-                    <td>{cell}</td>
-                    <td>
-                      {shapesMappings[cell] || "No Alternative"}
-                    </td>
-                  </React.Fragment>
-                ) : null
-              )}
+  const steps = [
+    "Shapes Used",
+    "Connector Details",
+    "Transfer Details",
+    "Reuse Resources",
+    "Create Flow",
+  ];
+  const StepOne = () => {
+    return (
+      <div className="tables-container">
+        <table border="1">
+          <thead>
+            <tr>
+              <th>Shape/Connector</th>
+              <th>CPI Alternative</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>)
- }
+          </thead>
+          <tbody>
+            {firstPart.slice(1).map((row, index) => (
+              <tr key={index}>
+                {row.map((cell, cellIndex) =>
+                  cellIndex === 0 ? (
+                    <React.Fragment key={cellIndex}>
+                      <td>{cell}</td>
+                      <td>{shapesMappings[cell] || "No Alternative"}</td>
+                    </React.Fragment>
+                  ) : null
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
- const StepTwo = () => {
-  return(
-    <div className="connectorTable">
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Sender</th>
-          <th>Receiver</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Array.from({
-          length: Math.max(
-            connectors.sender.length,
-            connectors.receiver.length
-          ),
-        }).map((_, index) => (
-          <tr key={index}>
-            <td>{connectors.sender[index] || ""}</td>
-            <td>{connectors.receiver[index] || ""}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <button onClick={getConnectorDetails}> GetDetails </button>
-  </div>
-  )
- }
- const StepThree = () =>  <button onClick={classifyConnectorData}>Classify Details</button>
- const StepFour = () => {
-  return(
+  const StepTwo = () => {
+    return (
+      <div className="connectorTable">
+        <table border="1">
+          <thead>
+            <tr>
+              <th>Sender</th>
+              <th>Receiver</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({
+              length: Math.max(
+                connectors.sender.length,
+                connectors.receiver.length
+              ),
+            }).map((_, index) => (
+              <tr key={index}>
+                <td>{connectors.sender[index] || ""}</td>
+                <td>{connectors.receiver[index] || ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button onClick={getConnectorDetails}> GetDetails </button>
+      </div>
+    );
+  };
+  const StepThree = () => (
+    <button onClick={classifyConnectorData}>Classify Details</button>
+  );
+  const StepFour = () => {
+    return (
+      <div>
+        <button onClick={ReuseScripts} id="cancelbtn">
+          Reuse Resources
+        </button>
+        <p>
+          Note: Resources like Message mappings/User Credentials/certificates
+          are not directly migrated in this process, need manual intervention.
+        </p>
+      </div>
+    );
+  };
+
+  const CompleteStep = () => (
     <div>
-       <button onClick={ReuseScripts} id="cancelbtn"> Reuse Resources </button>
-       <p> Note: Resources like Message mappings/User Credentials/certificates are not directly migrated in this process, need manual intervention.</p>
+      <h3>Please proceed for Iflow Creation! </h3>
+      <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
+        <Box sx={{ flex: "1 1 auto" }} />
+      </Box>
     </div>
-  )
- }
+  );
 
- const CompleteStep = () => (
-  <div>
-    <h3>Ready to Migrate or Download!</h3>
-    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 4 }}>
-      <Box sx={{ flex: '1 1 auto' }} />
-      <Button onClick={handleStepReset}>Reset</Button>
-    </Box>
-  </div>
-);
+  const optionalStep = (step) => {
+    return step === 3;
+  };
 
-  const optionalStep = (step) => { 
-      return step === 3; 
-  }; 
+  const skipStep = (step) => {
+    return skip.has(step);
+  };
 
-  const skipStep = (step) => { 
-      return skip.has(step); 
-  }; 
+  const handleStepNext = () => {
+    let newSkipped = skip;
+    if (skipStep(activeStepCount)) {
+      newSkipped = new Set(newSkipped.values());
+      newSkipped.delete(activeStepCount);
+    }
+    setActiveStepCount((prevActiveStep) => prevActiveStep + 1);
+    setSkip(newSkipped);
+  };
 
-  const handleStepNext = () => { 
-      let newSkipped = skip; 
-      if (skipStep(activeStepCount)) { 
-          newSkipped = new Set(newSkipped.values()); 
-          newSkipped.delete(activeStepCount); 
-      } 
-      setActiveStepCount((prevActiveStep) => prevActiveStep + 1); 
-      setSkip(newSkipped); 
-  }; 
+  const handleStepBack = () => {
+    setActiveStepCount((prevActiveStep) => prevActiveStep - 1);
+  };
 
-  const handleStepBack = () => { 
-      setActiveStepCount((prevActiveStep) => prevActiveStep - 1); 
-  }; 
+  const handleStepSkip = () => {
+    setActiveStepCount((prevActiveStep) => prevActiveStep + 1);
+    setSkip((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values());
+      newSkipped.add(activeStepCount);
+      return newSkipped;
+    });
+  };
 
-  const handleStepSkip = () => { 
-      setActiveStepCount((prevActiveStep) => prevActiveStep + 1); 
-      setSkip((prevSkipped) => { 
-          const newSkipped = new Set(prevSkipped.values()); 
-          newSkipped.add(activeStepCount); 
-          return newSkipped; 
-      }); 
-  }; 
-
-  const handleStepReset = () => { 
-      setActiveStepCount(0); 
-  }; 
+  const handleStepReset = () => {
+    setActiveStepCount(0);
+  };
 
   const renderStepContent = (step) => {
     switch (step) {
@@ -188,12 +213,11 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
       case 3:
         return <StepFour />;
       case 4:
-          return <CompleteStep />;
+        return <CompleteStep />;
       default:
-        return <div>Unknown step</div>;
+        return <div>IFlow Created Successfully!</div>;
     }
   };
-
 
   useEffect(() => {
     setBoomiProcessData(SpecificProcess);
@@ -216,10 +240,10 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
         let shapeType = row[3];
         const configuration = row.slice(4).join(",");
 
-        if (shapeType === 'dataprocess') {
-          const match = configuration.match(/@name:([^,]+)/)
-          shapeType=match[1]
-      }
+        if (shapeType === "dataprocess") {
+          const match = configuration.match(/@name:([^,]+)/);
+          shapeType = match[1];
+        }
 
         const invalidShapes = ["connectoraction", "start", "stop"];
 
@@ -302,8 +326,6 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     const MFfileContent = TemplateData.manifestdata;
     const blob4 = new Blob([MFfileContent], { type: "text/xml" });
     setMFContent(blob4);
-
-
   };
 
   // Function to create collaboration part
@@ -343,17 +365,23 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
 
     connectors.sender.forEach((senderConnector) => {
       let sourceXML = SourceXML[1].SenderAdaptors[senderConnector];
-       // update the connector config details
-      let updatedSourceXML ='';
+      // update the connector config details
+      let updatedSourceXML = "";
 
-      if(senderConnector=="ftp"){
-         updatedSourceXML = FTP_Sender(sourceXML,updatedConnectorDetails.sender); 
-        }else if(senderConnector=="sftp"){
-         updatedSourceXML = SFTP_Sender(sourceXML,updatedConnectorDetails.sender); 
-        }else{
-         updatedSourceXML = sourceXML;
+      if (senderConnector == "ftp") {
+        updatedSourceXML = FTP_Sender(
+          sourceXML,
+          updatedConnectorDetails.sender
+        );
+      } else if (senderConnector == "sftp") {
+        updatedSourceXML = SFTP_Sender(
+          sourceXML,
+          updatedConnectorDetails.sender
+        );
+      } else {
+        updatedSourceXML = sourceXML;
       }
-  
+
       let result = updateMessageFlowIds(updatedSourceXML, messageFlowCounter);
       messageFlow += result.updatedXML;
       messageFlowCounter = result.messageFlowCounter;
@@ -362,17 +390,26 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     connectors.receiver.forEach((receiverConnector) => {
       let sourceXML = SourceXML[1].ReceiverAdaptors[receiverConnector];
 
-       // update the connector config details
-       let updatedSourceXML ='';
-      
-      if(receiverConnector=="http"){
-         updatedSourceXML = HTTP_Receiver(sourceXML,updatedConnectorDetails.receiver); 
-        }else if(receiverConnector=="sftp"){
-         updatedSourceXML = SFTP_Receiver(sourceXML,updatedConnectorDetails.receiver); 
-        }else if(receiverConnector=="mail"){
-          updatedSourceXML = MAIL_Receiver(sourceXML,updatedConnectorDetails.receiver); 
-         }else{
-         updatedSourceXML = sourceXML;
+      // update the connector config details
+      let updatedSourceXML = "";
+
+      if (receiverConnector == "http") {
+        updatedSourceXML = HTTP_Receiver(
+          sourceXML,
+          updatedConnectorDetails.receiver
+        );
+      } else if (receiverConnector == "sftp") {
+        updatedSourceXML = SFTP_Receiver(
+          sourceXML,
+          updatedConnectorDetails.receiver
+        );
+      } else if (receiverConnector == "mail") {
+        updatedSourceXML = MAIL_Receiver(
+          sourceXML,
+          updatedConnectorDetails.receiver
+        );
+      } else {
+        updatedSourceXML = sourceXML;
       }
 
       let result = updateMessageFlowIds(updatedSourceXML, messageFlowCounter);
@@ -387,30 +424,30 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
     let events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
 
-    function EndEventUpdate(events,counter) {
+    function EndEventUpdate(events, counter) {
       const options = {
-          ignoreAttributes: false,
-          attributeNamePrefix: "@_",
+        ignoreAttributes: false,
+        attributeNamePrefix: "@_",
       };
-  
+
       const parser = new XMLParser(options);
       const builder = new XMLBuilder(options);
-      
+
       // Parse the XML events string to a JSON object
       let jsonObj = parser.parse(events);
-  
+
       // Locate the endEvent element and update its incoming element
-      if (jsonObj['bpmn2:endEvent']) {
-          jsonObj['bpmn2:endEvent']['bpmn2:incoming'] = `SequenceFlow_${counter}`;
+      if (jsonObj["bpmn2:endEvent"]) {
+        jsonObj["bpmn2:endEvent"]["bpmn2:incoming"] = `SequenceFlow_${counter}`;
       }
-  
+
       // Convert the JSON object back to an XML string
       let updatedEvents = builder.build(jsonObj);
-  
-      return updatedEvents;
-  }
 
-   events = EndEventUpdate(events,shapeArray.length+1);
+      return updatedEvents;
+    }
+
+    events = EndEventUpdate(events, shapeArray.length + 1);
 
     let palleteItems = "";
     let callActivityCounter = 1;
@@ -509,7 +546,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
 
         sequenceFlowCounter += 1;
       }
-      
+
       // Convert JSON object back to XML string
       const builder = new XMLBuilder(options);
       const updatedXML = builder.build(jsonObj);
@@ -586,27 +623,30 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   const getConnectorDetails = async () => {
     if (selectedProcess) {
       alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
-      console.log(boomiaccountId,selectedProcess)
+      console.log(boomiaccountId, selectedProcess);
       try {
-        const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getcomponentsdetails';
+        const url =
+          "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getcomponentsdetails";
         const response = await axios.get(url, {
           params: {
             boomiaccountId: boomiaccountId,
-            selectedProcess: selectedProcess
+            selectedProcess: selectedProcess,
           },
           headers: {
-            'Accept': '*/*',
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
+            Accept: "*/*",
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
           },
         });
         setConnectorDetails(response.data);
       } catch (error) {
-        console.error('Error fetching processes:', error);
-        alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+        console.error("Error fetching processes:", error);
+        alert(
+          "Something Went wrong!...Please check the Account ID or Associated Credentials!"
+        );
       }
     } else {
-      alert('Please enter Boomi Account ID.');
+      alert("Please enter Boomi Account ID.");
     }
   };
 
@@ -625,35 +665,35 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     // Parse XML to JSON
     let jsonObjectConnectorData = parser.parse(connectorDetails);
 
-     // Extract components
-     const components = jsonObjectConnectorData['multimap:Messages']['multimap:Message1']['bns:Component'];
+    // Extract components
+    const components =
+      jsonObjectConnectorData["multimap:Messages"]["multimap:Message1"][
+        "bns:Component"
+      ];
 
     let newUpdatedConnectorDetails = {
       sender: "",
-      receiver: ""
+      receiver: "",
     };
 
-    components.forEach(element => {
-      const elementXml = builder.build({ 'bns:Component': element });
-      if (element['@_subType'] === senderType) {
+    components.forEach((element) => {
+      const elementXml = builder.build({ "bns:Component": element });
+      if (element["@_subType"] === senderType) {
         newUpdatedConnectorDetails.sender += elementXml;
-      } else if (element['@_subType'] === receiverType) {
+      } else if (element["@_subType"] === receiverType) {
         newUpdatedConnectorDetails.receiver += elementXml;
       }
     });
     setUpdatedConnectorDetails(newUpdatedConnectorDetails);
   };
 
-
-
   const ProceedForMigration = () => {
-    // const ConnectorsDetails =getConnectorDetails();
     const defualtProjectFiles = buildDefaultProjectFiles();
-  //  const separeted = classifyConnectorData();
     const xmlContent = generateIflowXML();
     const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
     setProceedClicked(true);
+    handleStepNext();
   };
 
   const DownloadZip = () => {
@@ -681,52 +721,32 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
       .folder("resources")
       .file("parameters.propdef", PM2Content);
 
-    zip
-      .folder("src")
-      .folder("main")
-      .folder("resources")
-      .folder("json")
+    zip.folder("src").folder("main").folder("resources").folder("json");
 
-    zip
-      .folder("src")
-      .folder("main")
-      .folder("resources")
-      .folder("mapping")
+    zip.folder("src").folder("main").folder("resources").folder("mapping");
 
-      if (scriptsArray.length > 0) {
-        scriptsArray.forEach((scriptObj, i) => {
-            let extension = '';
-            if (scriptObj.language === 'groovy') {
-                extension = '.groovy';
-            } else if (scriptObj.language === 'javascript') {
-                extension = '.js';
-            }
-            zip
-                .folder("src")
-                .folder("main")
-                .folder("resources")
-                .folder("script")
-                .file(`script${i + 1}${extension}`,scriptObj.scriptBlobContent);
-        });
-      }
-  
-    zip
-      .folder("src")
-      .folder("main")
-      .folder("resources")
-      .folder("xsd")
+    if (scriptsArray.length > 0) {
+      scriptsArray.forEach((scriptObj, i) => {
+        let extension = "";
+        if (scriptObj.language === "groovy") {
+          extension = ".groovy";
+        } else if (scriptObj.language === "javascript") {
+          extension = ".js";
+        }
+        zip
+          .folder("src")
+          .folder("main")
+          .folder("resources")
+          .folder("script")
+          .file(`script${i + 1}${extension}`, scriptObj.scriptBlobContent);
+      });
+    }
 
-    zip
-      .folder("src")
-      .folder("main")
-      .folder("resources")
-      .folder("edmx")
+    zip.folder("src").folder("main").folder("resources").folder("xsd");
 
-    zip
-      .folder("src")
-      .folder("main")
-      .folder("resources")
-      .folder("wsdl")
+    zip.folder("src").folder("main").folder("resources").folder("edmx");
+
+    zip.folder("src").folder("main").folder("resources").folder("wsdl");
 
     // Generate the zip file and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {
@@ -798,20 +818,21 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     if (selectedProcess) {
       alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
       try {
-        const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallscripts';
+        const url =
+          "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallscripts";
         const response = await axios.get(url, {
           params: {
             boomiaccountId: boomiaccountId,
-            selectedProcess: selectedProcess
+            selectedProcess: selectedProcess,
           },
           headers: {
-            'Accept': '*/*',
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
+            Accept: "*/*",
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
           },
         });
         setScriptsArray(response.data);
-        console.log(response)
+        console.log(response);
         if (scriptsArray.length > 0) {
           const updatedScriptsArray = scriptsArray.map((scriptObj) => {
             let mimeType;
@@ -822,23 +843,23 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
             } else {
               mimeType = "text/plain"; // Default fallback MIME type
             }
-        
+
             const blob = new Blob([scriptObj.script], { type: mimeType });
             return { ...scriptObj, scriptBlobContent: blob };
           });
-          console.log(updatedScriptsArray)
+          console.log(updatedScriptsArray);
           setScriptsArray(updatedScriptsArray);
         }
-       
       } catch (error) {
-        console.error('Error fetching scripts:', error);
-        alert("Something Went wrong!...Please check the Account ID/processID or Associated Credentials!")
+        console.error("Error fetching scripts:", error);
+        alert(
+          "Something Went wrong!...Please check the Account ID/processID or Associated Credentials!"
+        );
       }
     } else {
-      alert('Please enter Process ID.');
+      alert("Please enter Process ID.");
     }
   };
-
 
   const handleCloseModal = () => {
     handleClose();
@@ -849,6 +870,7 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
     setConnectors({ sender: [], receiver: [] }); // Reset to initial value
     setShapeArray([]); // Reset to initial value
     setShapeCounter(0); // Reset to initial value
+    handleStepReset();
   };
 
   // console.log(shapeArray);
@@ -856,8 +878,8 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
   // console.log(connectors);
   // console.log(shapeCounter);
   // console.log(dynamicName);
-   console.log(connectorDetails);
-   console.log(updatedConnectorDetails)
+  console.log(connectorDetails);
+  console.log(updatedConnectorDetails);
 
   return (
     <>
@@ -868,69 +890,69 @@ const Modal = ({ showModal, handleClose, SpecificProcess,selectedProcess,boomiac
               <h3>Migrating: {secondPart[1] && secondPart[1][1]} </h3>
             </div>
             <div className="modal-content">
-            <div style={{ width: "100%" }}>
-      <Stepper activeStep={activeStepCount} alternativeLabel>
-        {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
-          if (skipStep(index)) {
-            stepProps.completed = false;
-          }
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
-      {activeStepCount === steps.length ? (
-        <div>
-          <CompleteStep />
-        </div>
-      ) : (
-        <div>
-          {renderStepContent(activeStepCount)}
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button
-              color="primary"
-              disabled={activeStepCount === 0}
-              onClick={handleStepBack}
-              sx={{ mr: 1 }}
-            >
-              Previous
-            </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            {optionalStep(activeStepCount) && (
-              <Button color="primary" onClick={handleStepSkip} sx={{ mr: 1 }}>
-                Skip
-              </Button>
-            )}
-            <Button onClick={handleStepNext}>
-              {activeStepCount === steps.length - 1 ? 'Click on Proceed for Migration' : 'Next'}
-            </Button>
-          </Box>
-        </div>
-      )}
-    </div>
-          
-              
+              <div style={{ width: "100%" }}>
+                <Stepper activeStep={activeStepCount} alternativeLabel>
+                  {steps.map((label, index) => {
+                    const stepProps = {};
+                    const labelProps = {};
+                    if (skipStep(index)) {
+                      stepProps.completed = false;
+                    }
+                    return (
+                      <Step key={label} {...stepProps}>
+                        <StepLabel {...labelProps}>{label}</StepLabel>
+                      </Step>
+                    );
+                  })}
+                </Stepper>
+                {activeStepCount === steps.length ? (
+                  <div>
+                    <CompleteStep />
+                  </div>
+                ) : (
+                  <div>
+                    {renderStepContent(activeStepCount)}
+                    <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                      <Button
+                        color="primary"
+                        disabled={activeStepCount === 0}
+                        onClick={handleStepBack}
+                        sx={{ mr: 1 }}
+                      >
+                        Previous
+                      </Button>
+                      <Box sx={{ flex: "1 1 auto" }} />
+                      {optionalStep(activeStepCount) && (
+                        <Button
+                          color="primary"
+                          onClick={handleStepSkip}
+                          sx={{ mr: 1 }}
+                        >
+                          Skip
+                        </Button>
+                      )}
+                      {activeStepCount === steps.length - 1 ? (
+                        <button onClick={ProceedForMigration}>
+                          Proceed for Iflow
+                        </button>
+                      ) : (
+                        <Button onClick={handleStepNext}> Next </Button>
+                      )}
+                    </Box>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="modal-footer">
               <button onClick={handleCloseModal} id="cancelbtn">
                 Cancel
               </button>
-              {proceedClicked ? (
+              {proceedClicked && (
                 <>
                   <button onClick={DownloadZip} id="cancelbtn">
                     Download ZIP
                   </button>
                   <button onClick={Migrate}>Migrate</button>
-                </>
-              ) : (
-                <>
-                <button onClick={ProceedForMigration}>
-                  Proceed for Migration
-                </button>
                 </>
               )}
             </div>
