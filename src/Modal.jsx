@@ -46,6 +46,11 @@ const Modal = ({
     sender: "",
     receiver: "",
   });
+  const [stepButtonStatus, setStepButtonStatus] = useState({
+    CDStatus: false,
+    CCDStatus: false,
+    RRStatus: false,
+  });
   const [proceedClicked, setProceedClicked] = useState(false);
   const [activeStepCount, setActiveStepCount] = useState(0);
   const [skip, setSkip] = useState(new Set());
@@ -137,19 +142,34 @@ const Modal = ({
             ))}
           </tbody>
         </table>
-        <button onClick={getConnectorDetails}> GetDetails </button>
+        {stepButtonStatus.CDStatus ? (
+          "Connector Details Fetched Successfully!"
+        ) : (
+          <button onClick={getConnectorDetails}> GetDetails </button>
+        )}
       </div>
     );
   };
-  const StepThree = () => (
-    <button onClick={classifyConnectorData}>Classify Details</button>
-  );
+  const StepThree = () => {
+    return (
+      <>
+        {stepButtonStatus.CCDStatus ? (
+          "Connector Details Mapped Successfully!"
+        ) : (
+          <button onClick={classifyConnectorData}>Classify Details</button>
+        )}
+      </>
+    );
+  };
   const StepFour = () => {
     return (
       <div>
-        <button onClick={ReuseScripts} id="cancelbtn">
-          Reuse Resources
-        </button>
+        {stepButtonStatus.RRStatus ? (
+          "Resources reused Successfully!"
+        ) : (
+          <button onClick={ReuseScripts}> Reuse Resources </button>
+        )}
+       
         <p>
           Note: Resources like Message mappings/User Credentials/certificates
           are not directly migrated in this process, need manual intervention.
@@ -160,7 +180,7 @@ const Modal = ({
 
   const CompleteStep = () => (
     <div>
-      <h3>Please proceed for Iflow Creation! </h3>
+      <h3>All Done! </h3>
       <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
         <Box sx={{ flex: "1 1 auto" }} />
       </Box>
@@ -639,6 +659,11 @@ const Modal = ({
           },
         });
         setConnectorDetails(response.data);
+        setStepButtonStatus({
+          CDStatus: true,
+          CCDStatus: false,
+          RRStatus: false,
+        })
       } catch (error) {
         console.error("Error fetching processes:", error);
         alert(
@@ -685,6 +710,11 @@ const Modal = ({
       }
     });
     setUpdatedConnectorDetails(newUpdatedConnectorDetails);
+    setStepButtonStatus({
+      CDStatus: true,
+      CCDStatus: true,
+      RRStatus: false,
+    })
   };
 
   const ProceedForMigration = () => {
@@ -849,6 +879,11 @@ const Modal = ({
           });
           console.log(updatedScriptsArray);
           setScriptsArray(updatedScriptsArray);
+          setStepButtonStatus({
+            CDStatus: true,
+            CCDStatus: true,
+            RRStatus: true,
+          })
         }
       } catch (error) {
         console.error("Error fetching scripts:", error);
@@ -910,8 +945,10 @@ const Modal = ({
                     <CompleteStep />
                   </div>
                 ) : (
-                  <div>
+                  <div >
+                    <div className="centerContainer">
                     {renderStepContent(activeStepCount)}
+                    </div>
                     <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                       <Button
                         color="primary"

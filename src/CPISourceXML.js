@@ -55,7 +55,7 @@ export const SourceXML = [
             </ifl:property>
             <ifl:property>
                 <key>mappingReference</key>
-                <value>{{MessageFlow_1_referenceType}}</value>
+                <value/>
             </ifl:property>
             <ifl:property>
                 <key>mappingpath</key>
@@ -1307,7 +1307,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>credentialName</key>
-                    <value/>
+                    <value>Test</value>
                 </ifl:property>
                 <ifl:property>
                     <key>httpErrorResponseCodes</key>

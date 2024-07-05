@@ -72,3 +72,7 @@
     margin-left: 10px;
   }
   
+  .centerContainer{
+    display: grid;
+    place-items: center; /* Centers both horizontally and vertically */
+  }
