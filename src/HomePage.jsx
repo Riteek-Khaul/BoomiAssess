@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Chart, registerables } from 'chart.js';
 import html2canvas from 'html2canvas';
+import AuthModal from './AuthModal';
 
 Chart.register(...registerables);
 
@@ -21,6 +22,7 @@ function HomePage(){
   const [selectedProcess, setSelectedProcess] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [SpecificProcess, setSpecificProcess] = useState();
+  const [Auth,setAuth] = useState(true);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => {
@@ -463,7 +465,7 @@ function HomePage(){
           <strong>Note:</strong> Account user credentials need to be set up manually before running the tool for a specific account.
         </p>
       </div>
-
+     { Auth&&( <AuthModal setAuth={setAuth} />)}
       <footer>
         <p>
           Developed and Maintained by Crave Infotech (for any support: riteek.khaul@craveinfotech.com)
