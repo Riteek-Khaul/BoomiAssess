@@ -22,7 +22,11 @@ function HomePage(){
   const [selectedProcess, setSelectedProcess] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [SpecificProcess, setSpecificProcess] = useState();
-  const [Auth,setAuth] = useState(true);
+  const [Auth, setAuth] = useState(() => {
+    // Initialize Auth state from local storage if available
+    const savedAuth = localStorage.getItem('Auth');
+    return savedAuth ? JSON.parse(savedAuth) : true;
+  });
 
   const openModal = () => setShowModal(true);
   const closeModal = () => {
@@ -96,7 +100,7 @@ function HomePage(){
     //   console.log("Getting your files ready to download!");
 
     await getPDF(pdfContent);
-    // await generatePDF(pdfContent);
+     //generatePDF(pdfContent);
 
       const part2Csv = parts[2].split('\n').map(line => line.trim()).join('\n');
       downloadCSV('MainResult.csv', part2Csv);

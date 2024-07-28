@@ -42,6 +42,8 @@ export const shapesMappings={
     'odata':"odata",
     'rest':"http",
     'salesforce':"salesforce",
+    'netsuite':'netsuite',
+    'successfactors':'successfactors',
     'wssoapclientsdk':"soap",
     'cleanse':"NA",
     'programcommand':"groovyScript",

@@ -16,6 +16,8 @@ const AuthModal = ({setAuth}) => {
     if (encodedInput === encodedSecretCode) {
       setMessage("Access Granted");
       setMessageColor("green");
+      // Update local storage whenever Auth state changes
+      localStorage.setItem('Auth', JSON.stringify(false));
       setAuth(false)
     } else {
       setMessage("Access Denied");
