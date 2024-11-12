@@ -29,7 +29,7 @@ export const shapesMappings={
     'cache':"NA",
     "flowcontrol":"parallelMulticast",
     "businessrules":"NA",
-    "diskconnector":"sftp/ftpConnector",
+    "diskconnector":"sftp",
     "customscripting":"groovyScript",
     "documentproperties":"contentModifier",
     'dynamicdocumentproperties':"groovyScript",

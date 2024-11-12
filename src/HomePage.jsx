@@ -18,6 +18,7 @@ function HomePage(){
   const [showMigratePage, setShowMigratePage] = useState(false);
   const [file, setFile] = useState(null);
   const [boomiaccountId, setBoomiAccountId] = useState('');
+  const [boomiUsername, setBoomiUsername] = useState('');
   const [processes, setProcesses] = useState({ type: 'QueryResult', numberOfResults: 0, result: [] });
   const [selectedProcess, setSelectedProcess] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +37,10 @@ function HomePage(){
 
   const navigate = useNavigate();
 
+  const goToPIPO = () => {
+    navigate('/PIPO');
+  };
+
   const showPage = (page) => {
     setShowExtractPage(page === 'extractPage');
     setShowEvaluatePage(page === 'evaluatePage');
@@ -44,6 +49,10 @@ function HomePage(){
 
   const handleAccountIdChange = (event) => {
     setBoomiAccountId(event.target.value);
+  };
+
+  const handleBoomiUsernameChange = (event) => {
+    setBoomiUsername(event.target.value);
   };
 
   const downloadCSV = (filename, csvData) => {
@@ -57,13 +66,14 @@ function HomePage(){
   };
 
   const extract = async () => {
-    if (boomiaccountId) {
+    if (boomiaccountId && boomiUsername) {
       alert(`Extracting data for Account ID: ${boomiaccountId}`);
       try {
         const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/extractprocessmetadata';
         const response = await axios.get(url, {
           params: {
-            boomiaccountId: boomiaccountId
+            boomiaccountId: boomiaccountId,
+            boomiUsername: boomiUsername
           },
           headers: {
             'Accept': 'text/plain',
@@ -311,13 +321,14 @@ function HomePage(){
   };
 
   const getProcesses = async () => {
-    if (boomiaccountId) { 
+    if (boomiaccountId && boomiUsername) { 
       alert(`Fetching processes for Account ID: ${boomiaccountId}`);
       try {
         const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallprocesses';
         const response = await axios.get(url, {
           params: {
-            boomiaccountId: boomiaccountId
+            boomiaccountId: boomiaccountId,
+            boomiUsername: boomiUsername
           },
           headers: {
             'Accept': 'application/json',
@@ -367,8 +378,6 @@ function HomePage(){
     setSelectedProcess(event.target.value);
   };
 
-
-
   return (
     <div className="App">
       <div id="navbar">
@@ -381,6 +390,9 @@ function HomePage(){
         <button id="migrateButton" onClick={() => showPage('migratePage')}>
           Migrate
         </button>
+        {/* <button className='top-right-button' onClick={goToPIPO}>
+          PI/PO
+        </button> */}
       </div>
 
 
@@ -392,7 +404,20 @@ function HomePage(){
         <div id="extractPage" className="page">
           <h2>Extract Processes Metadata</h2>
           <label for="boomiAccountId">Boomi Account ID:</label>
-          <input type="text" id="boomiAccountId" placeholder="Enter Boomi Account ID"  value={boomiaccountId} onChange={handleAccountIdChange} />
+          <input 
+           type="text" 
+           id="boomiAccountId" 
+           placeholder="Enter Boomi Account ID"  
+           value={boomiaccountId} 
+           onChange={handleAccountIdChange} />
+          <label htmlFor="boomiUsername">Username</label>
+          <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
+          />
           <button onClick={extract}>Extract</button>
         </div>
       )}
@@ -428,6 +453,14 @@ function HomePage(){
             placeholder="Enter Boomi Account ID"
             value={boomiaccountId}
             onChange={handleAccountIdChange}
+          />
+           <label htmlFor="boomiUsername">Username</label>
+          <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
           />
           <button onClick={getProcesses}>Fetch All Processes</button>
         </>

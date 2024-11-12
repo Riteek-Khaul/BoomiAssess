@@ -7,6 +7,7 @@ import CreateFile from './CreateFile';
 import ResourceDownloader from './Resource';
 import IflowXML from './IflowXML';
 import GeneratePDF from './GeneratePDF';
+import PIPO from './PIPO';
 
 function App(){
 
@@ -18,6 +19,7 @@ function App(){
         <Route path="/resource" element={<ResourceDownloader />} />
         <Route path="/buildXml" element={<IflowXML />} />
         <Route path="/pdf" element={<GeneratePDF />} />
+        <Route path="/PIPO" element={<PIPO />} /> 
       </Routes>
   );
 }
