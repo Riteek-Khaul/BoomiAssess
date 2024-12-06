@@ -8,6 +8,7 @@ import ResourceDownloader from './Resource';
 import IflowXML from './IflowXML';
 import GeneratePDF from './GeneratePDF';
 import CalSubPro from './tests/CalSubPro';
+import MigrateToCI from './tests/MigrateToCI';
 
 function App(){
 
@@ -20,6 +21,7 @@ function App(){
         <Route path="/buildXml" element={<IflowXML />} />
         <Route path="/pdf" element={<GeneratePDF />} />
         <Route path="/calsubpro" element={<CalSubPro />} />
+        <Route path="/migratetoci" element={<MigrateToCI />} />
       </Routes>
   );
 }
