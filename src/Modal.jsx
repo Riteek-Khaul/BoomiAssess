@@ -882,13 +882,20 @@ const Modal = ({
       if (response.ok) {
         const responseData = await response.json();
         console.log("API Response:", responseData);
-        return { success: true, message: "Form submitted successfully!" };
+  
         setPopupMessage("Migrated successfully!");
+        setShowPopup(true);
+        //clear all states 
+        handleCloseModal();
+        setisMigrate(false);
+        alert("Iflow Migrated successfully!")
+        return { success: true, message: "Form submitted successfully!" };
       } else {
         const errorData = await response.json();
         console.error("API Error:", errorData);
-        return { success: false, message: errorData.message || "Form submission failed." };
         setPopupMessage("Migration failed. Please try again.");
+        setShowPopup(true);
+        return { success: false, message: errorData.message || "Form submission failed." };
       }
     } catch (error) {
       console.error("Network Error:", error);
@@ -1051,9 +1058,9 @@ const Modal = ({
 
       { 
         isMigrate && (
-          <div className="app-container">
-          <h1>CPI Configuration Form</h1>
+          <div className="modal-overlay">
           <form className="form-container" onSubmit={submitFormData}>
+          <div class="form-row">
             <label>
               IFlow Name:
               <input
@@ -1064,6 +1071,8 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-row">
             <label>
               IFlow ID:
               <input
@@ -1074,6 +1083,8 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-row">
             <label>
               Package ID:
               <input
@@ -1084,6 +1095,8 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-row">
             <label>
               CPI Host Name:
               <input
@@ -1094,6 +1107,8 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-row">
             <label>
               Access Token URI:
               <input
@@ -1104,6 +1119,8 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-row">
             <label>
               Client ID:
               <input
@@ -1114,6 +1131,8 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-row">
             <label>
               Client Secret:
               <input
@@ -1124,11 +1143,18 @@ const Modal = ({
                 required
               />
             </label>
+            </div>
+            <div class="form-actions">
+            <button type="button" onClick={() => setisMigrate((prevState) => !prevState)} >Cancel</button>
             <button type="submit">Submit</button>
+            </div>
           </form>
-    
-          {/* Popup for success or failure message */}
-          {showPopup && (
+        </div>
+        )
+      }
+
+        {/* Popup for success or failure message */}
+        {showPopup && (
             <div className="popup">
               <div className="popup-content">
                 <p>{popupMessage}</p>
@@ -1136,10 +1162,6 @@ const Modal = ({
               </div>
             </div>
           )}
-        </div>
-        )
-      }
-
     </>
   );
 };
