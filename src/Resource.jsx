@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Resource.css";
+import { useNavigate } from 'react-router-dom';
 
 const ResourceDownloader = () => {
   const [currentTab, setCurrentTab] = useState("messageMapping");
@@ -10,6 +11,12 @@ const ResourceDownloader = () => {
     crt: "",
     profiles: "",
   });
+
+  const navigate = useNavigate();
+
+  const goToHome = () => {
+    navigate('/');
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -112,6 +119,7 @@ const ResourceDownloader = () => {
 
   return (
     <div className="resource-downloader">
+        <button onClick={goToHome}>Home</button>
       <h2>Resource Downloader</h2>
       <div className="tabs-navigation">
         <button onClick={() => setCurrentTab("messageMapping")}>

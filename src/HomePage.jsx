@@ -37,8 +37,12 @@ function HomePage() {
 
   const navigate = useNavigate();
 
-  const goToPIPO = () => {
-    navigate('/PIPO');
+  const goToResourceDownloader = () => {
+    navigate('/resource');
+  };
+
+  const goToHelp = () => {
+    navigate('/help');
   };
 
   const showPage = (page) => {
@@ -442,6 +446,12 @@ function HomePage() {
         <button id="migrateButton" onClick={() => showPage('migratePage')}>
           Migrate
         </button>
+        <button id="migrateButton" onClick={goToResourceDownloader}>
+          Resource Downloader
+        </button>
+        <button id="migrateButton" onClick={goToHelp}>
+          Help
+        </button>
       </div>
 
 
@@ -548,7 +558,7 @@ function HomePage() {
 
       <div id="note" className="note">
         <p>
-          <strong>Note:</strong> Account user credentials need to be set up manually before running the tool for a specific account.
+          <strong>Note:</strong> Account user credentials need to be set up manually in CPI-Security material before running the tool for a specific account.
         </p>
       </div>
       {Auth && (<AuthModal setAuth={setAuth} />)}
