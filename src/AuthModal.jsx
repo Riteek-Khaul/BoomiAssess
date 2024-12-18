@@ -10,7 +10,7 @@ const AuthModal = ({setAuth}) => {
   };
 
   const verifySecretCode = () => {
-    const encodedSecretCode = "VGhhbm9zQDM2OQ=="; // Replace with your actual encoded secret code
+    const encodedSecretCode = "Q3JhdmVAMjAyNA=="; // Replace with your actual encoded secret code
     const encodedInput = encodeBase64(secretCode);
 
     if (encodedInput === encodedSecretCode) {

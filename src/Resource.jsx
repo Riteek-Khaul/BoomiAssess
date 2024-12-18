@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ResourceDownloader = () => {
   const [currentTab, setCurrentTab] = useState("messageMapping");
+  const [boomiUsername, setBoomiUsername] = useState('');
   const [resourceIds, setResourceIds] = useState({
     messageMapping: "",
     udf: "",
@@ -16,6 +17,10 @@ const ResourceDownloader = () => {
 
   const goToHome = () => {
     navigate('/');
+  };
+
+  const handleBoomiUsernameChange = (event) => {
+    setBoomiUsername(event.target.value);
   };
 
   const handleInputChange = (e) => {
@@ -50,6 +55,13 @@ const ResourceDownloader = () => {
               value={resourceIds.messageMapping}
               onChange={handleInputChange}
             />
+            <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
+          />
             <button onClick={() => handleDownload("messageMapping")}>
               Download
             </button>
