@@ -37,10 +37,6 @@ function HomePage() {
 
   const navigate = useNavigate();
 
-  const goToResourceDownloader = () => {
-    navigate('/resource');
-  };
-
   const goToHelp = () => {
     navigate('/help');
   };
@@ -445,9 +441,6 @@ function HomePage() {
         </button>
         <button id="migrateButton" onClick={() => showPage('migratePage')}>
           Migrate
-        </button>
-        <button id="migrateButton" onClick={goToResourceDownloader}>
-          Resource Downloader
         </button>
         <button id="migrateButton" onClick={goToHelp}>
           Help

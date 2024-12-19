@@ -31,19 +31,19 @@ const Help = () => {
         <tbody>
           <tr>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>Get All Processes</td>
-            <td style={{ border: '1px solid #ddd', padding: '8px' }}>https://api.boomi.com/api/rest/v1/accountId/Process/query</td>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>https://api.boomi.com/api/rest/v1/:accountId/Process/query</td>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>POST</td>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>Username / Password</td>
           </tr>
           <tr>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>Get Process Configuration details</td>
-            <td style={{ border: '1px solid #ddd', padding: '8px' }}>https://api.boomi.com/api/rest/v1/accountId/Component/componentId/export</td>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>https://api.boomi.com/api/rest/v1/:accountId/Component/:componentId/export</td>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>GET</td>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>Username / Password</td>
           </tr>
           <tr>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>Get Components Details ( mappings/connectors/profiles etc.)</td>
-            <td style={{ border: '1px solid #ddd', padding: '8px' }}>https://api.boomi.com/api/rest/v1/accountId/Component/componentId</td>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>https://api.boomi.com/api/rest/v1/:accountId/Component/:componentId</td>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>GET</td>
             <td style={{ border: '1px solid #ddd', padding: '8px' }}>Username / Password</td>
           </tr>

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const ResourceDownloader = () => {
   const [currentTab, setCurrentTab] = useState("messageMapping");
   const [boomiUsername, setBoomiUsername] = useState('');
+  const [boomiaccountId, setBoomiAccountId] = useState('');
   const [resourceIds, setResourceIds] = useState({
     messageMapping: "",
     udf: "",
@@ -21,6 +22,10 @@ const ResourceDownloader = () => {
 
   const handleBoomiUsernameChange = (event) => {
     setBoomiUsername(event.target.value);
+  };
+
+  const handleAccountIdChange = (event) => {
+    setBoomiAccountId(event.target.value);
   };
 
   const handleInputChange = (e) => {
@@ -49,19 +54,27 @@ const ResourceDownloader = () => {
           <div className="tab-content">
             <h3>Message Mapping</h3>
             <input
-              type="text"
-              name="messageMapping"
-              placeholder="Enter Message Mapping ID"
-              value={resourceIds.messageMapping}
-              onChange={handleInputChange}
-            />
+            type="text"
+            id="boomiAccountId"
+            placeholder="Enter Boomi Account ID"
+            value={boomiaccountId}
+            onChange={handleAccountIdChange} />
+           
             <input
             type="text"
             id="boomiUsername"
             placeholder="Enter Boomi Username"
             value={boomiUsername}
             onChange={handleBoomiUsernameChange}
-          />
+            />
+
+            <input
+              type="text"
+              name="messageMapping"
+              placeholder="Enter Message Mapping ID"
+              value={resourceIds.messageMapping}
+              onChange={handleInputChange}
+            />
             <button onClick={() => handleDownload("messageMapping")}>
               Download
             </button>
@@ -71,6 +84,20 @@ const ResourceDownloader = () => {
         return (
           <div className="tab-content">
             <h3>UDF</h3>
+            <input
+            type="text"
+            id="boomiAccountId"
+            placeholder="Enter Boomi Account ID"
+            value={boomiaccountId}
+            onChange={handleAccountIdChange} />
+           
+            <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
+            />
             <input
               type="text"
               name="udf"
@@ -86,6 +113,20 @@ const ResourceDownloader = () => {
           <div className="tab-content">
             <h3>Scripts</h3>
             <input
+            type="text"
+            id="boomiAccountId"
+            placeholder="Enter Boomi Account ID"
+            value={boomiaccountId}
+            onChange={handleAccountIdChange} />
+           
+            <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
+            />
+            <input
               type="text"
               name="scripts"
               placeholder="Enter Process ID"
@@ -100,6 +141,20 @@ const ResourceDownloader = () => {
           <div className="tab-content">
             <h3>CRT (Lookups)</h3>
             <input
+            type="text"
+            id="boomiAccountId"
+            placeholder="Enter Boomi Account ID"
+            value={boomiaccountId}
+            onChange={handleAccountIdChange} />
+           
+            <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
+            />
+            <input
               type="text"
               name="crt"
               placeholder="Enter CRT ID"
@@ -113,6 +168,20 @@ const ResourceDownloader = () => {
         return (
           <div className="tab-content">
             <h3>Profiles (S/T)</h3>
+            <input
+            type="text"
+            id="boomiAccountId"
+            placeholder="Enter Boomi Account ID"
+            value={boomiaccountId}
+            onChange={handleAccountIdChange} />
+           
+            <input
+            type="text"
+            id="boomiUsername"
+            placeholder="Enter Boomi Username"
+            value={boomiUsername}
+            onChange={handleBoomiUsernameChange}
+            />
             <input
               type="text"
               name="profiles"

@@ -17,7 +17,6 @@ function App(){
       <Routes>
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/resource" element={<ResourceDownloader />} />
         <Route path="/help" element={<Help />} />
       </Routes>
   );
