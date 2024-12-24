@@ -180,7 +180,8 @@ function HomePage() {
     // Step 4: Calculate totals
     const uniqueComponentIds = [...new Set(componentIds)]; // Unique component IDs
     const uniqueSubprocessIds = [...new Set(subprocessIds)]; // Unique subprocess IDs
-    const totalProcesses = uniqueComponentIds.length;
+    console.log(uniqueComponentIds.length)
+    const totalProcesses = uniqueComponentIds.length-1;
     const totalSubprocesses = uniqueSubprocessIds.length;
     const remainingProcesses = totalProcesses - totalSubprocesses;
 
