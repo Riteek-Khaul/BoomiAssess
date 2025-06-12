@@ -32,6 +32,12 @@
   color: black;
 }
 
+#navbar button.active {
+  background-color: #8c00ff;
+  color: #f5fdfd;
+}
+
+
 .page {
   padding: 20px;
   margin-top: 20px;

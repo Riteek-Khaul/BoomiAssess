@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import Loader from "./Loader";
 import "./Modal.css";
-import './MigrateToCI.css';
+import "./MigrateToCI.css";
 import axios from "axios";
 import { shapesMappings } from "./shapesMappings";
 import JSZip from "jszip";
@@ -23,6 +24,7 @@ const Modal = ({
   SpecificProcess,
   selectedProcess,
   boomiaccountId,
+  setIsLoading,
 }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
   const [firstPart, setFirstPart] = useState([]);
@@ -31,8 +33,9 @@ const Modal = ({
     selectedProcess: selectedProcess,
     boomiaccountId: boomiaccountId,
   });
-  const [isMigrate,setisMigrate] = useState(false);
+  const [isMigrate, setisMigrate] = useState(false);
   const [scriptsArray, setScriptsArray] = useState([]);
+  const [boomiConnectors, setBoomiConnectors] = useState({});
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
   const [shapeArray, setShapeArray] = useState([]);
   const [shapeCounter, setShapeCounter] = useState(0);
@@ -57,7 +60,7 @@ const Modal = ({
     iflowName: "",
     iflowId: "",
     packageId: "",
-    artifactContent:"",
+    artifactContent: "",
     cpiHostName: "",
     accessTokenUri: "",
     clientId: "",
@@ -121,28 +124,38 @@ const Modal = ({
   const StepOne = () => {
     return (
       <div className="tables-container">
-        <table border="1">
-          <thead>
-            <tr>
-              <th>Shape/Connector</th>
-              <th>CPI Alternative</th>
-            </tr>
-          </thead>
-          <tbody>
-            {firstPart.slice(1).map((row, index) => (
-              <tr key={index}>
-                {row.map((cell, cellIndex) =>
-                  cellIndex === 0 ? (
-                    <React.Fragment key={cellIndex}>
-                      <td>{cell}</td>
-                      <td>{shapesMappings[cell] || "No Alternative"}</td>
-                    </React.Fragment>
-                  ) : null
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="p-4">
+          {boomiProcessData.length > 0 && (
+            <table className="min-w-full table-auto border-collapse border border-gray-300">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border p-2">Step No</th>
+                  <th className="border p-2">Shape Name</th>
+                  <th className="border p-2">Shape Type</th>
+                  <th className="border p-2">Source</th>
+                  <th className="border p-2">Target</th>
+                  <th className="border p-2">Current</th>
+                  <th className="border p-2">CPI Alternative</th>
+                </tr>
+              </thead>
+              <tbody>
+                {firstPart.slice(1).map((row, idx) => (
+                  <tr key={idx}>
+                    <td className="border p-2 text-center">{row[0]}</td>
+                    <td className="border p-2">{row[1]}</td>
+                    <td className="border p-2">{row[2]}</td>
+                    <td className="border p-2">{row[3]}</td>
+                    <td className="border p-2">{row[4]}</td>
+                    <td className="border p-2">{row[5]}</td>
+                    <td className="border p-2">
+                      {shapesMappings[row[2]] || "No Alternative"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     );
   };
@@ -150,25 +163,30 @@ const Modal = ({
   const StepTwo = () => {
     return (
       <div className="connectorTable">
-        <table border="1">
+        <table border="1" style={{ marginBottom: "16px" }}>
           <thead>
             <tr>
-              <th>Sender</th>
-              <th>Receiver</th>
+              <th>Type</th>
+              <th>Action</th>
+              <th>Id</th>
             </tr>
           </thead>
           <tbody>
-            {Array.from({
-              length: Math.max(
-                connectors.sender.length,
-                connectors.receiver.length
-              ),
-            }).map((_, index) => (
-              <tr key={index}>
-                <td>{connectors.sender[index] || ""}</td>
-                <td>{connectors.receiver[index] || ""}</td>
+            {Array.isArray(boomiConnectors) && boomiConnectors.length > 0 ? (
+              boomiConnectors.map((row, idx) => (
+                <tr key={idx}>
+                  <td>{row.connectorType || ""}</td>
+                  <td>{row.actionType || ""}</td>
+                  <td>{row.connectionId || ""}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={3} style={{ textAlign: "center" }}>
+                  No Connector Details
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
         {stepButtonStatus.CDStatus ? (
@@ -185,7 +203,60 @@ const Modal = ({
         {stepButtonStatus.CCDStatus ? (
           "Connector Details Mapped Successfully!"
         ) : (
-          <button onClick={classifyConnectorData}>Classify Details</button>
+          <div>
+            {/* Sender and Receiver Select Inputs */}
+            <div style={{ marginBottom: "1em", display: "flex" }}>
+              <label>
+                Sender:&nbsp;
+                <select
+                  value={connectors.sender || ""}
+                  onChange={(e) =>
+                    setConnectors((prev) => ({
+                      ...prev,
+                      sender: Array.isArray(prev.sender)
+                        ? [...prev.sender, e.target.value]
+                        : prev.sender
+                        ? [prev.sender, e.target.value]
+                        : [e.target.value],
+                    }))
+                  }
+                >
+                  <option value="">Select Sender</option>
+                  <option value="Timer">Timer</option>
+                  {boomiConnectors.map((row, idx) => (
+                    <option key={idx} value={row.connectorType || ""}>
+                      {row.connectorType || `Sender ${idx + 1}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              &nbsp;&nbsp;
+              <label>
+                Receiver:&nbsp;
+                <select
+                  value={connectors.receiver || ""}
+                  onChange={(e) =>
+                    setConnectors((prev) => ({
+                      ...prev,
+                      receiver: Array.isArray(prev.receiver)
+                        ? [...prev.receiver, e.target.value]
+                        : prev.receiver
+                        ? [prev.receiver, e.target.value]
+                        : [e.target.value],
+                    }))
+                  }
+                >
+                  <option value="">Select Receiver</option>
+                  {boomiConnectors.map((row, idx) => (
+                    <option key={idx} value={row.connectorType || ""}>
+                      {row.connectorType || `Receiver ${idx + 1}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <button onClick={classifyConnectorData}>Apply</button>
+          </div>
         )}
       </>
     );
@@ -196,12 +267,15 @@ const Modal = ({
         {stepButtonStatus.RRStatus ? (
           "Resources reused Successfully!"
         ) : (
-          <button onClick={ReuseScripts}> Reuse Resources </button>
+          <div>
+            <p> Scripts can be reuse with some adjustment! </p>
+            <button onClick={ReuseScripts}> Reuse Resources </button>
+          </div>
         )}
-       
+
         <p>
-          Note: Resources like Message mappings/User Credentials/certificates
-          are not directly migrated in this process, need manual intervention.
+          Note: Resources like Message mappings/Passwords/certificates are not
+          directly migrated in this process, need manual intervention.
         </p>
       </div>
     );
@@ -273,7 +347,10 @@ const Modal = ({
     if (boomiProcessData) {
       const parts = boomiProcessData.split("\n\n");
       const firstPartData =
-        parts[0]?.split("\n").map((line) => line.split(",")) || [];
+        parts[0]
+          ?.split("\n")
+          .filter((line) => line.trim() !== "")
+          .map((line) => line.split(",").map((cell) => cell.trim())) || [];
       const secondPartData =
         parts[1]?.split("\n").map((line) => line.split(",")) || [];
 
@@ -289,53 +366,93 @@ const Modal = ({
         let shapeType = row[3];
         const configuration = row.slice(4).join(",");
 
-        if (shapeType === "dataprocess") {
-          const match = configuration.match(/@name:([^,]+)/);
-          shapeType = match[1];
-        }
-
-        const invalidShapes = ["connectoraction", "start", "stop"];
-
-        // Check if the shapeType is valid
-        if (!invalidShapes.includes(shapeType) && shapeType != undefined) {
-          setShapeArray((prevShapeArray) => [...prevShapeArray, shapeType]);
-        }
-
-        if (shapeType !== "connectoraction" && shapeType !== "catcherrors") {
-          counter++;
-        }
-
-        if (shapeType === "connectoraction") {
+        if (shapeType === "connectoraction" || shapeType === "start") {
           const actionTypeMatch = configuration.match(/@actionType:([^,]+)/);
           const connectorTypeMatch = configuration.match(
             /@connectorType:([^,]+)/
           );
-          if (actionTypeMatch && connectorTypeMatch) {
-            const actionType = actionTypeMatch[1].trim().toUpperCase();
-            const connectorType = connectorTypeMatch[1].trim();
+          const connectionIdMatch = configuration.match(
+            /@connectionId:([^,]+)/
+          );
 
-            if (
-              actionType === "GET" ||
-              actionType === "EXECUTE" ||
-              actionType === "QUERY"
-            ) {
-              senderConnectors.push(shapesMappings[connectorType]);
-            } else if (
-              actionType === "SEND" ||
-              actionType === "CREATE" ||
-              actionType === "UPDATE"
-            ) {
-              receiverConnectors.push(shapesMappings[connectorType]);
-            }
+          // Extract values if matches are found
+          if (actionTypeMatch && connectorTypeMatch && connectionIdMatch) {
+            const actionType = actionTypeMatch[1].trim();
+            const connectorType = connectorTypeMatch[1].trim();
+            const connectionId = connectionIdMatch[1].trim();
+
+            // Create a connector object
+            const connectorObj = {
+              actionType,
+              connectorType,
+              connectionId,
+            };
+
+            // Store in boomiConnectors state as an array of objects
+            setBoomiConnectors((prev) => {
+              // If prev is an array, append; if not, start new array
+              if (Array.isArray(prev)) {
+                return [...prev, connectorObj];
+              } else {
+                return [connectorObj];
+              }
+            });
           }
         }
       });
-      setShapeCounter(counter);
-      setDynamicName(secondPartData[1][1]);
-      setConnectors({
-        sender: senderConnectors,
-        receiver: receiverConnectors,
-      });
+
+      // secondPartData.slice(1).forEach((line) => {
+      //   const row = line;
+      //   let shapeType = row[3];
+      //   const configuration = row.slice(4).join(",");
+
+      //   if (shapeType === "dataprocess") {
+      //     const match = configuration.match(/@name:([^,]+)/);
+      //     shapeType = match[1];
+      //   }
+
+      //   const invalidShapes = ["connectoraction", "start", "stop"];
+
+      //   // Check if the shapeType is valid
+      //   if (!invalidShapes.includes(shapeType) && shapeType != undefined) {
+      //     setShapeArray((prevShapeArray) => [...prevShapeArray, shapeType]);
+      //   }
+
+      //   if (shapeType !== "connectoraction" && shapeType !== "catcherrors") {
+      //     counter++;
+      //   }
+
+      //   if (shapeType === "connectoraction") {
+      //     const actionTypeMatch = configuration.match(/@actionType:([^,]+)/);
+      //     const connectorTypeMatch = configuration.match(
+      //       /@connectorType:([^,]+)/
+      //     );
+      //     if (actionTypeMatch && connectorTypeMatch) {
+      //       const actionType = actionTypeMatch[1].trim().toUpperCase();
+      //       const connectorType = connectorTypeMatch[1].trim();
+
+      //       if (
+      //         actionType === "GET" ||
+      //         actionType === "EXECUTE" ||
+      //         actionType === "QUERY"
+      //       ) {
+      //         senderConnectors.push(shapesMappings[connectorType]);
+      //       } else if (
+      //         actionType === "SEND" ||
+      //         actionType === "CREATE" ||
+      //         actionType === "UPDATE"
+      //       ) {
+      //         receiverConnectors.push(shapesMappings[connectorType]);
+      //       }
+      //     }
+      //   }
+      // });
+      // setShapeCounter(counter);
+      // setDynamicName(secondPartData[1][1]);
+      // setConnectors({
+      //   sender: senderConnectors,
+      //   receiver: receiverConnectors,
+      // });
     }
   }, [SpecificProcess]);
 
@@ -470,6 +587,7 @@ const Modal = ({
   };
 
   const createProcess = () => {
+    setIsLoading(true);
     const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
     let events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
 
@@ -616,7 +734,7 @@ const Modal = ({
       sequenceFlows += result.updatedXML;
       sequenceFlowCounter = result.sequenceFlowCounter;
     }
-
+    setIsLoading(false);
     return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${palleteItems}${sequenceFlows}</bpmn2:process>`;
   };
 
@@ -659,13 +777,17 @@ const Modal = ({
   };
 
   const generateIflowXML = () => {
+    setIsLoading(true);
     const defaultXMLCode = `<?xml version="1.0" encoding="UTF-8"?><bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:ifl="http:///com.sap.ifl.model/Ifl.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1">`;
     const collaboration = createCollaboration();
     const process = createProcess();
     const bpmPlane_1 = createBPMPlane_1();
     const bpmnDiagram = createBPMNDiagram(bpmPlane_1);
 
+    alert("Generating Iflow XML...");
+
     const iflowXMLCode = `${defaultXMLCode}${collaboration}${process}${bpmnDiagram}</bpmn2:definitions>`;
+    setIsLoading(false);
     return iflowXMLCode;
   };
 
@@ -674,6 +796,7 @@ const Modal = ({
       alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
       console.log(boomiaccountId, selectedProcess);
       try {
+        setIsLoading(true);
         const url =
           "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getcomponentsdetails";
         const response = await axios.get(url, {
@@ -692,13 +815,14 @@ const Modal = ({
           CDStatus: true,
           CCDStatus: false,
           RRStatus: false,
-        })
+        });
       } catch (error) {
         console.error("Error fetching processes:", error);
         alert(
           "Something Went wrong!...Please check the Account ID or Associated Credentials!"
         );
       }
+      setIsLoading(false);
     } else {
       alert("Please enter Boomi Account ID.");
     }
@@ -743,16 +867,18 @@ const Modal = ({
       CDStatus: true,
       CCDStatus: true,
       RRStatus: false,
-    })
+    });
   };
 
   const ProceedForMigration = () => {
+    setIsLoading(true);
     const defualtProjectFiles = buildDefaultProjectFiles();
     const xmlContent = generateIflowXML();
     const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
     setProceedClicked(true);
     handleStepNext();
+    setIsLoading(false);
   };
 
   const DownloadZip = () => {
@@ -813,7 +939,7 @@ const Modal = ({
     });
   };
 
-  const submitFormData =async(e) =>{
+  const submitFormData = async (e) => {
     e.preventDefault();
 
     const zip = new JSZip();
@@ -838,17 +964,17 @@ const Modal = ({
       .folder("src")
       .folder("main")
       .folder("resources")
-      .file("parameters.propdef", PM2Content); 
+      .file("parameters.propdef", PM2Content);
 
     zip.generateAsync({ type: "blob" }).then((content) => {
       console.log("Generated Blob:", content); // Debugging step
-    
+
       const reader = new FileReader();
-    
+
       reader.onloadend = () => {
         const base64Zip = reader.result.split(",")[1]; // Extract Base64 part
         console.log("Base64 Encoded Zip:", base64Zip); // Debugging step
-    
+
         // Ensure base64 is not empty and update state
         if (base64Zip) {
           setFormData((prevState) => ({
@@ -859,17 +985,17 @@ const Modal = ({
           console.error("Base64 encoding failed or is empty.");
         }
       };
-    
+
       reader.onerror = (error) => {
         console.error("Error reading Blob:", error);
       };
-    
+
       // Read the Blob as a data URL
       reader.readAsDataURL(content);
     });
-    
+
     const apiUrl = "http://localhost:5000/migrate"; // Replace with the actual API endpoint
-  
+
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -878,35 +1004,42 @@ const Modal = ({
         },
         body: JSON.stringify(formData),
       });
-  
+
       if (response.ok) {
         const responseData = await response.json();
         console.log("API Response:", responseData);
-  
+
         setPopupMessage("Migrated successfully!");
         setShowPopup(true);
-        //clear all states 
+        //clear all states
         handleCloseModal();
         setisMigrate(false);
-        alert("Iflow Migrated successfully!")
+        alert("Iflow Migrated successfully!");
         return { success: true, message: "Form submitted successfully!" };
       } else {
         const errorData = await response.json();
         console.error("API Error:", errorData);
         setPopupMessage("Migration failed. Please try again.");
         setShowPopup(true);
-        return { success: false, message: errorData.message || "Form submission failed." };
+        return {
+          success: false,
+          message: errorData.message || "Form submission failed.",
+        };
       }
     } catch (error) {
       console.error("Network Error:", error);
-      return { success: false, message: "An error occurred while submitting the form." };
+      return {
+        success: false,
+        message: "An error occurred while submitting the form.",
+      };
     }
-  }
+  };
 
   const ReuseScripts = async () => {
     if (selectedProcess) {
       alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
       try {
+        setIsLoading(true);
         const url =
           "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallscripts";
         const response = await axios.get(url, {
@@ -942,7 +1075,7 @@ const Modal = ({
             CDStatus: true,
             CCDStatus: true,
             RRStatus: true,
-          })
+          });
         }
       } catch (error) {
         console.error("Error fetching scripts:", error);
@@ -950,6 +1083,7 @@ const Modal = ({
           "Something Went wrong!...Please check the Account ID/processID or Associated Credentials!"
         );
       }
+      setIsLoading(false);
     } else {
       alert("Please enter Process ID.");
     }
@@ -972,8 +1106,6 @@ const Modal = ({
   // console.log(connectors);
   // console.log(shapeCounter);
   // console.log(dynamicName);
-  console.log(connectorDetails);
-  console.log(updatedConnectorDetails);
 
   return (
     <>
@@ -1004,9 +1136,9 @@ const Modal = ({
                     <CompleteStep />
                   </div>
                 ) : (
-                  <div >
+                  <div>
                     <div className="centerContainer">
-                    {renderStepContent(activeStepCount)}
+                      {renderStepContent(activeStepCount)}
                     </div>
                     <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                       <Button
@@ -1048,7 +1180,11 @@ const Modal = ({
                   <button onClick={DownloadZip} id="cancelbtn">
                     Download ZIP
                   </button>
-                  <button onClick={() => setisMigrate((prevState) => !prevState)}>Migrate</button>
+                  <button
+                    onClick={() => setisMigrate((prevState) => !prevState)}
+                  >
+                    Migrate
+                  </button>
                 </>
               )}
             </div>
@@ -1056,112 +1192,115 @@ const Modal = ({
         </div>
       )}
 
-      { 
-        isMigrate && (
-          <div className="modal-overlay">
+      {isMigrate && (
+        <div className="modal-overlay">
           <form className="form-container" onSubmit={submitFormData}>
-          <div class="form-row">
-            <label>
-              IFlow Name:
-              <input
-                type="text"
-                name="iflowName"
-                value={formData.iflowName}
-                onChange={handleChange}
-                required
-              />
-            </label>
+            <div class="form-row">
+              <label>
+                IFlow Name:
+                <input
+                  type="text"
+                  name="iflowName"
+                  value={formData.iflowName}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-row">
-            <label>
-              IFlow ID:
-              <input
-                type="text"
-                name="iflowId"
-                value={formData.iflowId}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                IFlow ID:
+                <input
+                  type="text"
+                  name="iflowId"
+                  value={formData.iflowId}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-row">
-            <label>
-              Package ID:
-              <input
-                type="text"
-                name="packageId"
-                value={formData.packageId}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                Package ID:
+                <input
+                  type="text"
+                  name="packageId"
+                  value={formData.packageId}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-row">
-            <label>
-              CPI Host Name:
-              <input
-                type="text"
-                name="cpiHostName"
-                value={formData.cpiHostName}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                CPI Host Name:
+                <input
+                  type="text"
+                  name="cpiHostName"
+                  value={formData.cpiHostName}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-row">
-            <label>
-              Access Token URI:
-              <input
-                type="text"
-                name="accessTokenUri"
-                value={formData.accessTokenUri}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                Access Token URI:
+                <input
+                  type="text"
+                  name="accessTokenUri"
+                  value={formData.accessTokenUri}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-row">
-            <label>
-              Client ID:
-              <input
-                type="text"
-                name="clientId"
-                value={formData.clientId}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                Client ID:
+                <input
+                  type="text"
+                  name="clientId"
+                  value={formData.clientId}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-row">
-            <label>
-              Client Secret:
-              <input
-                type="password"
-                name="clientSecret"
-                value={formData.clientSecret}
-                onChange={handleChange}
-                required
-              />
-            </label>
+              <label>
+                Client Secret:
+                <input
+                  type="password"
+                  name="clientSecret"
+                  value={formData.clientSecret}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
             </div>
             <div class="form-actions">
-            <button type="button" onClick={() => setisMigrate((prevState) => !prevState)} >Cancel</button>
-            <button type="submit">Submit</button>
+              <button
+                type="button"
+                onClick={() => setisMigrate((prevState) => !prevState)}
+              >
+                Cancel
+              </button>
+              <button type="submit">Submit</button>
             </div>
           </form>
         </div>
-        )
-      }
+      )}
 
-        {/* Popup for success or failure message */}
-        {showPopup && (
-            <div className="popup">
-              <div className="popup-content">
-                <p>{popupMessage}</p>
-                <button onClick={closePopup}>Close</button>
-              </div>
-            </div>
-          )}
+      {/* Popup for success or failure message */}
+      {showPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <p>{popupMessage}</p>
+            <button onClick={closePopup}>Close</button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

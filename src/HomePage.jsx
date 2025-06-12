@@ -8,6 +8,7 @@ import 'jspdf-autotable';
 import { Chart, registerables } from 'chart.js';
 import html2canvas from 'html2canvas';
 import AuthModal from './AuthModal';
+import Loader from './Loader';
 
 Chart.register(...registerables);
 
@@ -22,6 +23,7 @@ function HomePage() {
   const [processes, setProcesses] = useState({ type: 'QueryResult', numberOfResults: 0, result: [] });
   const [selectedProcess, setSelectedProcess] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [SpecificProcess, setSpecificProcess] = useState();
   const [Auth, setAuth] = useState(() => {
     // Initialize Auth state from local storage if available
@@ -69,6 +71,7 @@ function HomePage() {
     if (boomiaccountId && boomiUsername) {
       alert(`Extracting data for Account ID: ${boomiaccountId}`);
       try {
+        setIsLoading(true)
         const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/extractprocessmetadata';
         const response = await axios.get(url, {
           params: {
@@ -88,6 +91,7 @@ function HomePage() {
         console.error('Error making authenticated request:', error);
         alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
       }
+      setIsLoading(false);
     } else {
       alert('Please enter Boomi Account ID.');
     }
@@ -95,6 +99,7 @@ function HomePage() {
 
   const makeEvaluateRequest = async (csvData,SubProcessResult) => {
     try {
+      setIsLoading(true);
       const url = "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/evaluateprocessmetadata";
       const response = await axios.post(url, csvData, {
         headers: {
@@ -104,6 +109,8 @@ function HomePage() {
         },
         responseType: 'text',
       });
+
+      setIsLoading(false);
 
       const parts = response.data.split(/\n\s*\n/);
       const pdfContent = [parts[0], parts[1],SubProcessResult].join('\n');
@@ -196,6 +203,7 @@ function HomePage() {
   const getPDF = async (pdfContent) => {
 
     try {
+      setIsLoading(true);
       const url = "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/makeresultpdf";
       const response = await axios.post(url, pdfContent, {
         headers: {
@@ -205,6 +213,8 @@ function HomePage() {
         },
         responseType: 'blob',
       });
+
+      setIsLoading(false);
 
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const link = document.createElement('a');
@@ -377,6 +387,7 @@ function HomePage() {
     if (boomiaccountId && boomiUsername) {
       alert(`Fetching processes for Account ID: ${boomiaccountId}`);
       try {
+        setIsLoading(true);
         const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallprocesses';
         const response = await axios.get(url, {
           params: {
@@ -395,6 +406,7 @@ function HomePage() {
         console.error('Error fetching processes:', error);
         alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
       }
+      setIsLoading(false);
     } else {
       alert('Please enter Boomi Account ID.');
     }
@@ -404,6 +416,7 @@ function HomePage() {
     if (selectedProcess) {
       alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
       try {
+        setIsLoading(true);
         const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getspecificprocess';
         const response = await axios.get(url, {
           params: {
@@ -417,11 +430,13 @@ function HomePage() {
           },
         });
         setSpecificProcess(response.data);
+        console.log(response.data);
         openModal();
       } catch (error) {
         console.error('Error fetching processes:', error);
         alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
       }
+      setIsLoading(false);
     } else {
       alert('Please enter Boomi Account ID.');
     }
@@ -434,16 +449,28 @@ function HomePage() {
   return (
     <div className="App">
       <div id="navbar">
-        <button id="extractButton" onClick={() => showPage('extractPage')}>
+        <button
+          id="extractButton"
+          className={showExtractPage ? 'active' : ''}
+          onClick={() => showPage('extractPage')}
+        >
           Extract
         </button>
-        <button id="evaluateButton" onClick={() => showPage('evaluatePage')}>
+        <button
+          id="evaluateButton"
+          className={showEvaluatePage ? 'active' : ''}
+          onClick={() => showPage('evaluatePage')}
+        >
           Evaluate
         </button>
-        <button id="migrateButton" onClick={() => showPage('migratePage')}>
+        <button
+          id="migrateButton"
+          className={showMigratePage ? 'active' : ''}
+          onClick={() => showPage('migratePage')}
+        >
           Migrate
         </button>
-        <button id="migrateButton" onClick={goToHelp}>
+        <button id="helpButton" onClick={goToHelp}>
           Help
         </button>
       </div>
@@ -541,6 +568,7 @@ function HomePage() {
                       SpecificProcess={SpecificProcess}
                       boomiaccountId={boomiaccountId}
                       selectedProcess={selectedProcess}
+                      setIsLoading={setIsLoading}
                     />
                   )
                 }
@@ -549,6 +577,8 @@ function HomePage() {
           </div>
         )
       }
+
+      {isLoading && <Loader />}
 
       <div id="note" className="note">
         <p>

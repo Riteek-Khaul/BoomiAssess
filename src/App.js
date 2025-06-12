@@ -10,6 +10,8 @@ import GeneratePDF from './GeneratePDF';
 import CalSubPro from './tests/CalSubPro';
 import MigrateToCI from './tests/MigrateToCI';
 import Help from './Help';
+import BoomiToXSDConverter from './BoomiToXSDConverter';
+import BoomiProcessTable from './BoomiProcessTable';
 
 function App(){
 
@@ -18,6 +20,9 @@ function App(){
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/convert-map" element={<BoomiToXSDConverter />} />
+        <Route path='/resources-download' element={< ResourceDownloader />} />
+        <Route path='/boomi-process-table' element={< BoomiProcessTable />} />
       </Routes>
   );
 }

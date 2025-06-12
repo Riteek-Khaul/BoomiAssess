@@ -48,5 +48,6 @@ export const shapesMappings={
     'cleanse':"NA",
     'programcommand':"groovyScript",
     'aws':"openConnector",
+    'returndocuments':'end',
     'findchanges':"messageMapping"
 }

@@ -18,7 +18,7 @@
     background-color: white;
     border-radius: 8px;
     padding: 20px;
-    width: 60%;
+    width: 70%;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
     animation: slideIn 1.0s ease-in-out;
@@ -70,6 +70,109 @@
   .tables-container {
     display: flex;
   }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(44, 44, 44, 0.08);
+    font-size: 1rem;
+    animation: fadeIn 0.7s;
+  }
+
+  th, td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.2s;
+  }
+
+  th {
+    background: linear-gradient(90deg, #8c00ff 0%, #4e54c8 100%);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: #f3eaff;
+  }
+
+  td {
+    color: #333;
+  }
+
+  /* Zebra striping for rows */
+  tbody tr:nth-child(even) {
+    background: #faf6ff;
+  }
+
+  /* Responsive table for small screens */
+  @media (max-width: 700px) {
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    th, td {
+      padding: 10px 8px;
+    }
+    th {
+      border-radius: 0;
+    }
+    tr {
+      margin-bottom: 15px;
+    }
+    td {
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 50%;
+    }
+    td:before {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 45%;
+      white-space: nowrap;
+      font-weight: bold;
+      color: #8c00ff;
+      content: attr(data-label);
+    }
+  }
+
+  /* Style for select input */
+  select {
+    padding: 8px 12px;
+    border: 1px solid #8c00ff;
+    border-radius: 4px;
+    background: #faf6ff;
+    color: #333;
+    font-size: 1em;
+    margin-right: 8px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  select:focus {
+    border-color: #5e00b2;
+    background: #f3eaff;
+  }
+
+  /* Style for label */
+  label {
+    font-weight: 500;
+    color: #5e00b2;
+    margin-bottom: 6px;
+    display: inline-block;
+    font-size: 1em;
+    letter-spacing: 0.01em;
+  }
+
   .connectorTable{
     margin-left: 10px;
   }
