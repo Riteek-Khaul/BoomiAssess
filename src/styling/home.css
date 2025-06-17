@@ -1,0 +1,82 @@
+/* ------------- Layout ------------- */
+.homeCon{
+  background: radial-gradient(ellipse at top, #f5f7fa 0%, #e4ebf5 100%);
+}
+
+.home {
+    --gap: clamp(1rem, 4vw, 2.5rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+    gap: var(--gap);
+    padding: clamp(2rem, 6vw, 4rem);
+    background: radial-gradient(ellipse at top, #f5f7fa 0%, #e4ebf5 100%);
+  }
+  
+  /* ------------- Tile Card ------------- */
+  .tile {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 20px rgba(20, 30, 40, 0.08);
+    display: flex;
+    width: 400px;
+    height: 400px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+  
+  .tile:focus,
+  .tile:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 32px rgba(20, 30, 40, 0.12);
+  }
+  
+  .tile:active {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(20, 30, 40, 0.1);
+  }
+  
+  /* ------------- Content ------------- */
+  .tile__icon {
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    margin-bottom: 1.25rem;
+  }
+  
+  .tile__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #1f2937;
+  }
+  
+  /* Accessibility: show focus outline only when navigating via keyboard */
+  .tile:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 4px;
+  }
+  .footer{
+    background-color: #333;;
+  }
+  .footer p{
+    color: white;
+  }
+  .header{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header h1{
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #1f2937;
+  }
+  .assess{
+    color: rgb(253, 112, 11);
+  }

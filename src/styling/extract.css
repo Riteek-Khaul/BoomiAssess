@@ -1,0 +1,139 @@
+            .extract-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            .extract-modal {
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+                width: 80%;
+                max-width: 90vw;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                animation: fadeIn 0.2s;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0.97);}
+                to { opacity: 1; transform: scale(1);}
+            }
+
+            .extract-modal-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 20px 8px 20px;
+                border-bottom: 1px solid #eee;
+                background: #f7f7f7;
+                border-radius: 8px 8px 0 0;
+            }
+
+            .extract-modal-count {
+                font-size: 15px;
+                color: #333;
+                font-weight: 500;
+                width: 500px;
+            }
+
+            .extract-modal-search {
+                padding: 6px 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+                width: 160px;
+                outline: none;
+                transition: border 0.2s;
+            }
+            .extract-modal-search:focus {
+                border: 1.5px solid #007bff;
+            }
+
+            .extract-modal-body {
+                max-height: 300px;
+                overflow-y: auto;
+                padding: 12px 20px;
+            }
+
+            .extract-modal-process-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .extract-modal-process-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 15px;
+                cursor: pointer;
+                padding: 4px 0;
+            }
+
+            .extract-modal-process-item input[type="checkbox"] {
+                accent-color: #007bff;
+                width: 16px;
+                height: 16px;
+            }
+
+            .extract-modal-process-name {
+                flex: 1;
+                color: #222;
+            }
+
+            .extract-modal-no-results {
+                color: #888;
+                text-align: center;
+                padding: 20px 0;
+                font-size: 15px;
+            }
+
+            .extract-modal-footer {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                padding: 12px 20px 16px 20px;
+                border-top: 1px solid #eee;
+                background: #fafbfc;
+                border-radius: 0 0 8px 8px;
+            }
+
+            .extract-modal-btn {
+                padding: 7px 18px;
+                border: none;
+                border-radius: 4px;
+                font-size: 15px;
+                cursor: pointer;
+                transition: background 0.18s;
+            }
+
+            .extract-modal-btn-cancel {
+                background: #f2f2f2;
+                color: #444;
+            }
+            .extract-modal-btn-cancel:hover {
+                background: #e0e0e0;
+            }
+
+            .extract-modal-btn-extract {
+                background: #007bff;
+                color: #fff;
+            }
+            .extract-modal-btn-extract:disabled {
+                background: #b3d1fa;
+                color: #fff;
+                cursor: not-allowed;
+            }
+            .extract-modal-btn-extract:not(:disabled):hover {
+                background: #0056b3;
+            }
+            

@@ -33,6 +33,7 @@ const Modal = ({
     selectedProcess: selectedProcess,
     boomiaccountId: boomiaccountId,
   });
+  const [revisedSequenceMapping, setRevisedSequenceMapping] = useState({});
   const [isMigrate, setisMigrate] = useState(false);
   const [scriptsArray, setScriptsArray] = useState([]);
   const [boomiConnectors, setBoomiConnectors] = useState({});
@@ -121,6 +122,15 @@ const Modal = ({
     setShowPopup(false);
   };
 
+  // Handler function for revisedSequenceMapping
+  const handleRevisedSequenceChange = (cpiAlternative, e) => {
+    e.preventDefault();
+    setRevisedSequenceMapping(prev => ({
+      ...prev,
+      [cpiAlternative]: e.target.value
+    }));
+  };
+
   const StepOne = () => {
     return (
       <div className="tables-container">
@@ -136,22 +146,40 @@ const Modal = ({
                   <th className="border p-2">Target</th>
                   <th className="border p-2">Current</th>
                   <th className="border p-2">CPI Alternative</th>
+                  <th className="border p-2">Revised Sequence</th>
                 </tr>
               </thead>
               <tbody>
-                {firstPart.slice(1).map((row, idx) => (
-                  <tr key={idx}>
-                    <td className="border p-2 text-center">{row[0]}</td>
-                    <td className="border p-2">{row[1]}</td>
-                    <td className="border p-2">{row[2]}</td>
-                    <td className="border p-2">{row[3]}</td>
-                    <td className="border p-2">{row[4]}</td>
-                    <td className="border p-2">{row[5]}</td>
-                    <td className="border p-2">
-                      {shapesMappings[row[2]] || "No Alternative"}
-                    </td>
-                  </tr>
-                ))}
+                {firstPart.slice(1).map((row, idx) => {
+                  const cpiAlternative = shapesMappings[row[2]] || "No Alternative";
+                  // revisedSequenceMapping is a state: { [cpiAlternative]: number }
+                  return (
+                    <tr key={idx}>
+                      <td className="border p-2 text-center">{row[0]}</td>
+                      <td className="border p-2">{row[1]}</td>
+                      <td className="border p-2">{row[2]}</td>
+                      <td className="border p-2">{row[3]}</td>
+                      <td className="border p-2">{row[4]}</td>
+                      <td className="border p-2">{row[5]}</td>
+                      <td className="border p-2">
+                        {cpiAlternative}
+                      </td>
+                      <td className="border p-2">
+                        {cpiAlternative !== "No Alternative" ? (
+                          <input
+                            type="number"
+                            min="1"
+                            value={revisedSequenceMapping[cpiAlternative] || ""}
+                            onChange={e => handleRevisedSequenceChange(cpiAlternative, e)}
+                            style={{ width: "60px" }}
+                          />
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -1100,12 +1128,6 @@ const Modal = ({
     setShapeCounter(0); // Reset to initial value
     handleStepReset();
   };
-
-  // console.log(shapeArray);
-  // console.log(firstPart);
-  // console.log(connectors);
-  // console.log(shapeCounter);
-  // console.log(dynamicName);
 
   return (
     <>

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage';
+import Home from './Pages/Home';
+import Extract from './Pages/Extract';
+import Evaluate from './Pages/Evaluate';
+import Migrate from './Pages/Migrate';
 import SuccessPage from './SuccessPage';
 import CreateFile from './CreateFile';
 import ResourceDownloader from './Resource';
@@ -19,6 +23,10 @@ function App(){
       <Routes>
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/" element={<HomePage />} />
+        <Route path='/Home' element={<Home />} />
+        <Route path="/Extract" element={<Extract />} />
+        <Route path="/Evaluate" element={<Evaluate />} />
+        <Route path="/Migrate" element={<Migrate />} />
         <Route path="/help" element={<Help />} />
         <Route path="/convert-map" element={<BoomiToXSDConverter />} />
         <Route path='/resources-download' element={< ResourceDownloader />} />
