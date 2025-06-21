@@ -36,23 +36,64 @@
                 border-bottom: 1px solid #eee;
                 background: #f7f7f7;
                 border-radius: 8px 8px 0 0;
+                gap: 20px;
             }
 
             .extract-modal-count {
                 font-size: 15px;
                 color: #333;
                 font-weight: 500;
-                width: 500px;
+                min-width: 200px;
+                flex-shrink: 0;
+            }
+
+            .extract-modal-controls {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                flex: 1;
+                justify-content: flex-end;
+            }
+
+            .extract-modal-select-all {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 14px;
+                color: #333;
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+                white-space: nowrap;
+                min-width: fit-content;
+            }
+
+            .extract-modal-select-all:hover {
+                background-color: #e9ecef;
+            }
+
+            .extract-modal-select-all input[type="checkbox"] {
+                accent-color: #007bff;
+                width: 16px;
+                height: 16px;
+                margin: 0;
+            }
+
+            .extract-modal-select-all span {
+                font-weight: 500;
             }
 
             .extract-modal-search {
-                padding: 6px 10px;
+                padding: 8px 12px;
                 border: 1px solid #ccc;
                 border-radius: 4px;
                 font-size: 14px;
-                width: 160px;
+                width: 300px;
                 outline: none;
                 transition: border 0.2s;
+                flex: 1;
+                max-width: 400px;
             }
             .extract-modal-search:focus {
                 border: 1.5px solid #007bff;

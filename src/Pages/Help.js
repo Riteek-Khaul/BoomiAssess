@@ -1,17 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import Navbar from '../Components/Navbar';
 
 const Help = () => {
 
-  const navigate = useNavigate();
-
-  const goToHome = () => {
-    navigate('/');
-  };
-
   return (
+    <div className='app'>
+
+    
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-        <button onClick={goToHome}>Home</button>
+      <Navbar />
       <h1>Help Documentation</h1>
       <p>
         This tool leverages Boomi's Atmosphere APIs internally to retrieve details about processes and their configurations. Below is a list of all the APIs used for extracting process information and configurations from Boomi Atmosphere.
@@ -60,6 +57,7 @@ const Help = () => {
         </code>
       </pre>
       <p>For additional details, refer to the Boomi Atmosphere API documentation.</p>
+    </div>
     </div>
   );
 };

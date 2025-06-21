@@ -27,6 +27,9 @@ const Migrate = () => {
         const savedAuth = localStorage.getItem('Auth');
         return savedAuth ? JSON.parse(savedAuth) : true;
     });
+    const [subprocessesdependencies, setSubprocessesdependencies] = useState([]);
+    // Step for reusable resources
+    const [reusableResources, setReusableResources] = useState([]);
 
     const openModal = () => setShowModal(true);
     const closeModal = () => {
@@ -103,6 +106,58 @@ const Migrate = () => {
         }
     };
 
+    const getSubprocessesdependencies = async () => {
+        if (boomiaccountId && boomiUsername) {
+            try {
+                setIsLoading(true);
+                const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/fetchdependencies';
+                const response = await axios.get(url, {
+                    params: {
+                        boomiUsername: boomiUsername,
+                        boomiaccountId: boomiaccountId,
+                        selectedProcess: selectedProcess
+                    },
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+
+                    },
+                });
+                setSubprocessesdependencies(response.data);
+            } catch (error) {
+                console.error('Error fetching dependencies:', error);
+                alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+            }
+            setIsLoading(false);
+        } else {
+            alert('Please enter Boomi Account ID.');
+        }
+    };
+
+    const getReusableResources = async () => {
+        if (boomiaccountId && boomiUsername) {
+            try {
+                setIsLoading(true);
+                const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/fetchreusableresources';
+                const response = await axios.get(url, {
+                    params: {
+                        boomiUsername: boomiUsername,
+                        boomiaccountId: boomiaccountId,
+                        selectedProcess: selectedProcess
+                    },
+                });
+                setReusableResources(response.data);
+            } catch (error) {
+                console.error('Error fetching reusable resources:', error);
+                alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+            }
+            setIsLoading(false);
+        } else {
+            alert('Please enter Boomi Account ID.');
+        }
+    }
+
     const handleProcessChange = (event) => {
         setSelectedProcess(event.target.value);
     };
@@ -163,6 +218,10 @@ const Migrate = () => {
                                     boomiaccountId={boomiaccountId}
                                     selectedProcess={selectedProcess}
                                     setIsLoading={setIsLoading}
+                                    getSubprocessesdependencies={getSubprocessesdependencies}
+                                    subprocessesdependencies={subprocessesdependencies}
+                                    getReusableResources={getReusableResources}
+                                    reusableResources={reusableResources}
                                 />
                             )
                         }

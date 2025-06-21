@@ -25,8 +25,13 @@ const Modal = ({
   selectedProcess,
   boomiaccountId,
   setIsLoading,
+  getSubprocessesdependencies,
+  subprocessesdependencies,
+  getReusableResources,
+  reusableResources
 }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
+  const [subProcesses, setSubProcesses] = useState(subprocessesdependencies);
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
   const [APiDetails, setApiDetails] = useState({
@@ -40,6 +45,7 @@ const Modal = ({
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
   const [shapeArray, setShapeArray] = useState([]);
   const [shapeCounter, setShapeCounter] = useState(0);
+  const [processedShapes, setProcessedShapes] = useState([]);
   const [MetaInfofileContent, setMetaInfoFileContent] = useState("");
   const [MFContent, setMFContent] = useState("");
   const [projectxmlFile, setProjectXmlFile] = useState(null);
@@ -68,6 +74,7 @@ const Modal = ({
     clientSecret: "",
   });
 
+  const [reuseResources, setReuseResources] = useState(reusableResources);
   const [popupMessage, setPopupMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
@@ -118,63 +125,110 @@ const Modal = ({
     });
   };
 
+  // Handler function for reusable resource action
+  const handleResourceAction = (resource) => {
+    // Example: Mark resource as reused, or trigger a popup, or update state
+    // You can customize this logic as per your requirements
+    setPopupMessage(`Resource "${resource.name}" of type "${resource.type}" marked for reuse.`);
+    setShowPopup(true);
+
+    // Optionally, update a state to track reused resources
+    // setReusedResources(prev => [...prev, resource]);
+  };
+
   const closePopup = () => {
     setShowPopup(false);
   };
 
-  // Handler function for revisedSequenceMapping
-  const handleRevisedSequenceChange = (cpiAlternative, e) => {
-    e.preventDefault();
-    setRevisedSequenceMapping(prev => ({
-      ...prev,
-      [cpiAlternative]: e.target.value
-    }));
+  // Function to validate and auto-fill sequence mapping
+  const validateSequenceMapping = () => {
+    const mappedShapes = processedShapes.filter(s => s.cpiAlternative && s.cpiAlternative !== "NA");
+    const currentMapping = { ...revisedSequenceMapping };
+    
+    // Auto-fill sequence numbers for shapes that don't have them
+    mappedShapes.forEach((shape, index) => {
+      const shapeIndex = processedShapes.indexOf(shape) + 1;
+      if (!currentMapping[shapeIndex] || !currentMapping[shapeIndex].stepSeq) {
+        currentMapping[shapeIndex] = {
+          cpialternative: shape.cpiAlternative,
+          stepSeq: (index + 1).toString(),
+          originalShape: shape.originalType,
+          userlabel: shape.userlabel
+        };
+      }
+    });
+    
+    setRevisedSequenceMapping(currentMapping);
+    return currentMapping;
   };
+
+  console.log(revisedSequenceMapping);
 
   const StepOne = () => {
     return (
-      <div className="tables-container">
+      <div className="tables-container" style={{ maxHeight: "400px", overflow: "scroll" }}>
         <div className="p-4">
-          {boomiProcessData.length > 0 && (
+          {processedShapes.length > 0 ? (
             <table className="min-w-full table-auto border-collapse border border-gray-300">
               <thead className="bg-gray-100">
                 <tr>
                   <th className="border p-2">Step No</th>
-                  <th className="border p-2">Shape Name</th>
-                  <th className="border p-2">Shape Type</th>
-                  <th className="border p-2">Source</th>
-                  <th className="border p-2">Target</th>
-                  <th className="border p-2">Current</th>
+                  <th className="border p-2">Shape Lable</th>
+                  <th className="border p-2">Original Type</th>
                   <th className="border p-2">CPI Alternative</th>
                   <th className="border p-2">Revised Sequence</th>
+                  <th className="border p-2">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {firstPart.slice(1).map((row, idx) => {
-                  const cpiAlternative = shapesMappings[row[2]] || "No Alternative";
-                  // revisedSequenceMapping is a state: { [cpiAlternative]: number }
+                {processedShapes.map((shape, idx) => {
+                  const cpiAlternative = shape.cpiAlternative;
+                  const currentSequence = revisedSequenceMapping[idx+1]?.stepSeq || "";
+                  const isMapped = cpiAlternative && cpiAlternative !== "NA";
+                  
                   return (
                     <tr key={idx}>
-                      <td className="border p-2 text-center">{row[0]}</td>
-                      <td className="border p-2">{row[1]}</td>
-                      <td className="border p-2">{row[2]}</td>
-                      <td className="border p-2">{row[3]}</td>
-                      <td className="border p-2">{row[4]}</td>
-                      <td className="border p-2">{row[5]}</td>
+                      <td className="border p-2 text-center">{shape.stepNumber}</td>
+                      <td className="border p-2">{shape.userlabel}</td>
+                      <td className="border p-2">{shape.originalType}</td>
                       <td className="border p-2">
-                        {cpiAlternative}
+                        {isMapped ? (
+                          <span className="text-green-600 font-medium">{cpiAlternative}</span>
+                        ) : (
+                          <span className="text-red-600">No Alternative</span>
+                        )}
                       </td>
                       <td className="border p-2">
-                        {cpiAlternative !== "No Alternative" ? (
+                        {isMapped ? (
                           <input
                             type="number"
                             min="1"
-                            value={revisedSequenceMapping[cpiAlternative] || ""}
-                            onChange={e => handleRevisedSequenceChange(cpiAlternative, e)}
-                            style={{ width: "60px" }}
+                            value={currentSequence}
+                            onChange={e => {
+                              const value = e.target.value;
+                              setRevisedSequenceMapping(prev => ({
+                                ...prev,
+                                [idx+1]: {
+                                  cpialternative: cpiAlternative,
+                                  stepSeq: value,
+                                  originalShape: shape.originalType,
+                                  userlabel: shape.userlabel
+                                }
+                              }));
+                            }}
+                            style={{ width: "80px" }}
+                            placeholder="Seq #"
+                            className="border p-1 rounded"
                           />
                         ) : (
-                          "-"
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="border p-2">
+                        {isMapped ? (
+                          <span className="text-green-600">✓ Mapped</span>
+                        ) : (
+                          <span className="text-red-600">✗ No Mapping</span>
                         )}
                       </td>
                     </tr>
@@ -182,6 +236,36 @@ const Modal = ({
                 })}
               </tbody>
             </table>
+          ) : (
+            <div className="text-center p-4">
+              <p className="text-gray-500">No shapes detected in the process data.</p>
+              <p className="text-sm text-gray-400 mt-2">
+                Please ensure the Boomi process data contains valid shape information.
+              </p>
+            </div>
+          )}
+          
+          {processedShapes.length > 0 && (
+            <div className="mt-4 p-3 bg-blue-50 rounded">
+              <h4 className="font-medium text-blue-800 mb-2">Shape Mapping Summary:</h4>
+              <ul className="text-sm text-blue-700">
+                <li>• Total shapes detected: {processedShapes.length}</li>
+                <li>• Successfully mapped: {processedShapes.filter(s => s.cpiAlternative && s.cpiAlternative !== "NA").length}</li>
+                <li>• No mapping available: {processedShapes.filter(s => !s.cpiAlternative || s.cpiAlternative === "NA").length}</li>
+                <li>• Set revised sequence numbers to control the order of shapes in the generated IFlow</li>
+              </ul>
+              <div className="mt-3">
+                <button 
+                  onClick={validateSequenceMapping}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+                >
+                  Auto-fill Sequence Numbers
+                </button>
+                <span className="text-xs text-blue-600 ml-2">
+                  Automatically assign sequence numbers to mapped shapes
+                </span>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -296,13 +380,60 @@ const Modal = ({
           "Resources reused Successfully!"
         ) : (
           <div>
-            <p> Scripts can be reuse with some adjustment! </p>
+            <h3>Reusable Resources</h3>
+            <p>- Xml-Xml mappings with no transormation can be reused</p>
+            <p>- Scripts can be reuse with some adjustment! </p>
+            <h3>Detected :</h3>
+            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+              <thead>
+                <tr style={{ backgroundColor: "#f4f4f4" }}>
+                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Resource Name</th>
+                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Resource Type</th>
+                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(reuseResources) && reuseResources.length > 0 ? (
+                  reuseResources.map((resource, idx) => (
+                    <tr key={idx}>
+                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                        {resource.userlabel || "N/A"}
+                      </td>
+                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                        {resource.type || "N/A"}
+                      </td>
+                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                        <button
+                          style={{
+                            padding: "6px 12px",
+                            background: "#1976d2",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer"
+                          }}
+                          onClick={() => handleResourceAction(resource)}
+                        >
+                          Reuse
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: "center", padding: "12px" }}>
+                      No reusable resources detected.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
             <button onClick={ReuseScripts}> Reuse Resources </button>
           </div>
         )}
 
         <p>
-          Note: Resources like Message mappings/Passwords/certificates are not
+          Note: Resources like complex Message mappings/Passwords/certificates are not
           directly migrated in this process, need manual intervention.
         </p>
       </div>
@@ -311,7 +442,87 @@ const Modal = ({
 
   const CompleteStep = () => (
     <div>
-      <h3>All Done! </h3>
+      <h3>Dependencies:</h3>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <thead>
+          <tr>
+            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process Lable</th>
+            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.isArray(subProcesses) && subProcesses.length > 0 ? (
+            subProcesses
+              .filter((step) => step && step.processId) // Only include objects with processId
+              .map((step, idx) => (
+                <tr key={idx}>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    {step.userlabel || "N/A"}
+                  </td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    {step.processId || "N/A"}
+                  </td>
+                </tr>
+              ))
+          ) : (
+            <tr>
+              <td colSpan={2} style={{ textAlign: "center", padding: "12px" }}>
+                No sub process dependencies found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      <h3>Final Shape Order for IFlow:</h3>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <thead>
+          <tr style={{ backgroundColor: "#f4f4f4" }}>
+            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sequence</th>
+            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Original Shape</th>
+            <th style={{ border: "1px solid #ddd", padding: "8px" }}>CPI Alternative</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(() => {
+            // Get ordered shapes based on revised sequence mapping
+            const orderedShapes = [];
+            if (Object.keys(revisedSequenceMapping).length > 0) {
+              const sortedEntries = Object.entries(revisedSequenceMapping)
+                .sort(([,a], [,b]) => parseInt(a.stepSeq) - parseInt(b.stepSeq));
+              
+              sortedEntries.forEach(([key, value]) => {
+                const shape = processedShapes.find(s => s.cpiAlternative === value.cpialternative);
+                if (shape) {
+                  orderedShapes.push({ ...shape, sequence: value.stepSeq });
+                }
+              });
+            } else {
+              processedShapes.forEach((shape, index) => {
+                orderedShapes.push({ ...shape, sequence: (index + 1).toString() });
+              });
+            }
+
+            return orderedShapes.map((shape, idx) => (
+              <tr key={idx}>
+                <td style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>
+                  {shape.sequence}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {shape.userlabel}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  <span style={{ color: "#1976d2", fontWeight: "bold" }}>
+                    {shape.cpiAlternative}
+                  </span>
+                </td>
+              </tr>
+            ));
+          })()}
+        </tbody>
+      </table>
+
+      <h3>All Done...Ready to Migrate!</h3>
       <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
         <Box sx={{ flex: "1 1 auto" }} />
       </Box>
@@ -388,7 +599,9 @@ const Modal = ({
       const senderConnectors = [];
       const receiverConnectors = [];
       let counter = 0;
+      const processedShapes = [];
 
+      // Process connector actions first
       secondPartData.slice(1).forEach((line) => {
         const row = line;
         let shapeType = row[3];
@@ -429,59 +642,99 @@ const Modal = ({
         }
       });
 
-      // secondPartData.slice(1).forEach((line) => {
-      //   const row = line;
-      //   let shapeType = row[3];
-      //   const configuration = row.slice(4).join(",");
+      // Process all shapes including non-connector shapes
+      secondPartData.slice(1).forEach((line) => {
+        const row = line;
+        let shapeType = row[3];
+        const configuration = row.slice(4).join(",");
 
-      //   if (shapeType === "dataprocess") {
-      //     const match = configuration.match(/@name:([^,]+)/);
-      //     shapeType = match[1];
-      //   }
+        if (shapeType === "dataprocess") {
+          const match = configuration.match(/@name:([^,]+)/);
+          if (match) {
+            shapeType = match[1];
+          }
+        }
 
-      //   const invalidShapes = ["connectoraction", "start", "stop"];
+        const invalidShapes = ["connectoraction", "start", "stop"];
 
-      //   // Check if the shapeType is valid
-      //   if (!invalidShapes.includes(shapeType) && shapeType != undefined) {
-      //     setShapeArray((prevShapeArray) => [...prevShapeArray, shapeType]);
-      //   }
+        // Check if the shapeType is valid and not a connector action
+        if (!invalidShapes.includes(shapeType) && shapeType != undefined) {
+          // Get CPI alternative from shapesMappings
+          const cpiAlternative = shapesMappings[shapeType];
+          
+          console.log(`Processing shape: ${shapeType} -> CPI Alternative: ${cpiAlternative}`);
+          
+          // Try to find userlabel from firstPart data
+          let userlabel = shapeType; // Default to shape type
+          if (firstPartData.length > 1) {
+            const matchingRow = firstPartData.find(row => 
+              row[2] === shapeType || // Match by shape type in column 2
+              row[1] === shapeType    // Match by shape name in column 1
+            );
+            
+            if (matchingRow && matchingRow[1] && matchingRow[1] !== shapeType) {
+              userlabel = matchingRow[1];
+              console.log(`Found userlabel: ${userlabel} for shape type: ${shapeType}`);
+            }
+          }
+          
+          if (cpiAlternative && cpiAlternative !== "NA") {
+            processedShapes.push({
+              originalType: shapeType,
+              userlabel: userlabel,
+              cpiAlternative: cpiAlternative,
+              configuration: configuration,
+              stepNumber: counter + 1
+            });
+            setShapeArray((prevShapeArray) => [...prevShapeArray, cpiAlternative]);
+          } else {
+            console.warn(`No CPI alternative found for shape type: ${shapeType}`);
+          }
+        }
 
-      //   if (shapeType !== "connectoraction" && shapeType !== "catcherrors") {
-      //     counter++;
-      //   }
+        if (shapeType !== "connectoraction" && shapeType !== "catcherrors") {
+          counter++;
+        }
 
-      //   if (shapeType === "connectoraction") {
-      //     const actionTypeMatch = configuration.match(/@actionType:([^,]+)/);
-      //     const connectorTypeMatch = configuration.match(
-      //       /@connectorType:([^,]+)/
-      //     );
-      //     if (actionTypeMatch && connectorTypeMatch) {
-      //       const actionType = actionTypeMatch[1].trim().toUpperCase();
-      //       const connectorType = connectorTypeMatch[1].trim();
+        // Handle connector actions for sender/receiver classification
+        if (shapeType === "connectoraction") {
+          const actionTypeMatch = configuration.match(/@actionType:([^,]+)/);
+          const connectorTypeMatch = configuration.match(
+            /@connectorType:([^,]+)/
+          );
+          if (actionTypeMatch && connectorTypeMatch) {
+            const actionType = actionTypeMatch[1].trim().toUpperCase();
+            const connectorType = connectorTypeMatch[1].trim();
 
-      //       if (
-      //         actionType === "GET" ||
-      //         actionType === "EXECUTE" ||
-      //         actionType === "QUERY"
-      //       ) {
-      //         senderConnectors.push(shapesMappings[connectorType]);
-      //       } else if (
-      //         actionType === "SEND" ||
-      //         actionType === "CREATE" ||
-      //         actionType === "UPDATE"
-      //       ) {
-      //         receiverConnectors.push(shapesMappings[connectorType]);
-      //       }
-      //     }
-      //   }
-      // });
-      // setShapeCounter(counter);
-      // setDynamicName(secondPartData[1][1]);
-      // setConnectors({
-      //   sender: senderConnectors,
-      //   receiver: receiverConnectors,
-      // });
+            if (
+              actionType === "GET" ||
+              actionType === "EXECUTE" ||
+              actionType === "QUERY"
+            ) {
+              senderConnectors.push(shapesMappings[connectorType]);
+            } else if (
+              actionType === "SEND" ||
+              actionType === "CREATE" ||
+              actionType === "UPDATE"
+            ) {
+              receiverConnectors.push(shapesMappings[connectorType]);
+            }
+          }
+        }
+      });
+
+      setShapeCounter(counter);
+      setDynamicName(secondPartData[1] ? secondPartData[1][1] : "Test01");
+      setConnectors({
+        sender: senderConnectors,
+        receiver: receiverConnectors,
+      });
+      
+      // Store processed shapes in state
+      setProcessedShapes(processedShapes);
     }
+    getSubprocessesdependencies();
+    getReusableResources();
   }, [SpecificProcess]);
 
   const TemplateData = {
@@ -683,11 +936,56 @@ const Modal = ({
       return { updatedXML, callActivityCounter };
     }
 
-    shapeArray.forEach((ele) => {
-      let sourceXML = SourceXML[0].palleteItems[shapesMappings[ele]];
-      let result = updatePalleteItemsIds(sourceXML, callActivityCounter);
-      palleteItems += result.updatedXML;
-      callActivityCounter = result.callActivityCounter;
+    // Use revised sequence mapping to determine shape order
+    const orderedShapes = [];
+    
+    // If revised sequence mapping exists, use it for ordering
+    if (Object.keys(revisedSequenceMapping).length > 0) {
+      // Sort by step sequence number
+      const sortedEntries = Object.entries(revisedSequenceMapping)
+        .sort(([,a], [,b]) => parseInt(a.stepSeq) - parseInt(b.stepSeq));
+      
+      sortedEntries.forEach(([key, value]) => {
+        // Find the corresponding shape from processedShapes
+        const shape = processedShapes.find(s => s.cpiAlternative === value.cpialternative);
+        if (shape) {
+          orderedShapes.push(shape);
+        }
+      });
+    } else {
+      // Fallback to original order
+      orderedShapes.push(...processedShapes);
+    }
+
+    // Generate XML for each shape in the correct order
+    orderedShapes.forEach((shape) => {
+      const cpiAlternative = shape.cpiAlternative;
+      let sourceXML = SourceXML[0].palleteItems[cpiAlternative];
+      
+      if (sourceXML) {
+        let result = updatePalleteItemsIds(sourceXML, callActivityCounter);
+        palleteItems += result.updatedXML;
+        callActivityCounter = result.callActivityCounter;
+      } else {
+        console.warn(`No XML template found for CPI alternative: ${cpiAlternative}`);
+        // Create a basic callActivity as fallback
+        const fallbackXML = `<bpmn2:callActivity id="CallActivity_${callActivityCounter}" name="${cpiAlternative}">
+          <bpmn2:extensionElements>
+            <ifl:property>
+              <key>componentVersion</key>
+              <value>1.0</value>
+            </ifl:property>
+            <ifl:property>
+              <key>activityType</key>
+              <value>${cpiAlternative}</value>
+            </ifl:property>
+          </bpmn2:extensionElements>
+          <bpmn2:incoming>SequenceFlow_${callActivityCounter}</bpmn2:incoming>
+          <bpmn2:outgoing>SequenceFlow_${callActivityCounter + 1}</bpmn2:outgoing>
+        </bpmn2:callActivity>`;
+        palleteItems += fallbackXML;
+        callActivityCounter += 1;
+      }
     });
 
     function updateSequenceFlowIds(
@@ -753,7 +1051,9 @@ const Modal = ({
     let sequenceFlowCounter = 1;
     const requireData = `<definitions>${palleteItems}${events}</definitions>`;
 
-    for (let i = 1; i <= shapeArray.length + 1; i++) {
+    // Generate sequence flows based on ordered shapes
+    const totalShapes = orderedShapes.length;
+    for (let i = 1; i <= totalShapes + 1; i++) {
       let result = updateSequenceFlowIds(
         SourceXML[0].sequenceFlow,
         sequenceFlowCounter,
@@ -770,9 +1070,31 @@ const Modal = ({
   const createBPMPlane_1 = () => {
     let bpmnShapes = SourceXML[4].BPMNDiagram.defaultBPMNShape;
 
-    for (let i = 1; i <= shapeArray.length; i++) {
-      const bpmnElement = `CallActivity_${i}`;
-      const id = `BPMNShape_CallActivity_${i}`;
+    // Use revised sequence mapping to determine shape order
+    const orderedShapes = [];
+    
+    // If revised sequence mapping exists, use it for ordering
+    if (Object.keys(revisedSequenceMapping).length > 0) {
+      // Sort by step sequence number
+      const sortedEntries = Object.entries(revisedSequenceMapping)
+        .sort(([,a], [,b]) => parseInt(a.stepSeq) - parseInt(b.stepSeq));
+      
+      sortedEntries.forEach(([key, value]) => {
+        // Find the corresponding shape from processedShapes
+        const shape = processedShapes.find(s => s.cpiAlternative === value.cpialternative);
+        if (shape) {
+          orderedShapes.push(shape);
+        }
+      });
+    } else {
+      // Fallback to original order
+      orderedShapes.push(...processedShapes);
+    }
+
+    // Generate BPMN shapes for each ordered shape
+    orderedShapes.forEach((shape, index) => {
+      const bpmnElement = `CallActivity_${index + 1}`;
+      const id = `BPMNShape_CallActivity_${index + 1}`;
 
       // Construct each BPMNShape element with updated attributes
       bpmnShapes += `
@@ -780,15 +1102,17 @@ const Modal = ({
               <dc:Bounds height="60.0" width="100.0" x="412.0" y="132.0"/>
           </bpmndi:BPMNShape>
       `;
-    }
+    });
 
     let bpmnEdges = SourceXML[4].BPMNDiagram.defaultBPMNEdge;
 
-    for (let i = 1; i <= shapeArray.length + 1; i++) {
+    // Generate BPMN edges for sequence flows
+    const totalShapes = orderedShapes.length;
+    for (let i = 1; i <= totalShapes + 1; i++) {
       const bpmnElement = `SequenceFlow_${i}`;
       const id = `BPMNEdge_SequenceFlow_${i}`;
 
-      // Construct each BPMNShape element with updated attributes
+      // Construct each BPMNEdge element with updated attributes
       bpmnEdges += `
           <bpmndi:BPMNEdge bpmnElement="${bpmnElement}" id="${id}" sourceElement="" targetElement="">
                 <di:waypoint x="308.0" xsi:type="dc:Point" y="160.0"/>
@@ -900,6 +1224,10 @@ const Modal = ({
 
   const ProceedForMigration = () => {
     setIsLoading(true);
+    
+    // Validate and auto-fill sequence mapping if needed
+    const validatedMapping = validateSequenceMapping();
+    
     const defualtProjectFiles = buildDefaultProjectFiles();
     const xmlContent = generateIflowXML();
     const blob = new Blob([xmlContent], { type: "text/xml" });
@@ -1120,6 +1448,7 @@ const Modal = ({
   const handleCloseModal = () => {
     handleClose();
     setShapeArray([]);
+    setProcessedShapes([]);
     setBoomiProcessData(SpecificProcess); // Reset to initial value
     setFirstPart([]); // Reset to initial value
     setSecondPart([]); // Reset to initial value
@@ -1127,6 +1456,15 @@ const Modal = ({
     setShapeArray([]); // Reset to initial value
     setShapeCounter(0); // Reset to initial value
     handleStepReset();
+    setScriptsArray([]);
+    setRevisedSequenceMapping({});
+    setUpdatedConnectorDetails({ sender: "", receiver: "" });
+    setConnectorDetails("");
+    setStepButtonStatus({ CDStatus: false, CCDStatus: false, RRStatus: false });
+    setProceedClicked(false);
+    setIflowXML(null);
+    setFormData({ iflowName: "", iflowId: "", packageId: "", cpiHostName: "", accessTokenUri: "", clientId: "", clientSecret: "" });
+    setShowPopup(false);
   };
 
   return (

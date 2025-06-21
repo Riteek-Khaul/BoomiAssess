@@ -93,6 +93,16 @@ const Extract = () => {
         );
     };
 
+    const handleSelectAll = () => {
+        if (selectedProcesses.length === filteredProcesses.length) {
+            // If all are selected, deselect all
+            setSelectedProcesses([]);
+        } else {
+            // Select all filtered processes
+            setSelectedProcesses(filteredProcesses.map(proc => proc.id));
+        }
+    };
+
     const handleModalCancel = () => {
         setSelectedProcesses([]);
         setSearchTerm('');
@@ -171,13 +181,23 @@ const Extract = () => {
                             <span className="extract-modal-count">
                                 Selected: {selectedProcesses ? selectedProcesses.length : 0} / {processes.result.length}
                             </span>
-                            <input
-                                type="text"
-                                className="extract-modal-search"
-                                placeholder="Search processes..."
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
+                            <div className="extract-modal-controls">
+                                <label className="extract-modal-select-all">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedProcesses.length === filteredProcesses.length && filteredProcesses.length > 0}
+                                        onChange={handleSelectAll}
+                                    />
+                                    <span>Select All</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="extract-modal-search"
+                                    placeholder="Search processes..."
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
                         <div className="extract-modal-body">
                             <div className="extract-modal-process-list">

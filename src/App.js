@@ -13,7 +13,7 @@ import IflowXML from './IflowXML';
 import GeneratePDF from './GeneratePDF';
 import CalSubPro from './tests/CalSubPro';
 import MigrateToCI from './tests/MigrateToCI';
-import Help from './Help';
+import Help from './Pages/Help';
 import BoomiToXSDConverter from './BoomiToXSDConverter';
 import BoomiProcessTable from './BoomiProcessTable';
 
@@ -22,7 +22,7 @@ function App(){
   return (
       <Routes>
         <Route path="/success" element={<SuccessPage />} />
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Home />} />
         <Route path='/Home' element={<Home />} />
         <Route path="/Extract" element={<Extract />} />
         <Route path="/Evaluate" element={<Evaluate />} />

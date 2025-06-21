@@ -1,6 +1,7 @@
 
 export const shapesMappings={
     "disk":"sftp",
+    'disk-sdk':'sftp',
     "map":"messageMapping",
     "message":"contentModifier",
     "processcall":"processCall",
@@ -20,7 +21,7 @@ export const shapesMappings={
     'Xslt Ttransformation':"xsltMapping",
     "Zip":"zipCompression",
     "Unzip":"zipDecompression",
-    "branch":"parallelMulticast/sequentialMulticast",
+    "branch":"sequentialMulticast",
     "route":"router",
     "start":"start",
     "stop":"end",
@@ -36,6 +37,8 @@ export const shapesMappings={
     'processproperties':"contentModifier",
     'dynamicprocessproperties':"groovyScript",
     'ftp':"ftp",
+    'ftpsdk':'ftp',
+    'officialboomi-X3979C-sftpvx-prod':'sftp',
     'sftp':"sftp",
     'http':"http",
     'mail':"mail",
