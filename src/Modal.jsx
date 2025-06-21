@@ -440,94 +440,117 @@ const Modal = ({
     );
   };
 
-  const CompleteStep = () => (
-    <div>
-      <h3>Dependencies:</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
-        <thead>
-          <tr>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process Lable</th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.isArray(subProcesses) && subProcesses.length > 0 ? (
-            subProcesses
-              .filter((step) => step && step.processId) // Only include objects with processId
-              .map((step, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    {step.userlabel || "N/A"}
-                  </td>
-                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    {step.processId || "N/A"}
-                  </td>
-                </tr>
-              ))
-          ) : (
+  const CompleteStep = () => {
+    // Prepare ordered shapes based on revised sequence mapping
+    const orderedShapes = [];
+    if (Object.keys(revisedSequenceMapping).length > 0) {
+      const sortedEntries = Object.entries(revisedSequenceMapping)
+        .sort(([, a], [, b]) => parseInt(a.stepSeq) - parseInt(b.stepSeq));
+      sortedEntries.forEach(([key, value]) => {
+        const shape = processedShapes.find(s => s.cpiAlternative === value.cpialternative && (s.userlabel === value.userlabel || !value.userlabel));
+        if (shape) {
+          orderedShapes.push({ ...shape, sequence: value.stepSeq });
+        }
+      });
+    } else {
+      processedShapes.forEach((shape, index) => {
+        orderedShapes.push({ ...shape, sequence: (index + 1).toString() });
+      });
+    }
+
+    // Prepare sender and receiver connectors
+    const senderRows = (connectors.sender || []).map((sender, idx) => ({
+      type: 'Sender',
+      name: sender,
+      sequence: idx + 1
+    }));
+    const receiverRows = (connectors.receiver || []).map((receiver, idx) => ({
+      type: 'Receiver',
+      name: receiver,
+      sequence: orderedShapes.length + senderRows.length + idx + 1
+    }));
+
+    // Sequence for shapes starts after senders
+    const shapeRows = orderedShapes.map((shape, idx) => ({
+      type: 'Shape',
+      name: shape.userlabel,
+      cpiAlternative: shape.cpiAlternative,
+      originalType: shape.originalType,
+      sequence: senderRows.length + idx + 1
+    }));
+
+    // Combine all rows for display
+    const finalRows = [
+      ...senderRows,
+      ...shapeRows,
+      ...receiverRows
+    ];
+
+    return (
+      <div>
+        <h3>Dependencies:</h3>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+          <thead>
             <tr>
-              <td colSpan={2} style={{ textAlign: "center", padding: "12px" }}>
-                No sub process dependencies found.
-              </td>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process Lable</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process ID</th>
             </tr>
-          )}
-        </tbody>
-      </table>
-
-      <h3>Final Shape Order for IFlow:</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f4f4f4" }}>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sequence</th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>Original Shape</th>
-            <th style={{ border: "1px solid #ddd", padding: "8px" }}>CPI Alternative</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(() => {
-            // Get ordered shapes based on revised sequence mapping
-            const orderedShapes = [];
-            if (Object.keys(revisedSequenceMapping).length > 0) {
-              const sortedEntries = Object.entries(revisedSequenceMapping)
-                .sort(([,a], [,b]) => parseInt(a.stepSeq) - parseInt(b.stepSeq));
-              
-              sortedEntries.forEach(([key, value]) => {
-                const shape = processedShapes.find(s => s.cpiAlternative === value.cpialternative);
-                if (shape) {
-                  orderedShapes.push({ ...shape, sequence: value.stepSeq });
-                }
-              });
-            } else {
-              processedShapes.forEach((shape, index) => {
-                orderedShapes.push({ ...shape, sequence: (index + 1).toString() });
-              });
-            }
-
-            return orderedShapes.map((shape, idx) => (
-              <tr key={idx}>
-                <td style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>
-                  {shape.sequence}
-                </td>
-                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                  {shape.userlabel}
-                </td>
-                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                  <span style={{ color: "#1976d2", fontWeight: "bold" }}>
-                    {shape.cpiAlternative}
-                  </span>
+          </thead>
+          <tbody>
+            {Array.isArray(subProcesses) && subProcesses.length > 0 ? (
+              subProcesses
+                .filter((step) => step && step.processId)
+                .map((step, idx) => (
+                  <tr key={idx}>
+                    <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                      {step.userlabel || "N/A"}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                      {step.processId || "N/A"}
+                    </td>
+                  </tr>
+                ))
+            ) : (
+              <tr>
+                <td colSpan={2} style={{ textAlign: "center", padding: "12px" }}>
+                  No sub process dependencies found.
                 </td>
               </tr>
-            ));
-          })()}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
 
-      <h3>All Done...Ready to Migrate!</h3>
-      <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
-        <Box sx={{ flex: "1 1 auto" }} />
-      </Box>
-    </div>
-  );
+        <h3>Final Sequence for IFlow:</h3>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#f4f4f4" }}>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sequence</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Type</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Name / Label</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Original Shape Type</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>CPI Alternative</th>
+            </tr>
+          </thead>
+          <tbody>
+            {finalRows.map((row, idx) => (
+              <tr key={idx}>
+                <td style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>{row.sequence}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{row.type}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{row.name}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{row.type === 'Shape' ? row.originalType : ''}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{row.cpiAlternative || (row.type === 'Sender' ? 'Sender Connector' : row.type === 'Receiver' ? 'Receiver Connector' : '')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h3>All Done...Ready to Migrate!</h3>
+        <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
+          <Box sx={{ flex: "1 1 auto" }} />
+        </Box>
+      </div>
+    );
+  };
 
   const optionalStep = (step) => {
     return step === 3;
