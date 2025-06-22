@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/BoomiAssess/static/css/main.a445769d.css",
+    "main.js": "/BoomiAssess/static/js/main.d55cfa38.js",
+    "static/js/213.84797d1f.chunk.js": "/BoomiAssess/static/js/213.84797d1f.chunk.js",
+    "static/js/455.5875a709.chunk.js": "/BoomiAssess/static/js/455.5875a709.chunk.js",
+    "static/js/453.84be6d62.chunk.js": "/BoomiAssess/static/js/453.84be6d62.chunk.js",
+    "index.html": "/BoomiAssess/index.html",
+    "main.a445769d.css.map": "/BoomiAssess/static/css/main.a445769d.css.map",
+    "main.d55cfa38.js.map": "/BoomiAssess/static/js/main.d55cfa38.js.map",
+    "213.84797d1f.chunk.js.map": "/BoomiAssess/static/js/213.84797d1f.chunk.js.map",
+    "455.5875a709.chunk.js.map": "/BoomiAssess/static/js/455.5875a709.chunk.js.map",
+    "453.84be6d62.chunk.js.map": "/BoomiAssess/static/js/453.84be6d62.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a445769d.css",
+    "static/js/main.d55cfa38.js"
+  ]
+}
