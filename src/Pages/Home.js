@@ -11,9 +11,9 @@ const Home = () => {
     };
 
     const tiles = [
-        { label: "Extract", path: "/extract", icon: "/extract.png" },
-        { label: "Evaluate", path: "/evaluate", icon: "/evaluate.png" },
-        { label: "Migrate", path: "/migrate", icon: "/migrate.png" },
+        { label: "Extract", path: "/extract", icon: `${process.env.PUBLIC_URL}/extract.png` },
+        { label: "Evaluate", path: "/evaluate", icon: `${process.env.PUBLIC_URL}/evaluate.png` },
+        { label: "Migrate", path: "/migrate", icon: `${process.env.PUBLIC_URL}/migrate.png` },
     ];
 
     return (

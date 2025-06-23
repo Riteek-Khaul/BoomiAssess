@@ -77,7 +77,7 @@ const Navbar = () => {
         }}
       >
         <img
-          src="/user.png"
+          src={`${process.env.PUBLIC_URL}/user.png`}
           alt="User"
           style={{
             width: '32px',
