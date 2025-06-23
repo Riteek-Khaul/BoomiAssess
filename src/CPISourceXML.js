@@ -37,47 +37,47 @@ export const SourceXML = [
         </bpmn2:callActivity>`,
         messageMapping: `<bpmn2:callActivity id="CallActivity_" name="Message Mapping 1">
         <bpmn2:extensionElements>
-            <ifl:property>
-                <key>mappinguri</key>
-                <value>dir://mmap/src/main/resources/mapping/MM_SADAD_To_SAP_PaymentNotification.mmap</value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingname</key>
-                <value>MM_SADAD_To_SAP_PaymentNotification</value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingSourceValue</key>
-                <value/>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingType</key>
-                <value>MessageMapping</value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingReference</key>
-                <value/>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingpath</key>
-                <value>src/main/resources/mapping/MM_SADAD_To_SAP_PaymentNotification</value>
-            </ifl:property>
-            <ifl:property>
-                <key>componentVersion</key>
-                <value>1.3</value>
-            </ifl:property>
-            <ifl:property>
-                <key>activityType</key>
-                <value>Mapping</value>
-            </ifl:property>
-            <ifl:property>
-                <key>cmdVariantUri</key>
-                <value>ctype::FlowstepVariant/cname::MessageMapping/version::1.3.1</value>
-            </ifl:property>
-            <ifl:property>
-                <key>messageMappingBundleId</key>
-                <value/>
-            </ifl:property>
-        </bpmn2:extensionElements>
+                <ifl:property>
+                    <key>mappinguri</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingname</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingSourceValue</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingType</key>
+                    <value>MessageMapping</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingReference</key>
+                    <value>static</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingpath</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.3</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>activityType</key>
+                    <value>Mapping</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::FlowstepVariant/cname::MessageMapping/version::1.3.1</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>messageMappingBundleId</key>
+                    <value/>
+                </ifl:property>
+            </bpmn2:extensionElements>
         <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,
@@ -85,15 +85,15 @@ export const SourceXML = [
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>mappingoutputformat</key>
-                <value>{{MessageFlow_1_outputFormat}}</value>
+                <value></value>
             </ifl:property>
             <ifl:property>
                 <key>mappinguri</key>
-                <value>dir://mapping/xslt/src/main/resources/mapping/RemoveNamespace.xsl</value>
+                <value></value>
             </ifl:property>
             <ifl:property>
                 <key>mappingname</key>
-                <value>RemoveNamespace</value>
+                <value></value>
             </ifl:property>
             <ifl:property>
                 <key>mappingHeaderNameKey</key>
@@ -101,11 +101,11 @@ export const SourceXML = [
             </ifl:property>
             <ifl:property>
                 <key>mappingpath</key>
-                <value>src/main/resources/mapping/RemoveNamespace</value>
+                <value></value>
             </ifl:property>
             <ifl:property>
                 <key>mappingSource</key>
-                <value>{{MessageFlow_1_source}}</value>
+                <value></value>
             </ifl:property>
             <ifl:property>
                 <key>componentVersion</key>
@@ -124,8 +124,8 @@ export const SourceXML = [
                 <value>XSLTMapping</value>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_30</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_19</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,
     groovyScript: `<bpmn2:callActivity id="CallActivity_" name="Groovy Script 1">
         <bpmn2:extensionElements>
@@ -161,7 +161,7 @@ export const SourceXML = [
         <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,
-        router:`<bpmn2:exclusiveGateway default="SequenceFlow_" id="ExclusiveGateway_7" name="Router 1">
+        router:`<bpmn2:exclusiveGateway default="SequenceFlow_" id="ExclusiveGateway_" name="Router 1">
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>componentVersion</key>
@@ -180,10 +180,10 @@ export const SourceXML = [
                 <value>false</value>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_20</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_13</bpmn2:outgoing>
-        <bpmn2:outgoing>SequenceFlow_24</bpmn2:outgoing>
-        <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>`,
         base64Encoder:`<bpmn2:callActivity id="CallActivity_" name="Base64 Encoder 1">
         <bpmn2:extensionElements>
@@ -275,7 +275,7 @@ export const SourceXML = [
         <bpmn2:extensionElements>
             <ifl:property>
                 <key>processId</key>
-                <value>Process_13</value>
+                <value></value>
             </ifl:property>
             <ifl:property>
                 <key>componentVersion</key>
@@ -294,8 +294,8 @@ export const SourceXML = [
                 <value>NonLoopingProcess</value>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,        
         xmlValidator:`<bpmn2:callActivity id="CallActivity_" name="XML Validator 1">
         <bpmn2:extensionElements>
@@ -350,10 +350,9 @@ export const SourceXML = [
                 <value>parallel</value>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_32</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_59</bpmn2:outgoing>
-        <bpmn2:outgoing>SequenceFlow_56</bpmn2:outgoing>
-        <bpmn2:outgoing>SequenceFlow_50</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:parallelGateway>`,
         sequentialMulticast:`<bpmn2:parallelGateway id="ParallelGateway_" name="Sequential Multicast 1">
         <bpmn2:extensionElements>
@@ -378,9 +377,9 @@ export const SourceXML = [
                 <value>parallel</value>
             </ifl:property>
         </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_59</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_64</bpmn2:outgoing>
-        <bpmn2:outgoing>SequenceFlow_61</bpmn2:outgoing>
+        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
+        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:parallelGateway>`,
       RequestReply:`<bpmn2:serviceTask id="ServiceTask_" name="Request Reply 1">
             <bpmn2:extensionElements>
@@ -397,8 +396,8 @@ export const SourceXML = [
                     <value>ctype::FlowstepVariant/cname::ExternalCall/version::1.0.4</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-            <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
-            <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
+            <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+            <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
         </bpmn2:serviceTask>`,
         generalSplitter:`<bpmn2:callActivity id="CallActivity_" name="General Splitter 1">
             <bpmn2:extensionElements>
@@ -467,7 +466,7 @@ export const SourceXML = [
                     <value>ctype::FlowstepVariant/cname::MessageStartEvent/version::1.0</value>
                 </ifl:property>
             </bpmn2:extensionElements>
-            <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+            <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
             <bpmn2:messageEventDefinition/>
         </bpmn2:startEvent>`,
         EndEvent:`<bpmn2:endEvent id="EndEvent_1" name="End">
