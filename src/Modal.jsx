@@ -166,7 +166,7 @@ const Modal = ({
 
   const StepOne = () => {
     return (
-      <div className="tables-container" style={{ maxHeight: "400px", overflow: "scroll" }}>
+      <div>
         <div className="p-4">
           {processedShapes.length > 0 ? (
             <table className="min-w-full table-auto border-collapse border border-gray-300">
@@ -375,14 +375,14 @@ const Modal = ({
   };
   const StepFour = () => {
     return (
-      <div>
+      <div className="reuseResourcesTable">
         {stepButtonStatus.RRStatus ? (
           "Resources reused Successfully!"
         ) : (
           <div>
             <h3>Reusable Resources</h3>
             <p>- Xml-Xml mappings with no transormation can be reused</p>
-            <p>- Scripts can be reuse with some adjustment! </p>
+            <p>- Scripts / XSLTs can be reuse with some adjustment! </p>
             <h3>Detected :</h3>
             <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
               <thead>
@@ -487,9 +487,9 @@ const Modal = ({
     ];
 
     return (
-      <div>
+      <div className="dependenciesTable">
         <h3>Dependencies:</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <table className="dependenciesTable" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
           <thead>
             <tr>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sub Process Lable</th>
@@ -521,7 +521,7 @@ const Modal = ({
         </table>
 
         <h3>Final Sequence for IFlow:</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <table className="finalSequenceTable" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
           <thead>
             <tr style={{ backgroundColor: "#f4f4f4" }}>
               <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sequence</th>
@@ -1523,7 +1523,7 @@ const Modal = ({
                     <div className="centerContainer">
                       {renderStepContent(activeStepCount)}
                     </div>
-                    <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Box sx={{ display: "flex", flexDirection: "row", pt: 1 }}>
                       <Button
                         color="primary"
                         disabled={activeStepCount === 0}

@@ -419,7 +419,7 @@ export const SourceXML = [
                 </ifl:property>
                 <ifl:property>
                     <key>splitExprValue</key>
-                    <value>/sample</value>
+                    <value>/</value>
                 </ifl:property>
                 <ifl:property>
                     <key>ParallelProcessing</key>
