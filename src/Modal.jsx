@@ -119,10 +119,19 @@ const Modal = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    if (name === "iflowName") {
+      // When iflowName changes, also update iflowId (replace spaces with underscores)
+      setFormData((prev) => ({
+        ...prev,
+        iflowName: value,
+        iflowId: value.replace(/\s+/g, "_")
+      }));
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   // Handler function for reusable resource action
@@ -1346,13 +1355,11 @@ const Modal = ({
       .file("parameters.propdef", PM2Content);
 
     zip.generateAsync({ type: "blob" }).then((content) => {
-      console.log("Generated Blob:", content); // Debugging step
 
       const reader = new FileReader();
 
       reader.onloadend = () => {
         const base64Zip = reader.result.split(",")[1]; // Extract Base64 part
-        console.log("Base64 Encoded Zip:", base64Zip); // Debugging step
 
         // Ensure base64 is not empty and update state
         if (base64Zip) {
@@ -1373,19 +1380,17 @@ const Modal = ({
       reader.readAsDataURL(content);
     });
 
-    const apiUrl = "http://localhost:5000/migrate"; // Replace with the actual API endpoint
+    const apiUrl = "http://localhost:5000/artifact/migrate"; // Replace with the actual API endpoint
 
     try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
+      const response = await axios.post(apiUrl, formData, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const responseData = await response.json();
+      if (response.status === 200) {
+        const responseData = response.data;
         console.log("API Response:", responseData);
 
         setPopupMessage("Migrated successfully!");
@@ -1396,7 +1401,7 @@ const Modal = ({
         alert("Iflow Migrated successfully!");
         return { success: true, message: "Form submitted successfully!" };
       } else {
-        const errorData = await response.json();
+        const errorData = response.data;
         console.error("API Error:", errorData);
         setPopupMessage("Migration failed. Please try again.");
         setShowPopup(true);
@@ -1597,8 +1602,7 @@ const Modal = ({
                   type="text"
                   name="iflowId"
                   value={formData.iflowId}
-                  onChange={handleChange}
-                  required
+                  disabled
                 />
               </label>
             </div>
