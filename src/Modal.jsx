@@ -904,6 +904,29 @@ const Modal = ({
     const extensionElements = SourceXML[3].IntegrationProcess.extensionElements;
     let events = `${SourceXML[0].events.StartEvent}${SourceXML[0].events.EndEvent}`;
 
+    function StartEventUpdate(events) {
+      const options = {
+        ignoreAttributes: false,
+        attributeNamePrefix: "@_",
+      };
+
+      const parser = new XMLParser(options);
+      const builder = new XMLBuilder(options);
+
+      // Parse the XML events string to a JSON object
+      let jsonObj = parser.parse(events);
+
+      // Locate the startEvent element and update its outgoing element
+      if (jsonObj["bpmn2:startEvent"]) {
+        jsonObj["bpmn2:startEvent"]["bpmn2:outgoing"] = `SequenceFlow_1`;
+      }
+
+      // Convert the JSON object back to an XML string
+      let updatedEvents = builder.build(jsonObj);
+
+      return updatedEvents;
+    }
+
     function EndEventUpdate(events, counter) {
       const options = {
         ignoreAttributes: false,
@@ -927,6 +950,8 @@ const Modal = ({
       return updatedEvents;
     }
 
+    // Update StartEvent outgoing and EndEvent incoming
+    events = StartEventUpdate(events);
     events = EndEventUpdate(events, shapeArray.length + 1);
 
     let palleteItems = "";
