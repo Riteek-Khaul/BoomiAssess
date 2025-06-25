@@ -1,19 +1,19 @@
 {
   "files": {
     "main.css": "/BoomiAssess/static/css/main.f1683e79.css",
-    "main.js": "/BoomiAssess/static/js/main.9e77310d.js",
+    "main.js": "/BoomiAssess/static/js/main.de30cabc.js",
     "static/js/213.84797d1f.chunk.js": "/BoomiAssess/static/js/213.84797d1f.chunk.js",
     "static/js/455.5875a709.chunk.js": "/BoomiAssess/static/js/455.5875a709.chunk.js",
     "static/js/453.84be6d62.chunk.js": "/BoomiAssess/static/js/453.84be6d62.chunk.js",
     "index.html": "/BoomiAssess/index.html",
     "main.f1683e79.css.map": "/BoomiAssess/static/css/main.f1683e79.css.map",
-    "main.9e77310d.js.map": "/BoomiAssess/static/js/main.9e77310d.js.map",
+    "main.de30cabc.js.map": "/BoomiAssess/static/js/main.de30cabc.js.map",
     "213.84797d1f.chunk.js.map": "/BoomiAssess/static/js/213.84797d1f.chunk.js.map",
     "455.5875a709.chunk.js.map": "/BoomiAssess/static/js/455.5875a709.chunk.js.map",
     "453.84be6d62.chunk.js.map": "/BoomiAssess/static/js/453.84be6d62.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f1683e79.css",
-    "static/js/main.9e77310d.js"
+    "static/js/main.de30cabc.js"
   ]
 }
