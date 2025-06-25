@@ -281,6 +281,8 @@ const Modal = ({
     );
   };
 
+  console.log(processedShapes);
+
   const StepTwo = () => {
     return (
       <div className="connectorTable">
@@ -680,6 +682,49 @@ const Modal = ({
         let shapeType = row[3];
         const configuration = row.slice(4).join(",");
 
+        // --- NEW LOGIC FOR MULTISTEP DATAPROCESS ---
+        if (shapeType === "dataprocess") {
+          // Try to extract all steps from the configuration
+          // Example: dataprocess:[step:[[...],[...],[...]]]
+          const stepsMatch = configuration.match(/dataprocess:\[step:\[(.*)\]\]/);
+          if (stepsMatch && stepsMatch[1]) {
+            // Split steps by '], [' (handles both single and multi-step)
+            const stepsRaw = stepsMatch[1]
+              .replace(/\], \[/g, "]|[") // temp delimiter
+              .replace(/^\[/, "")
+              .replace(/\]$/, "");
+            const stepsArr = stepsRaw.split("]|[");
+            stepsArr.forEach((stepStr, stepIdx) => {
+              // Extract @name
+              const nameMatch = stepStr.match(/@name:([^,\]]+)/);
+              const stepName = nameMatch ? nameMatch[1].trim() : `dataprocess_step_${stepIdx+1}`;
+              // Try to find userlabel from firstPart data
+              let userlabel = stepName;
+              if (firstPartData.length > 1) {
+                const matchingRow = firstPartData.find(row =>
+                  row[2] === stepName || row[1] === stepName
+                );
+                if (matchingRow && matchingRow[1] && matchingRow[1] !== stepName) {
+                  userlabel = matchingRow[1];
+                }
+              }
+              // Map to CPI alternative
+              const cpiAlternative = shapesMappings[stepName];
+              processedShapes.push({
+                originalType: stepName,
+                userlabel: userlabel,
+                cpiAlternative: cpiAlternative,
+                configuration: stepStr,
+                stepNumber: counter + 1
+              });
+              setShapeArray((prevShapeArray) => [...prevShapeArray, cpiAlternative]);
+              counter++;
+            });
+            return; // skip the rest of the logic for this dataprocess row
+          }
+        }
+        // --- END NEW LOGIC ---
+
         if (shapeType === "dataprocess") {
           const match = configuration.match(/@name:([^,]+)/);
           if (match) {
@@ -693,23 +738,17 @@ const Modal = ({
         if (!invalidShapes.includes(shapeType) && shapeType != undefined) {
           // Get CPI alternative from shapesMappings
           const cpiAlternative = shapesMappings[shapeType];
-          
-          console.log(`Processing shape: ${shapeType} -> CPI Alternative: ${cpiAlternative}`);
-          
           // Try to find userlabel from firstPart data
           let userlabel = shapeType; // Default to shape type
           if (firstPartData.length > 1) {
-            const matchingRow = firstPartData.find(row => 
+            const matchingRow = firstPartData.find(row =>
               row[2] === shapeType || // Match by shape type in column 2
               row[1] === shapeType    // Match by shape name in column 1
             );
-            
             if (matchingRow && matchingRow[1] && matchingRow[1] !== shapeType) {
               userlabel = matchingRow[1];
-              console.log(`Found userlabel: ${userlabel} for shape type: ${shapeType}`);
             }
           }
-          
           if (cpiAlternative && cpiAlternative !== "NA") {
             processedShapes.push({
               originalType: shapeType,
@@ -720,7 +759,10 @@ const Modal = ({
             });
             setShapeArray((prevShapeArray) => [...prevShapeArray, cpiAlternative]);
           } else {
-            console.warn(`No CPI alternative found for shape type: ${shapeType}`);
+            // Only warn if not handled by the multi-step logic above
+            if (shapeType !== "dataprocess") {
+              console.warn(`No CPI alternative found for shape type: ${shapeType}`);
+            }
           }
         }
 
@@ -761,7 +803,6 @@ const Modal = ({
         sender: senderConnectors,
         receiver: receiverConnectors,
       });
-      
       // Store processed shapes in state
       setProcessedShapes(processedShapes);
     }
@@ -1429,6 +1470,7 @@ const Modal = ({
         const errorData = response.data;
         console.error("API Error:", errorData);
         setPopupMessage("Migration failed. Please try again.");
+        alert("Migration failed. Please try again.");
         setShowPopup(true);
         return {
           success: false,
