@@ -151,10 +151,9 @@ const Modal = ({
 
   // Function to validate and auto-fill sequence mapping
   const validateSequenceMapping = () => {
-    const mappedShapes = processedShapes.filter(s => s.cpiAlternative && s.cpiAlternative !== "NA");
+    const mappedShapes = processedShapes.filter(s => s.cpiAlternative && s.cpiAlternative !== "NA" && s.cpiAlternative !== "exceptionSubprocess");
     const currentMapping = { ...revisedSequenceMapping };
     
-    // Auto-fill sequence numbers for shapes that don't have them
     mappedShapes.forEach((shape, index) => {
       const shapeIndex = processedShapes.indexOf(shape) + 1;
       if (!currentMapping[shapeIndex] || !currentMapping[shapeIndex].stepSeq) {
@@ -194,7 +193,7 @@ const Modal = ({
                   const cpiAlternative = shape.cpiAlternative;
                   const currentSequence = revisedSequenceMapping[idx+1]?.stepSeq || "";
                   const isMapped = cpiAlternative && cpiAlternative !== "NA";
-                  
+                  const isCatchErrors = shape.originalType === 'catcherrors' || cpiAlternative === 'exceptionSubprocess';
                   return (
                     <tr key={idx}>
                       <td className="border p-2 text-center">{shape.stepNumber}</td>
@@ -209,33 +208,42 @@ const Modal = ({
                       </td>
                       <td className="border p-2">
                         {isMapped ? (
-                          <input
-                            type="number"
-                            min="1"
-                            value={currentSequence}
-                            onChange={e => {
-                              const value = e.target.value;
-                              setRevisedSequenceMapping(prev => ({
-                                ...prev,
-                                [idx+1]: {
-                                  cpialternative: cpiAlternative,
-                                  stepSeq: value,
-                                  originalShape: shape.originalType,
-                                  userlabel: shape.userlabel
-                                }
-                              }));
-                            }}
-                            style={{ width: "80px" }}
-                            placeholder="Seq #"
-                            className="border p-1 rounded"
-                          />
+                          isCatchErrors ? (
+                            <span className="text-gray-400" title="Exception subprocess is not sequenced">N/A</span>
+                          ) : (
+                            <input
+                              type="number"
+                              min="1"
+                              value={currentSequence}
+                              onChange={e => {
+                                const value = e.target.value;
+                                setRevisedSequenceMapping(prev => ({
+                                  ...prev,
+                                  [idx+1]: {
+                                    cpialternative: cpiAlternative,
+                                    stepSeq: value,
+                                    originalShape: shape.originalType,
+                                    userlabel: shape.userlabel
+                                  }
+                                }));
+                              }}
+                              style={{ width: "80px" }}
+                              placeholder="Seq #"
+                              className="border p-1 rounded"
+                              disabled={isCatchErrors}
+                            />
+                          )
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
                       <td className="border p-2">
                         {isMapped ? (
-                          <span className="text-green-600">✓ Mapped</span>
+                          isCatchErrors ? (
+                            <span className="text-blue-600">Exception Subprocess</span>
+                          ) : (
+                            <span className="text-green-600">✓ Mapped</span>
+                          )
                         ) : (
                           <span className="text-red-600">✗ No Mapping</span>
                         )}
@@ -1055,9 +1063,20 @@ const Modal = ({
       orderedShapes.push(...processedShapes);
     }
 
-    // Generate XML for each shape in the correct order
+    // --- NEW: Handle exception subprocess ---
+    const hasExceptionSubprocess = processedShapes.some(
+      (shape) => shape.originalType === 'catcherrors' || shape.cpiAlternative === 'exceptionSubprocess'
+    );
+    let exceptionSubprocessXML = '';
+    if (hasExceptionSubprocess) {
+      exceptionSubprocessXML = SourceXML[2].participants.exceptionSubprocess;
+    }
+    // --- END NEW ---
+
+    // Generate XML for each shape in the correct order, skipping exceptionSubprocess
     orderedShapes.forEach((shape) => {
       const cpiAlternative = shape.cpiAlternative;
+      if (cpiAlternative === 'exceptionSubprocess') return; // skip from main sequence
       let sourceXML = SourceXML[0].palleteItems[cpiAlternative];
       
       if (sourceXML) {
@@ -1089,7 +1108,9 @@ const Modal = ({
     function updateSequenceFlowIds(
       xmlString,
       sequenceFlowCounter,
-      requireData
+      requireData,
+      prevShapeId,
+      nextShapeId
     ) {
       const options = {
         ignoreAttributes: false, // Parse attributes as well
@@ -1101,40 +1122,49 @@ const Modal = ({
       let jsonObj = parser.parse(xmlString);
       const RD = parser.parse(requireData, options);
 
-      const elementMap = {};
-
       // Build a map of elements with their IDs and incoming/outgoing values
-      Object.keys(RD.definitions).forEach((key) => {
-        const element = RD.definitions[key];
-        if (Array.isArray(element)) {
-          element.forEach((item) => {
-            if (item["@_id"]) {
-              elementMap[item["@_id"]] = item;
-            }
-          });
-        } else if (element["@_id"]) {
-          elementMap[element["@_id"]] = element;
-        }
-      });
-
-      // Example manipulation: Update sequenceFlow id attribute
-      if (jsonObj && jsonObj["bpmn2:sequenceFlow"]) {
-        jsonObj["bpmn2:sequenceFlow"][
-          "@_id"
-        ] = `${jsonObj["bpmn2:sequenceFlow"]["@_id"]}${sequenceFlowCounter}`;
-
-        const id = jsonObj["bpmn2:sequenceFlow"]["@_id"];
-
-        // Find and update sourceRef and targetRef
-        Object.values(elementMap).forEach((parent) => {
-          if (parent["bpmn2:outgoing"] && parent["bpmn2:outgoing"] === id) {
-            jsonObj["bpmn2:sequenceFlow"]["@_sourceRef"] = parent["@_id"];
-          }
-          if (parent["bpmn2:incoming"] && parent["bpmn2:incoming"] === id) {
-            jsonObj["bpmn2:sequenceFlow"]["@_targetRef"] = parent["@_id"];
+      const elementMap = {};
+      if (RD.definitions) {
+        Object.keys(RD.definitions).forEach((key) => {
+          const element = RD.definitions[key];
+          if (Array.isArray(element)) {
+            element.forEach((item) => {
+              if (item["@_id"]) {
+                elementMap[item["@_id"]] = item;
+              }
+            });
+          } else if (element["@_id"]) {
+            elementMap[element["@_id"]] = element;
           }
         });
+      }
 
+      // Update sequenceFlow id attribute
+      if (jsonObj && jsonObj["bpmn2:sequenceFlow"]) {
+        jsonObj["bpmn2:sequenceFlow"]["@_id"] = `SequenceFlow_${sequenceFlowCounter}`;
+        // Set sourceRef and targetRef robustly
+        if (prevShapeId) {
+          jsonObj["bpmn2:sequenceFlow"]["@_sourceRef"] = prevShapeId;
+        } else {
+          // fallback: try to infer from elementMap
+          const id = jsonObj["bpmn2:sequenceFlow"]["@_id"];
+          Object.values(elementMap).forEach((parent) => {
+            if (parent["bpmn2:outgoing"] && parent["bpmn2:outgoing"] === id) {
+              jsonObj["bpmn2:sequenceFlow"]["@_sourceRef"] = parent["@_id"];
+            }
+          });
+        }
+        if (nextShapeId) {
+          jsonObj["bpmn2:sequenceFlow"]["@_targetRef"] = nextShapeId;
+        } else {
+          // fallback: try to infer from elementMap
+          const id = jsonObj["bpmn2:sequenceFlow"]["@_id"];
+          Object.values(elementMap).forEach((parent) => {
+            if (parent["bpmn2:incoming"] && parent["bpmn2:incoming"] === id) {
+              jsonObj["bpmn2:sequenceFlow"]["@_targetRef"] = parent["@_id"];
+            }
+          });
+        }
         sequenceFlowCounter += 1;
       }
 
@@ -1148,77 +1178,77 @@ const Modal = ({
     let sequenceFlows = "";
     let sequenceFlowCounter = 1;
     const requireData = `<definitions>${palleteItems}${events}</definitions>`;
-
     // Generate sequence flows based on ordered shapes
     const totalShapes = orderedShapes.length;
-    for (let i = 1; i <= totalShapes + 1; i++) {
+    // Build a list of shape IDs for sequence flow linking
+    const shapeIds = orderedShapes.map((_, i) => `CallActivity_${i + 1}`);
+    // Add start and end event IDs
+    shapeIds.unshift("StartEvent_1");
+    shapeIds.push("EndEvent_1");
+    for (let i = 0; i < shapeIds.length - 1; i++) {
       let result = updateSequenceFlowIds(
         SourceXML[0].sequenceFlow,
         sequenceFlowCounter,
-        requireData
+        requireData,
+        shapeIds[i],
+        shapeIds[i + 1]
       );
       sequenceFlows += result.updatedXML;
       sequenceFlowCounter = result.sequenceFlowCounter;
     }
     setIsLoading(false);
-    return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${events}${palleteItems}${sequenceFlows}</bpmn2:process>`;
+    // Insert exception subprocess after extensionElements and before palleteItems
+    return `<bpmn2:process id="Process_1" name="Integration Process">${extensionElements}${exceptionSubprocessXML}${events}${palleteItems}${sequenceFlows}</bpmn2:process>`;
   };
 
   // Function to create BPMPlane_1 part
   const createBPMPlane_1 = () => {
     let bpmnShapes = SourceXML[4].BPMNDiagram.defaultBPMNShape;
-
     // Use revised sequence mapping to determine shape order
     const orderedShapes = [];
-    
-    // If revised sequence mapping exists, use it for ordering
     if (Object.keys(revisedSequenceMapping).length > 0) {
-      // Sort by step sequence number
       const sortedEntries = Object.entries(revisedSequenceMapping)
         .sort(([,a], [,b]) => parseInt(a.stepSeq) - parseInt(b.stepSeq));
-      
       sortedEntries.forEach(([key, value]) => {
-        // Find the corresponding shape from processedShapes
         const shape = processedShapes.find(s => s.cpiAlternative === value.cpialternative);
         if (shape) {
           orderedShapes.push(shape);
         }
       });
     } else {
-      // Fallback to original order
       orderedShapes.push(...processedShapes);
     }
-
     // Generate BPMN shapes for each ordered shape
     orderedShapes.forEach((shape, index) => {
       const bpmnElement = `CallActivity_${index + 1}`;
       const id = `BPMNShape_CallActivity_${index + 1}`;
-
-      // Construct each BPMNShape element with updated attributes
-      bpmnShapes += `
-          <bpmndi:BPMNShape bpmnElement="${bpmnElement}" id="${id}">
-              <dc:Bounds height="60.0" width="100.0" x="412.0" y="132.0"/>
-          </bpmndi:BPMNShape>
-      `;
+      bpmnShapes += `\n          <bpmndi:BPMNShape bpmnElement="${bpmnElement}" id="${id}">\n              <dc:Bounds height="60.0" width="100.0" x="412.0" y="132.0"/>\n          </bpmndi:BPMNShape>`;
     });
-
-    let bpmnEdges = SourceXML[4].BPMNDiagram.defaultBPMNEdge;
-
-    // Generate BPMN edges for sequence flows
-    const totalShapes = orderedShapes.length;
-    for (let i = 1; i <= totalShapes + 1; i++) {
-      const bpmnElement = `SequenceFlow_${i}`;
-      const id = `BPMNEdge_SequenceFlow_${i}`;
-
-      // Construct each BPMNEdge element with updated attributes
-      bpmnEdges += `
-          <bpmndi:BPMNEdge bpmnElement="${bpmnElement}" id="${id}" sourceElement="" targetElement="">
-                <di:waypoint x="308.0" xsi:type="dc:Point" y="160.0"/>
-                <di:waypoint x="462.0" xsi:type="dc:Point" y="160.0"/>
-          </bpmndi:BPMNEdge>
-      `;
+    // --- Add Exception Subprocess BPMNShape/BPMNEdge if present, using correct IDs ---
+    const hasExceptionSubprocess = processedShapes.some(
+      (shape) => shape.originalType === 'catcherrors' || shape.cpiAlternative === 'exceptionSubprocess'
+    );
+    let bpmnExceptionShapes = '';
+    let bpmnExceptionEdges = '';
+    if (hasExceptionSubprocess) {
+      // Use IDs matching the process section
+      bpmnExceptionShapes = `\n            <bpmndi:BPMNShape bpmnElement=\"SubProcess_1\" id=\"BPMNShape_SubProcess_1\">\n                <dc:Bounds height=\"140.0\" width=\"400.0\" x=\"283.0\" y=\"230.0\"/>\n            </bpmndi:BPMNShape>\n            <bpmndi:BPMNShape bpmnElement=\"StartEvent_13\" id=\"BPMNShape_StartEvent_13\">\n                <dc:Bounds height=\"32.0\" width=\"32.0\" x=\"316.0\" y=\"276.0\"/>\n            </bpmndi:BPMNShape>\n            <bpmndi:BPMNShape bpmnElement=\"EndEvent_14\" id=\"BPMNShape_EndEvent_14\">\n                <dc:Bounds height=\"32.0\" width=\"32.0\" x=\"603.0\" y=\"276.0\"/>\n            </bpmndi:BPMNShape>`;
+      // Set sourceElement and targetElement to correct event IDs
+      bpmnExceptionEdges = `\n            <bpmndi:BPMNEdge bpmnElement=\"SequenceFlow_15\" id=\"BPMNEdge_SequenceFlow_15\" sourceElement=\"BPMNShape_StartEvent_13\" targetElement=\"BPMNShape_EndEvent_14\">\n                <di:waypoint x=\"332.0\" xsi:type=\"dc:Point\" y=\"292.0\"/>\n                <di:waypoint x=\"619.0\" xsi:type=\"dc:Point\" y=\"292.0\"/>\n            </bpmndi:BPMNEdge>`;
     }
-    return `<bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">${bpmnShapes}${bpmnEdges}</bpmndi:BPMNPlane>`;
+    let bpmnEdges = SourceXML[4].BPMNDiagram.defaultBPMNEdge;
+    const totalShapes = orderedShapes.length;
+    // Build a list of shape IDs for sequence flow linking
+    const shapeIds = orderedShapes.map((_, i) => `CallActivity_${i + 1}`);
+    shapeIds.unshift("StartEvent_1");
+    shapeIds.push("EndEvent_1");
+    for (let i = 0; i < shapeIds.length - 1; i++) {
+      const bpmnElement = `SequenceFlow_${i + 1}`;
+      const id = `BPMNEdge_SequenceFlow_${i + 1}`;
+      bpmnEdges += `\n          <bpmndi:BPMNEdge bpmnElement=\"${bpmnElement}\" id=\"${id}\" sourceElement=\"BPMNShape_${shapeIds[i]}\" targetElement=\"BPMNShape_${shapeIds[i + 1]}\">\n                <di:waypoint x=\"308.0\" xsi:type=\"dc:Point\" y=\"160.0\"/>\n                <di:waypoint x=\"462.0\" xsi:type=\"dc:Point\" y=\"160.0\"/>\n          </bpmndi:BPMNEdge>`;
+    }
+    // Insert exception shapes/edges at the end
+    return `<bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">${bpmnShapes}${bpmnExceptionShapes}${bpmnEdges}${bpmnExceptionEdges}</bpmndi:BPMNPlane>`;
   };
 
   // Function to create BPMNDiagram part
@@ -1236,7 +1266,11 @@ const Modal = ({
 
     alert("Generating Iflow XML...");
 
-    const iflowXMLCode = `${defaultXMLCode}${collaboration}${process}${bpmnDiagram}</bpmn2:definitions>`;
+    let iflowXMLCode = `${defaultXMLCode}${collaboration}${process}${bpmnDiagram}</bpmn2:definitions>`;
+    // Ensure all messageEventDefinition tags are self-closing
+    iflowXMLCode = iflowXMLCode.replace(/<bpmn2:messageEventDefinition>\s*<\/bpmn2:messageEventDefinition>/g, '<bpmn2:messageEventDefinition/>');
+    // Ensure all sequenceFlow tags are self-closing
+    iflowXMLCode = iflowXMLCode.replace(/<bpmn2:sequenceFlow([^>]*)>\s*<\/bpmn2:sequenceFlow>/g, '<bpmn2:sequenceFlow$1/>');
     setIsLoading(false);
     return iflowXMLCode;
   };
