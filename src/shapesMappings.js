@@ -18,7 +18,7 @@ export const shapesMappings={
     "Mapmultipartformdatamimetojson":"groovyScript",
     "Pgp Encrypt":"pgpEncryptor",
     "Pgp Decrypt":"pgpDecryptor",
-    'Xslt Transformation':"xsltMapping",
+    'XSLT Transformation':"xsltMapping",
     "Zip":"zipCompression",
     "Unzip":"zipDecompression",
     "branch":"sequentialMulticast",
@@ -29,7 +29,7 @@ export const shapesMappings={
     "setproperties":"contentModifier",
     'cache':"NA",
     "flowcontrol":"parallelMulticast",
-    "businessrules":"NA",
+    "businessrules":"router",
     "diskconnector":"sftp",
     "customscripting":"groovyScript",
     "documentproperties":"contentModifier",
@@ -52,5 +52,6 @@ export const shapesMappings={
     'programcommand':"groovyScript",
     'aws':"openConnector",
     'returndocuments':'end',
-    'findchanges':"messageMapping"
+    'findchanges':"messageMapping",
+    'Timer':"timer"
 }
