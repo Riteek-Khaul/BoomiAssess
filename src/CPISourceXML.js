@@ -82,51 +82,51 @@ export const SourceXML = [
         <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
     </bpmn2:callActivity>`,
         xsltMapping: `<bpmn2:callActivity id="CallActivity_" name="XSLT Mapping 1">
-        <bpmn2:extensionElements>
-            <ifl:property>
-                <key>mappingoutputformat</key>
-                <value></value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappinguri</key>
-                <value></value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingname</key>
-                <value></value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingHeaderNameKey</key>
-                <value/>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingpath</key>
-                <value></value>
-            </ifl:property>
-            <ifl:property>
-                <key>mappingSource</key>
-                <value></value>
-            </ifl:property>
-            <ifl:property>
-                <key>componentVersion</key>
-                <value>1.2</value>
-            </ifl:property>
-            <ifl:property>
-                <key>activityType</key>
-                <value>Mapping</value>
-            </ifl:property>
-            <ifl:property>
-                <key>cmdVariantUri</key>
-                <value>ctype::FlowstepVariant/cname::XSLTMapping/version::1.2.0</value>
-            </ifl:property>
-            <ifl:property>
-                <key>subActivityType</key>
-                <value>XSLTMapping</value>
-            </ifl:property>
-        </bpmn2:extensionElements>
-        <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
-        <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
-    </bpmn2:callActivity>`,
+            <bpmn2:extensionElements>
+                <ifl:property>
+                    <key>mappingoutputformat</key>
+                    <value>Bytes</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappinguri</key>
+                    <value>dir://mapping/xslt/src/main/resources/mapping/</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingname</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingHeaderNameKey</key>
+                    <value/>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingpath</key>
+                    <value>src/main/resources/mapping/</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>mappingSource</key>
+                    <value>mappingSrcIflow</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>componentVersion</key>
+                    <value>1.2</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>activityType</key>
+                    <value>Mapping</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>cmdVariantUri</key>
+                    <value>ctype::FlowstepVariant/cname::XSLTMapping/version::1.2.0</value>
+                </ifl:property>
+                <ifl:property>
+                    <key>subActivityType</key>
+                    <value>XSLTMapping</value>
+                </ifl:property>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>
+            <bpmn2:outgoing>SequenceFlow_</bpmn2:outgoing>
+        </bpmn2:callActivity>`,
     groovyScript: `<bpmn2:callActivity id="CallActivity_" name="Groovy Script 1">
         <bpmn2:extensionElements>
             <ifl:property>
@@ -155,7 +155,7 @@ export const SourceXML = [
             </ifl:property>
             <ifl:property>
                 <key>script</key>
-                <value></value>
+                <value/>
             </ifl:property>
         </bpmn2:extensionElements>
         <bpmn2:incoming>SequenceFlow_</bpmn2:incoming>

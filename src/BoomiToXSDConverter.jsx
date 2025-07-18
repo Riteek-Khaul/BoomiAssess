@@ -37,7 +37,7 @@ const BoomiXSDGenerator = () => {
         const nestedElements = childrenArray.map(buildElement).join('\n');
 
         return `
-<xs:element name="${name}"${occurs}>
+<xs:element name="${name}">
   <xs:complexType>
     <xs:sequence>
 ${nestedElements}

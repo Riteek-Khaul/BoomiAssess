@@ -45,6 +45,7 @@ const Migrate = () => {
         setMapDetails([]);
     };
 
+
     const navigate = useNavigate();
 
     const handleAccountIdChange = (event) => {
@@ -113,7 +114,7 @@ const Migrate = () => {
         }
         getScriptDetails();
         getXsltDetails();
-       // getMapDetails();
+        getMapDetails();
     };
 
     const getSubprocessesdependencies = async () => {
@@ -228,8 +229,22 @@ const Migrate = () => {
         if (boomiaccountId && boomiUsername) {
             try {
                 setIsLoading(true);
+                const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallmaps';
+                const response = await axios.get(url, {
+                    params: {
+                        boomiuser: boomiUsername,
+                        boomiaccountId: boomiaccountId,
+                        selectedProcess: selectedProcess
+                    },
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                    setMapDetails(response.data);
             } catch (error) {
-                console.error('Error fetching XSLT details:', error);
+                console.error('Error fetching map details:', error);
                 alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
             }
             setIsLoading(false);

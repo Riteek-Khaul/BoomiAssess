@@ -24,23 +24,30 @@ const Modal = ({
   SpecificProcess,
   selectedProcess,
   boomiaccountId,
+  boomiUsername,
   setIsLoading,
   getSubprocessesdependencies,
   subprocessesdependencies,
   getReusableResources,
-  reusableResources
+  reusableResources,
+  scriptsDetails,
+  xsltDetails,
+  mapDetails
 }) => {
   const [boomiProcessData, setBoomiProcessData] = useState(SpecificProcess);
-  const [subProcesses, setSubProcesses] = useState(subprocessesdependencies);
+  const subProcesses= subprocessesdependencies;
   const [firstPart, setFirstPart] = useState([]);
   const [secondPart, setSecondPart] = useState([]);
   const [APiDetails, setApiDetails] = useState({
     selectedProcess: selectedProcess,
     boomiaccountId: boomiaccountId,
+    boomiUsername: boomiUsername,
   });
   const [revisedSequenceMapping, setRevisedSequenceMapping] = useState({});
   const [isMigrate, setisMigrate] = useState(false);
-  const [scriptsArray, setScriptsArray] = useState([]);
+  const [scriptsArray, setScriptsArray] = useState(scriptsDetails);
+  const [xsltArray, setXsltArray] = useState(xsltDetails);
+  const [mapArray, setMapArray] = useState(mapDetails);
   const [boomiConnectors, setBoomiConnectors] = useState({});
   const [connectors, setConnectors] = useState({ sender: [], receiver: [] });
   const [shapeArray, setShapeArray] = useState([]);
@@ -74,7 +81,11 @@ const Modal = ({
     clientSecret: "",
   });
 
-  const [reuseResources, setReuseResources] = useState(reusableResources);
+  console.log("scriptsArray",scriptsArray);
+  console.log("xsltArray",xsltArray);
+  console.log("mapArray",mapArray);
+
+  const reuseResources = reusableResources;
   const [popupMessage, setPopupMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
@@ -134,17 +145,6 @@ const Modal = ({
     }
   };
 
-  // Handler function for reusable resource action
-  const handleResourceAction = (resource) => {
-    // Example: Mark resource as reused, or trigger a popup, or update state
-    // You can customize this logic as per your requirements
-    setPopupMessage(`Resource "${resource.name}" of type "${resource.type}" marked for reuse.`);
-    setShowPopup(true);
-
-    // Optionally, update a state to track reused resources
-    // setReusedResources(prev => [...prev, resource]);
-  };
-
   const closePopup = () => {
     setShowPopup(false);
   };
@@ -169,8 +169,6 @@ const Modal = ({
     setRevisedSequenceMapping(currentMapping);
     return currentMapping;
   };
-
-  console.log(revisedSequenceMapping);
 
   const StepOne = () => {
     return (
@@ -289,8 +287,6 @@ const Modal = ({
     );
   };
 
-  console.log(processedShapes);
-
   const StepTwo = () => {
     return (
       <div className="connectorTable">
@@ -400,15 +396,13 @@ const Modal = ({
         ) : (
           <div>
             <h3>Reusable Resources</h3>
-            <p>- Xml-Xml mappings with no transormation can be reused</p>
-            <p>- Scripts / XSLTs can be reuse with some adjustment! </p>
+            <p>- Message mappings / Scripts / XSLTs can be reuse with some adjustment! </p>
             <h3>Detected :</h3>
             <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
               <thead>
                 <tr style={{ backgroundColor: "#f4f4f4" }}>
                   <th style={{ border: "1px solid #ddd", padding: "8px" }}>Resource Name</th>
                   <th style={{ border: "1px solid #ddd", padding: "8px" }}>Resource Type</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -421,21 +415,6 @@ const Modal = ({
                       <td style={{ border: "1px solid #ddd", padding: "8px" }}>
                         {resource.type || "N/A"}
                       </td>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                        <button
-                          style={{
-                            padding: "6px 12px",
-                            background: "#1976d2",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer"
-                          }}
-                          onClick={() => handleResourceAction(resource)}
-                        >
-                          Reuse
-                        </button>
-                      </td>
                     </tr>
                   ))
                 ) : (
@@ -447,12 +426,11 @@ const Modal = ({
                 )}
               </tbody>
             </table>
-            <button onClick={ReuseScripts}> Reuse Resources </button>
           </div>
         )}
 
         <p>
-          Note: Resources like complex Message mappings/Passwords/certificates are not
+          Note: Resources like Passwords/certificates are not
           directly migrated in this process, need manual intervention.
         </p>
       </div>
@@ -818,6 +796,12 @@ const Modal = ({
     getReusableResources();
   }, [SpecificProcess]);
 
+  useEffect(() => {
+    setScriptsArray(scriptsDetails || []);
+    setXsltArray(xsltDetails || []);
+    setMapArray(mapDetails || []);
+  }, [scriptsDetails, xsltDetails, mapDetails]);
+
   const TemplateData = {
     manifestdata: `Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-Name: ${dynamicName}\nBundle-SymbolicName: ${dynamicName}; singleton:=true\nBundle-Version: 1.0.1\nSAP-BundleType: IntegrationFlow\nSAP-NodeType: IFLMAP\nSAP-RuntimeProfile: iflmap\n${ipackge}\nImport-Service: com.sap.esb.webservice.audit.log.AuditLogger,com.sap.esb.security.KeyManagerFactory;multiple:=false,com.sap.esb.security.TrustManagerFactory;multiple:=false,javax.sql.DataSource;multiple:=false;filter=\"(dataSourceName=default)\",org.apache.cxf.ws.rm.persistence.RMStore;multiple:=false,com.sap.esb.camel.security.cms.SignatureSplitter;multiple:=false\nOrigin-Bundle-Name: ${dynamicName}\nOrigin-Bundle-SymbolicName: ${dynamicName}\n`,
     projectData: `<?xml version=\"1.0\" encoding=\"UTF-8\"?><projectDescription>\n   <name>${dynamicName}</name>\n   <comment/>\n   <projects/>\n   <buildSpec>\n      <buildCommand>\n         <name>org.eclipse.jdt.core.javabuilder</name>\n         <arguments/>\n      </buildCommand>\n   </buildSpec>\n   <natures>\n      <nature>org.eclipse.jdt.core.javanature</nature>\n      <nature>com.sap.ide.ifl.project.support.project.nature</nature>\n      <nature>com.sap.ide.ifl.bsn</nature>\n   </natures>\n</projectDescription>`,
@@ -1005,8 +989,10 @@ const Modal = ({
 
     let palleteItems = "";
     let callActivityCounter = 1;
+    let scriptCounter = 1;
+    let xsltCounter = 1;
 
-    function updatePalleteItemsIds(xmlString, callActivityCounter) {
+    function updatePalleteItemsIds(xmlString, callActivityCounter, shape, scriptCounter, xsltCounter) {
       const options = {
         ignoreAttributes: false, // Parse attributes as well
         attributeNamePrefix: "@_", // Prefix for attribute names
@@ -1032,6 +1018,122 @@ const Modal = ({
           jsonObj["bpmn2:callActivity"]["bpmn2:outgoing"]
         }${callActivityCounter + 1}`;
 
+        // Update name based on shape userlabel
+        if (shape && shape.userlabel) {
+          jsonObj["bpmn2:callActivity"]["@_name"] = shape.userlabel;
+        }
+
+        // Handle script and XSLT specific updates
+        if (shape && shape.cpiAlternative === 'groovyScript') {
+          // Find script property and update it
+          if (jsonObj["bpmn2:callActivity"]["bpmn2:extensionElements"] &&
+              jsonObj["bpmn2:callActivity"]["bpmn2:extensionElements"]["ifl:property"]) {
+            const properties = jsonObj["bpmn2:callActivity"]["bpmn2:extensionElements"]["ifl:property"];
+            if (Array.isArray(properties)) {
+              properties.forEach(prop => {
+                if (prop.key === 'script') {
+                  // Map to actual script from scriptsArray
+                  const scriptIndex = scriptCounter - 1;
+                  if (scriptsArray && scriptsArray[scriptIndex]) {
+                    const scriptObj = scriptsArray[scriptIndex];
+                    let extension = "";
+                    if (scriptObj.language === "groovy") {
+                      extension = ".groovy";
+                    } else if (scriptObj.language === "javascript") {
+                      extension = ".js";
+                    }
+                    prop.value = `script${scriptCounter}${extension}`;
+                  } else {
+                    prop.value = `script${scriptCounter}.groovy`;
+                  }
+                }
+              });
+            } else if (properties.key === 'script') {
+              // Map to actual script from scriptsArray
+              const scriptIndex = scriptCounter - 1;
+              if (scriptsArray && scriptsArray[scriptIndex]) {
+                const scriptObj = scriptsArray[scriptIndex];
+                let extension = "";
+                if (scriptObj.language === "groovy") {
+                  extension = ".groovy";
+                } else if (scriptObj.language === "javascript") {
+                  extension = ".js";
+                }
+                properties.value = `script${scriptCounter}${extension}`;
+              } else {
+                properties.value = `script${scriptCounter}.groovy`;
+              }
+            }
+          }
+          scriptCounter++;
+        } else if (shape && shape.cpiAlternative === 'xsltMapping') {
+          // Find XSLT mapping properties and update them
+          if (jsonObj["bpmn2:callActivity"]["bpmn2:extensionElements"] &&
+              jsonObj["bpmn2:callActivity"]["bpmn2:extensionElements"]["ifl:property"]) {
+            const properties = jsonObj["bpmn2:callActivity"]["bpmn2:extensionElements"]["ifl:property"];
+            if (Array.isArray(properties)) {
+              properties.forEach(prop => {
+                if (prop.key === 'mappinguri') {
+                  // Map to actual XSLT from xsltArray
+                  const xsltIndex = xsltCounter - 1;
+                  if (xsltArray && xsltArray[xsltIndex]) {
+                    const xsltObj = xsltArray[xsltIndex];
+                    prop.value = `dir://mapping/xslt/src/main/resources/mapping/XSLTMapping${xsltCounter}.xsl`;
+                  } else {
+                    prop.value = `dir://mapping/xslt/src/main/resources/mapping/XSLTMapping${xsltCounter}.xsl`;
+                  }
+                } else if (prop.key === 'mappingname') {
+                  // Map to actual XSLT name from xsltArray
+                  const xsltIndex = xsltCounter - 1;
+                  if (xsltArray && xsltArray[xsltIndex]) {
+                    const xsltObj = xsltArray[xsltIndex];
+                    prop.value = xsltObj.name || `XSLTMapping${xsltCounter}`;
+                  } else {
+                    prop.value = `XSLTMapping${xsltCounter}`;
+                  }
+                } else if (prop.key === 'mappingpath') {
+                  // Map to actual XSLT path from xsltArray
+                  const xsltIndex = xsltCounter - 1;
+                  if (xsltArray && xsltArray[xsltIndex]) {
+                    const xsltObj = xsltArray[xsltIndex];
+                    prop.value = `src/main/resources/mapping/${xsltObj.name || `XSLTMapping${xsltCounter}`}`;
+                  } else {
+                    prop.value = `src/main/resources/mapping/XSLTMapping${xsltCounter}`;
+                  }
+                }
+              });
+            } else if (properties.key === 'mappinguri') {
+              // Map to actual XSLT from xsltArray
+              const xsltIndex = xsltCounter - 1;
+              if (xsltArray && xsltArray[xsltIndex]) {
+                const xsltObj = xsltArray[xsltIndex];
+                properties.value = `dir://mapping/xslt/src/main/resources/mapping/XSLTMapping${xsltCounter}.xsl`;
+              } else {
+                properties.value = `dir://mapping/xslt/src/main/resources/mapping/XSLTMapping${xsltCounter}.xsl`;
+              }
+            } else if (properties.key === 'mappingname') {
+              // Map to actual XSLT name from xsltArray
+              const xsltIndex = xsltCounter - 1;
+              if (xsltArray && xsltArray[xsltIndex]) {
+                const xsltObj = xsltArray[xsltIndex];
+                properties.value = xsltObj.name || `XSLTMapping${xsltCounter}`;
+              } else {
+                properties.value = `XSLTMapping${xsltCounter}`;
+              }
+            } else if (properties.key === 'mappingpath') {
+              // Map to actual XSLT path from xsltArray
+              const xsltIndex = xsltCounter - 1;
+              if (xsltArray && xsltArray[xsltIndex]) {
+                const xsltObj = xsltArray[xsltIndex];
+                properties.value = `src/main/resources/mapping/${xsltObj.name || `XSLTMapping${xsltCounter}`}`;
+              } else {
+                properties.value = `src/main/resources/mapping/XSLTMapping${xsltCounter}`;
+              }
+            }
+          }
+          xsltCounter++;
+        }
+
         callActivityCounter += 1;
       }
       // Convert JSON object back to XML string
@@ -1039,7 +1141,7 @@ const Modal = ({
       const builder = new XMLBuilder(options);
       const updatedXML = builder.build(jsonObj);
 
-      return { updatedXML, callActivityCounter };
+      return { updatedXML, callActivityCounter, scriptCounter, xsltCounter };
     }
 
     // Use revised sequence mapping to determine shape order
@@ -1080,9 +1182,11 @@ const Modal = ({
       let sourceXML = SourceXML[0].palleteItems[cpiAlternative];
       
       if (sourceXML) {
-        let result = updatePalleteItemsIds(sourceXML, callActivityCounter);
+        let result = updatePalleteItemsIds(sourceXML, callActivityCounter, shape, scriptCounter, xsltCounter);
         palleteItems += result.updatedXML;
         callActivityCounter = result.callActivityCounter;
+        scriptCounter = result.scriptCounter;
+        xsltCounter = result.xsltCounter;
       } else {
         console.warn(`No XML template found for CPI alternative: ${cpiAlternative}`);
         // Create a basic callActivity as fallback
@@ -1394,31 +1498,52 @@ const Modal = ({
       .folder("resources")
       .file("parameters.propdef", PM2Content);
 
-    zip.folder("src").folder("main").folder("resources").folder("json");
-
-    zip.folder("src").folder("main").folder("resources").folder("mapping");
-
-    if (scriptsArray.length > 0) {
-      scriptsArray.forEach((scriptObj, i) => {
-        let extension = "";
-        if (scriptObj.language === "groovy") {
-          extension = ".groovy";
-        } else if (scriptObj.language === "javascript") {
-          extension = ".js";
+    // Add scripts to the zip
+    if (Array.isArray(scriptsArray) && scriptsArray.length > 0) {
+      const scriptFolder = zip.folder("src").folder("main").folder("resources").folder("script");
+      scriptsArray.forEach((scriptObj) => {
+        if (scriptObj && scriptObj.name && scriptObj.script) {
+          let extension = ".groovy";
+          if (scriptObj.language === "javascript") extension = ".js";
+          scriptFolder.file(`${scriptObj.name}${extension}`, scriptObj.script);
         }
-        zip
-          .folder("src")
-          .folder("main")
-          .folder("resources")
-          .folder("script")
-          .file(`script${i + 1}${extension}`, scriptObj.scriptBlobContent);
       });
     }
 
+    // Add XSLTs to the mapping folder in the zip
+    if (Array.isArray(xsltArray) && xsltArray.length > 0) {
+      const mappingFolder = zip.folder("src").folder("main").folder("resources").folder("mapping");
+      xsltArray.forEach((xsltObj) => {
+        if (xsltObj && xsltObj.name && xsltObj.xslt) {
+          mappingFolder.file(`${xsltObj.name}.xsl`, xsltObj.xslt);
+        }
+      });
+    }
+
+    // Add map files and XSDs from mapArray
+    if (Array.isArray(mapArray) && mapArray.length > 0) {
+      const mappingFolder = zip.folder("src").folder("main").folder("resources").folder("mapping");
+      const xsdFolder = zip.folder("src").folder("main").folder("resources").folder("xsd");
+      mapArray.forEach((mapObj) => {
+        // Add .mmap file
+        if (mapObj && mapObj.name && mapObj.mapping) {
+          mappingFolder.file(`${mapObj.name}`, mapObj.mapping);
+        }
+        // Add sourceProfile XSD
+        if (mapObj && mapObj.sourceProfile && mapObj.sourceProfile.name && mapObj.sourceProfile.xsd) {
+          xsdFolder.file(`${mapObj.sourceProfile.name}`, mapObj.sourceProfile.xsd);
+        }
+        // Add targetProfile XSD
+        if (mapObj && mapObj.targetProfile && mapObj.targetProfile.name && mapObj.targetProfile.xsd) {
+          xsdFolder.file(`${mapObj.targetProfile.name}`, mapObj.targetProfile.xsd);
+        }
+      });
+    }
+
+    zip.folder("src").folder("main").folder("resources").folder("json");
+    zip.folder("src").folder("main").folder("resources").folder("mapping");
     zip.folder("src").folder("main").folder("resources").folder("xsd");
-
     zip.folder("src").folder("main").folder("resources").folder("edmx");
-
     zip.folder("src").folder("main").folder("resources").folder("wsdl");
 
     // Generate the zip file and trigger download
@@ -1453,6 +1578,48 @@ const Modal = ({
       .folder("main")
       .folder("resources")
       .file("parameters.propdef", PM2Content);
+
+    // Add scripts to the zip
+    if (Array.isArray(scriptsArray) && scriptsArray.length > 0) {
+      const scriptFolder = zip.folder("src").folder("main").folder("resources").folder("script");
+      scriptsArray.forEach((scriptObj) => {
+        if (scriptObj && scriptObj.name && scriptObj.script) {
+          let extension = ".groovy";
+          if (scriptObj.language === "javascript") extension = ".js";
+          scriptFolder.file(`${scriptObj.name}${extension}`, scriptObj.script);
+        }
+      });
+    }
+
+    // Add XSLTs to the mapping folder in the zip
+    if (Array.isArray(xsltArray) && xsltArray.length > 0) {
+      const mappingFolder = zip.folder("src").folder("main").folder("resources").folder("mapping");
+      xsltArray.forEach((xsltObj) => {
+        if (xsltObj && xsltObj.name && xsltObj.xslt) {
+          mappingFolder.file(`${xsltObj.name}.xsl`, xsltObj.xslt);
+        }
+      });
+    }
+
+    // Add map files and XSDs from mapArray
+    if (Array.isArray(mapArray) && mapArray.length > 0) {
+      const mappingFolder = zip.folder("src").folder("main").folder("resources").folder("mapping");
+      const xsdFolder = zip.folder("src").folder("main").folder("resources").folder("xsd");
+      mapArray.forEach((mapObj) => {
+        // Add .mmap file
+        if (mapObj && mapObj.name && mapObj.mapping) {
+          mappingFolder.file(`${mapObj.name}`, mapObj.mapping);
+        }
+        // Add sourceProfile XSD
+        if (mapObj && mapObj.sourceProfile && mapObj.sourceProfile.name && mapObj.sourceProfile.xsd) {
+          xsdFolder.file(`${mapObj.sourceProfile.name}`, mapObj.sourceProfile.xsd);
+        }
+        // Add targetProfile XSD
+        if (mapObj && mapObj.targetProfile && mapObj.targetProfile.name && mapObj.targetProfile.xsd) {
+          xsdFolder.file(`${mapObj.targetProfile.name}`, mapObj.targetProfile.xsd);
+        }
+      });
+    }
 
     zip.generateAsync({ type: "blob" }).then((content) => {
 
@@ -1520,60 +1687,6 @@ const Modal = ({
     }
   };
 
-  const ReuseScripts = async () => {
-    if (selectedProcess) {
-      alert(`Fetching Metadata for Process ID: ${selectedProcess}`);
-      try {
-        setIsLoading(true);
-        const url =
-          "https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallscripts";
-        const response = await axios.get(url, {
-          params: {
-            boomiaccountId: boomiaccountId,
-            selectedProcess: selectedProcess,
-          },
-          headers: {
-            Accept: "*/*",
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-          },
-        });
-        setScriptsArray(response.data);
-        console.log(response);
-        if (scriptsArray.length > 0) {
-          const updatedScriptsArray = scriptsArray.map((scriptObj) => {
-            let mimeType;
-            if (scriptObj.language === "groovy") {
-              mimeType = "application/x-groovy";
-            } else if (scriptObj.language === "javascript") {
-              mimeType = "application/javascript";
-            } else {
-              mimeType = "text/plain"; // Default fallback MIME type
-            }
-
-            const blob = new Blob([scriptObj.script], { type: mimeType });
-            return { ...scriptObj, scriptBlobContent: blob };
-          });
-          console.log(updatedScriptsArray);
-          setScriptsArray(updatedScriptsArray);
-          setStepButtonStatus({
-            CDStatus: true,
-            CCDStatus: true,
-            RRStatus: true,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching scripts:", error);
-        alert(
-          "Something Went wrong!...Please check the Account ID/processID or Associated Credentials!"
-        );
-      }
-      setIsLoading(false);
-    } else {
-      alert("Please enter Process ID.");
-    }
-  };
-
   const handleCloseModal = () => {
     handleClose();
     setShapeArray([]);
@@ -1586,6 +1699,7 @@ const Modal = ({
     setShapeCounter(0); // Reset to initial value
     handleStepReset();
     setScriptsArray([]);
+    setXsltArray([]);
     setRevisedSequenceMapping({});
     setUpdatedConnectorDetails({ sender: "", receiver: "" });
     setConnectorDetails("");
