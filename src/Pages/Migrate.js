@@ -30,11 +30,19 @@ const Migrate = () => {
     const [subprocessesdependencies, setSubprocessesdependencies] = useState([]);
     // Step for reusable resources
     const [reusableResources, setReusableResources] = useState([]);
+    const [scriptsDetails, setScriptsDetails] = useState([]);
+    const [xsltDetails, setXsltDetails] = useState([]);
+    const [mapDetails, setMapDetails] = useState([]);
 
     const openModal = () => setShowModal(true);
     const closeModal = () => {
         setShowModal(false);
         setSpecificProcess(null); // Reset SpecificProcess state when closing modal
+        setReusableResources([]);
+        setSubprocessesdependencies([]);
+        setScriptsDetails([]);
+        setXsltDetails([]);
+        setMapDetails([]);
     };
 
     const navigate = useNavigate();
@@ -94,7 +102,6 @@ const Migrate = () => {
                     },
                 });
                 setSpecificProcess(response.data);
-                console.log(response.data);
                 openModal();
             } catch (error) {
                 console.error('Error fetching processes:', error);
@@ -104,6 +111,9 @@ const Migrate = () => {
         } else {
             alert('Please enter Boomi Account ID.');
         }
+        getScriptDetails();
+        getXsltDetails();
+       // getMapDetails();
     };
 
     const getSubprocessesdependencies = async () => {
@@ -158,10 +168,79 @@ const Migrate = () => {
         }
     }
 
+    const getScriptDetails = async () => {
+        if (boomiaccountId && boomiUsername) {
+            try {
+                setIsLoading(true);
+                const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallscripts';
+                const response = await axios.get(url, {
+                    params: {
+                        boomiuser: boomiUsername,
+                        boomiaccountId: boomiaccountId,
+                        selectedProcess: selectedProcess
+                    },
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                setScriptsDetails(response.data);
+            } catch (error) {
+                console.error('Error fetching script details:', error);
+                alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+            }
+            setIsLoading(false);
+        } else {
+            alert('Please enter Boomi Account ID.');
+        }
+    }
+
+    const getXsltDetails = async () => {
+        if (boomiaccountId && boomiUsername) {
+            try {
+                setIsLoading(true);
+                const url = 'https://aincfapim.test.apimanagement.eu10.hana.ondemand.com:443/boomiassess/getallxslts';
+                const response = await axios.get(url, {
+                    params: {
+                        boomiuser: boomiUsername,
+                        boomiaccountId: boomiaccountId,
+                        selectedProcess: selectedProcess
+                    },
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                setXsltDetails(response.data);
+            } catch (error) {
+                console.error('Error fetching XSLT details:', error);
+                alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+            }
+            setIsLoading(false);
+        } else {
+            alert('Please enter Boomi Account ID.');
+        }
+    }
+
+    const getMapDetails = async () => {
+        if (boomiaccountId && boomiUsername) {
+            try {
+                setIsLoading(true);
+            } catch (error) {
+                console.error('Error fetching XSLT details:', error);
+                alert("Something Went wrong!...Please check the Account ID or Associated Credentials!")
+            }
+            setIsLoading(false);
+        } else {
+            alert('Please enter Boomi Account ID.');
+        }
+    }
+
     const handleProcessChange = (event) => {
         setSelectedProcess(event.target.value);
     };
-
 
     return (
         <div className='App'>
@@ -217,11 +296,15 @@ const Migrate = () => {
                                     SpecificProcess={SpecificProcess}
                                     boomiaccountId={boomiaccountId}
                                     selectedProcess={selectedProcess}
+                                    boomiUsername={boomiUsername}
                                     setIsLoading={setIsLoading}
                                     getSubprocessesdependencies={getSubprocessesdependencies}
                                     subprocessesdependencies={subprocessesdependencies}
                                     getReusableResources={getReusableResources}
                                     reusableResources={reusableResources}
+                                    scriptsDetails={scriptsDetails}
+                                    xsltDetails={xsltDetails}
+                                    mapDetails={mapDetails}
                                 />
                             )
                         }
