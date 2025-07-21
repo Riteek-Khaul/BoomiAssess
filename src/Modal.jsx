@@ -1650,6 +1650,7 @@ const Modal = ({
     const apiUrl = "http://localhost:5000/artifact/migrate"; // Replace with the actual API endpoint
 
     try {
+      setIsLoading(true);
       const response = await axios.post(apiUrl, formData, {
         headers: {
           "Content-Type": "application/json",
@@ -1657,33 +1658,28 @@ const Modal = ({
       });
 
       if (response.status === 200) {
-        const responseData = response.data;
-        console.log("API Response:", responseData);
-
+        setIsLoading(false);
         setPopupMessage("Migrated successfully!");
         setShowPopup(true);
         //clear all states
         handleCloseModal();
         setisMigrate(false);
         alert("Iflow Migrated successfully!");
+       
         return { success: true, message: "Form submitted successfully!" };
-      } else {
-        const errorData = response.data;
-        console.error("API Error:", errorData);
-        setPopupMessage("Migration failed. Please try again.");
-        alert("Migration failed. Please try again.");
-        setShowPopup(true);
-        return {
-          success: false,
-          message: errorData.message || "Form submission failed.",
-        };
-      }
+        
+      } 
     } catch (error) {
-      console.error("Network Error:", error);
+      setIsLoading(false);
+      const errorData = error.response.data.error.error.message.value;
+      console.error("API Error:", errorData);
+      setPopupMessage(errorData);
+      setShowPopup(true);
       return {
         success: false,
         message: "An error occurred while submitting the form.",
       };
+      
     }
   };
 
