@@ -8,6 +8,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { SourceXML } from "./CPISourceXML";
 import { Stepper, Step, StepLabel, Box, Button } from "@mui/material";
+import BpmnDiagramViewer from "./Components/BPMNDiagramViewer";
 import {
   HTTP_Receiver,
   FTP_Sender,
@@ -17,6 +18,7 @@ import {
   Test,
 } from "./utils";
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
+
 
 const Modal = ({
   showModal,
@@ -60,6 +62,7 @@ const Modal = ({
   const [PM1Content, setPM1Content] = useState("");
   const [PM2Content, setPM2Content] = useState("");
   const [iflowXML, setIflowXML] = useState("");
+  const [iflowXMLContent, setIflowXMLContent] = useState("");
   const [connectorDetails, setConnectorDetails] = useState("");
   const [updatedConnectorDetails, setUpdatedConnectorDetails] = useState({
     sender: "",
@@ -88,7 +91,7 @@ const Modal = ({
   const reuseResources = reusableResources;
   const [popupMessage, setPopupMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-
+  const [showDiagram, setShowDiagram] = useState(false);
   const [proceedClicked, setProceedClicked] = useState(false);
   const [activeStepCount, setActiveStepCount] = useState(0);
   const [skip, setSkip] = useState(new Set());
@@ -542,9 +545,11 @@ const Modal = ({
         </table>
 
         <h3>All Done...Ready to Migrate!</h3>
-        <Box sx={{ display: "flex", flexDirection: "row", pt: 4 }}>
-          <Box sx={{ flex: "1 1 auto" }} />
-        </Box>
+    
+        {iflowXMLContent && iflowXMLContent.trim() !== "" && (
+          <button onClick={() => setShowDiagram(!showDiagram)}>Preview IFLOW</button>
+        )}
+        {showDiagram && <BpmnDiagramViewer diagramXML={iflowXMLContent} />}
       </div>
     );
   };
@@ -1322,12 +1327,52 @@ const Modal = ({
     } else {
       orderedShapes.push(...processedShapes);
     }
-    // Generate BPMN shapes for each ordered shape
+    // --- Horizontal layout calculation for BPMN shapes ---
+    const shapeWidth = 100.0;
+    const shapeHeight = 60.0;
+    const xStart = 400.0;
+    const yStart = 132.0;
+    const xSpacing = 150.0; // space between shapes
+
+    // Calculate process/subprocess width to fit all shapes and end event
+    const numShapes = orderedShapes.length;
+    const numSpaces = numShapes > 1 ? numShapes - 1 : 0;
+    const eventWidth = 32.0;
+
+    // processWidth = all shapes + all spaces + start event + end event + extra padding
+    const processWidth = (numShapes * shapeWidth) + (numSpaces * xSpacing) + (2 * eventWidth) ;
+    const processHeight = shapeHeight + 80; // add some padding
+    const processX = xStart - xSpacing - 40; // a bit before start event
+    const processY = yStart - 40; // a bit above shapes
+
+    // Add/replace Integration Process BPMNShape if present
+    // Remove any existing BPMNShape for Process_1 (robust: remove all such lines)
+    
+    bpmnShapes = bpmnShapes.replace(
+      /<bpmndi:BPMNShape bpmnElement="Participant_Process_1" id="BPMNShape_Participant_Process_1">[\s\S]*?<\/bpmndi:BPMNShape>/,
+      `<bpmndi:BPMNShape bpmnElement="Participant_Process_1" id="BPMNShape_Participant_Process_1">
+      <dc:Bounds height="${processHeight}" width="${processWidth}" x="${processX}" y="${processY}"/>
+    </bpmndi:BPMNShape>`
+    );
+
+    // Position for Start Event
+    const startEventX = xStart - xSpacing;
+    const startEventY = yStart + (shapeHeight / 2) - 16; // 16 = half of start event height (32)
+    bpmnShapes += `\n          <bpmndi:BPMNShape bpmnElement="StartEvent_1" id="BPMNShape_StartEvent_1">\n              <dc:Bounds height="32.0" width="32.0" x="${startEventX}" y="${startEventY}"/>\n          </bpmndi:BPMNShape>`;
+
     orderedShapes.forEach((shape, index) => {
       const bpmnElement = `CallActivity_${index + 1}`;
       const id = `BPMNShape_CallActivity_${index + 1}`;
-      bpmnShapes += `\n          <bpmndi:BPMNShape bpmnElement="${bpmnElement}" id="${id}">\n              <dc:Bounds height="60.0" width="100.0" x="412.0" y="132.0"/>\n          </bpmndi:BPMNShape>`;
+      const x = xStart + index * xSpacing;
+      const y = yStart;
+      bpmnShapes += `\n          <bpmndi:BPMNShape bpmnElement=\"${bpmnElement}\" id=\"${id}\">\n              <dc:Bounds height=\"${shapeHeight}\" width=\"${shapeWidth}\" x=\"${x}\" y=\"${y}\"/>\n          </bpmndi:BPMNShape>`;
     });
+
+    // Position for End Event (after last shape)
+    const endEventX = xStart + orderedShapes.length * xSpacing;
+    const endEventY = yStart + (shapeHeight / 2) - 16;
+    bpmnShapes += `\n          <bpmndi:BPMNShape bpmnElement=\"EndEvent_1\" id=\"BPMNShape_EndEvent_1\">\n              <dc:Bounds height=\"32.0\" width=\"32.0\" x=\"${endEventX}\" y=\"${endEventY}\"/>\n          </bpmndi:BPMNShape>`;
+
     // --- Add Exception Subprocess BPMNShape/BPMNEdge if present, using correct IDs ---
     const hasExceptionSubprocess = processedShapes.some(
       (shape) => shape.originalType === 'catcherrors' || shape.cpiAlternative === 'exceptionSubprocess'
@@ -1340,19 +1385,45 @@ const Modal = ({
       // Set sourceElement and targetElement to correct event IDs
       bpmnExceptionEdges = `\n            <bpmndi:BPMNEdge bpmnElement=\"SequenceFlow_15\" id=\"BPMNEdge_SequenceFlow_15\" sourceElement=\"BPMNShape_StartEvent_13\" targetElement=\"BPMNShape_EndEvent_14\">\n                <di:waypoint x=\"332.0\" xsi:type=\"dc:Point\" y=\"292.0\"/>\n                <di:waypoint x=\"619.0\" xsi:type=\"dc:Point\" y=\"292.0\"/>\n            </bpmndi:BPMNEdge>`;
     }
+    // --- Edges ---
     let bpmnEdges = SourceXML[4].BPMNDiagram.defaultBPMNEdge;
     const totalShapes = orderedShapes.length;
-    // Build a list of shape IDs for sequence flow linking
     const shapeIds = orderedShapes.map((_, i) => `CallActivity_${i + 1}`);
     shapeIds.unshift("StartEvent_1");
     shapeIds.push("EndEvent_1");
+
+    // Calculate positions for all elements
+    const positions = {};
+    positions["StartEvent_1"] = { x: startEventX, y: startEventY, w: 32, h: 32 };
+    orderedShapes.forEach((_, i) => {
+      positions[`CallActivity_${i + 1}`] = {
+        x: xStart + i * xSpacing,
+        y: yStart,
+        w: shapeWidth,
+        h: shapeHeight
+      };
+    });
+    positions["EndEvent_1"] = { x: endEventX, y: endEventY, w: 32, h: 32 };
+
+    // Generate edges with correct waypoints
     for (let i = 0; i < shapeIds.length - 1; i++) {
+      const sourceId = shapeIds[i];
+      const targetId = shapeIds[i + 1];
+      const source = positions[sourceId];
+      const target = positions[targetId];
+
+      // Start at right center of source, end at left center of target
+      const startX = source.x + source.w;
+      const startY = source.y + source.h / 2;
+      const endX = target.x;
+      const endY = target.y + target.h / 2;
+
       const bpmnElement = `SequenceFlow_${i + 1}`;
       const id = `BPMNEdge_SequenceFlow_${i + 1}`;
-      bpmnEdges += `\n          <bpmndi:BPMNEdge bpmnElement=\"${bpmnElement}\" id=\"${id}\" sourceElement=\"BPMNShape_${shapeIds[i]}\" targetElement=\"BPMNShape_${shapeIds[i + 1]}\">\n                <di:waypoint x=\"308.0\" xsi:type=\"dc:Point\" y=\"160.0\"/>\n                <di:waypoint x=\"462.0\" xsi:type=\"dc:Point\" y=\"160.0\"/>\n          </bpmndi:BPMNEdge>`;
+      bpmnEdges += `\n          <bpmndi:BPMNEdge bpmnElement=\"${bpmnElement}\" id=\"${id}\" sourceElement=\"BPMNShape_${sourceId}\" targetElement=\"BPMNShape_${targetId}\">\n                <di:waypoint x=\"${startX}\" xsi:type=\"dc:Point\" y=\"${startY}\"/>\n                <di:waypoint x=\"${endX}\" xsi:type=\"dc:Point\" y=\"${endY}\"/>\n          </bpmndi:BPMNEdge>`;
     }
     // Insert exception shapes/edges at the end
-    return `<bpmndi:BPMNPlane bpmnElement="Collaboration_1" id="BPMNPlane_1">${bpmnShapes}${bpmnExceptionShapes}${bpmnEdges}${bpmnExceptionEdges}</bpmndi:BPMNPlane>`;
+    return `<bpmndi:BPMNPlane bpmnElement=\"Collaboration_1\" id=\"BPMNPlane_1\">${bpmnShapes}${bpmnExceptionShapes}${bpmnEdges}${bpmnExceptionEdges}</bpmndi:BPMNPlane>`;
   };
 
   // Function to create BPMNDiagram part
@@ -1466,6 +1537,7 @@ const Modal = ({
     
     const defualtProjectFiles = buildDefaultProjectFiles();
     const xmlContent = generateIflowXML();
+    setIflowXMLContent(xmlContent);
     const blob = new Blob([xmlContent], { type: "text/xml" });
     setIflowXML(blob);
     setProceedClicked(true);
@@ -1702,6 +1774,7 @@ const Modal = ({
     setStepButtonStatus({ CDStatus: false, CCDStatus: false, RRStatus: false });
     setProceedClicked(false);
     setIflowXML(null);
+    setIflowXMLContent("");
     setFormData({ iflowName: "", iflowId: "", packageId: "", cpiHostName: "", accessTokenUri: "", clientId: "", clientSecret: "" });
     setShowPopup(false);
   };
