@@ -322,7 +322,7 @@ const Modal = ({
         {stepButtonStatus.CDStatus ? (
           "Connector Details Fetched Successfully!"
         ) : (
-          <button onClick={getConnectorDetails}> GetDetails </button>
+             (boomiConnectors.length > 0 ) &&  <button onClick={getConnectorDetails}> GetDetails </button>
         )}
       </div>
     );
@@ -335,58 +335,68 @@ const Modal = ({
         ) : (
           <div>
             {/* Sender and Receiver Select Inputs */}
-            <div style={{ marginBottom: "1em", display: "flex" }}>
-              <label>
-                Sender:&nbsp;
-                <select
-                  value={connectors.sender || ""}
-                  onChange={(e) =>
-                    setConnectors((prev) => ({
-                      ...prev,
-                      sender: Array.isArray(prev.sender)
-                        ? [...prev.sender, e.target.value]
-                        : prev.sender
-                        ? [prev.sender, e.target.value]
-                        : [e.target.value],
-                    }))
-                  }
-                >
-                  <option value="">Select Sender</option>
-                  <option value="None">None</option>
-                  {boomiConnectors.map((row, idx) => (
-                    <option key={idx} value={row.connectorType || ""}>
-                      {row.connectorType || `Sender ${idx + 1}`}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              &nbsp;&nbsp;
-              <label>
-                Receiver:&nbsp;
-                <select
-                  value={connectors.receiver || ""}
-                  onChange={(e) =>
-                    setConnectors((prev) => ({
-                      ...prev,
-                      receiver: Array.isArray(prev.receiver)
-                        ? [...prev.receiver, e.target.value]
-                        : prev.receiver
-                        ? [prev.receiver, e.target.value]
-                        : [e.target.value],
-                    }))
-                  }
-                >
-                  <option value="">Select Receiver</option>
-                  {boomiConnectors.map((row, idx) => (
-                    <option key={idx} value={row.connectorType || ""}>
-                      {row.connectorType || `Receiver ${idx + 1}`}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <button onClick={classifyConnectorData}>Apply</button>
-          </div>
+
+            {boomiConnectors && boomiConnectors.length > 0 ? (
+              <div style={{ marginBottom: "1em", display: "flex" }}>
+                <label>
+                  Sender:&nbsp;
+                  <select
+                    value={connectors.sender || ""}
+                    onChange={(e) =>
+                      setConnectors((prev) => ({
+                        ...prev,
+                        sender: Array.isArray(prev.sender)
+                          ? [...prev.sender, e.target.value]
+                          : prev.sender
+                          ? [prev.sender, e.target.value]
+                          : [e.target.value],
+                      }))
+                    }
+                  >
+                    <option value="">Select Sender</option>
+                    <option value="None">None</option>
+                    {boomiConnectors.map((row, idx) => (
+                      <option key={idx} value={row.connectorType || ""}>
+                        {row.connectorType || `Sender ${idx + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                  Receiver:&nbsp;
+                  <select
+                    value={connectors.receiver || ""}
+                    onChange={(e) =>
+                      setConnectors((prev) => ({
+                        ...prev,
+                        receiver: Array.isArray(prev.receiver)
+                          ? [...prev.receiver, e.target.value]
+                          : prev.receiver
+                          ? [prev.receiver, e.target.value]
+                          : [e.target.value],
+                      }))
+                    }
+                  >
+                    <option value="">Select Receiver</option>
+                    <option value="None">None</option>
+                    {boomiConnectors.map((row, idx) => (
+                      <option key={idx} value={row.connectorType || ""}>
+                        {row.connectorType || `Receiver ${idx + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            ) : (
+              <div style={{ color: "red", marginBottom: "1em" }}>
+                Connectors not available in process
+              </div>
+            )}
+            {
+              (boomiConnectors.length > 0) && (<button onClick={classifyConnectorData}>Apply</button> )
+            }
+              </div>
         )}
       </>
     );
@@ -908,6 +918,9 @@ const Modal = ({
     });
 
     connectors.receiver.forEach((receiverConnector) => {
+      if (receiverConnector === "None") {
+        return; // Skip this iteration if senderConnector is "None"
+      }
       let sourceXML = SourceXML[1].ReceiverAdaptors[receiverConnector];
 
       // update the connector config details
